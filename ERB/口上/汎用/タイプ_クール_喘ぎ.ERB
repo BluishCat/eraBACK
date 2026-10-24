@@ -1,0 +1,238 @@
+﻿;口上タイプ「クール」の喘ぎ声中心の口上（2026-10-16 ユーザ指定「行為時の口上に喘ぎ声中心のものも追加し、バリエーションを出したい」）。
+;個室の行為で、確率で通常の行為の口上の代わりに出る（→個室.ERB @喘ぎの口上を引く）。呼ぶ順：キャラ別 口上_喘ぎ_<番号> → タイプ_性別（ここ）。
+;群＝喘ぎの群(行為)：0 愛撫／1 奉仕／2 Ｖ系／3 Ａ系／4 キス。段＝盛り上がりの段（0 平常／1 昂ぶり／2 高まり）。群×段ごとに 3 通りを乱数で選ぶ
+;ふたなり・性別なしは _女 を使う。方言版は作っていない（喘ぎは方言で変わらないので標準語のまま出す）
+
+@口上_喘ぎ_クール_女(番号, 行為, 向き, 段)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 段
+#DIM 群
+
+RESULTS '= ""
+群 = 喘ぎの群(行為)
+SELECTCASE 群
+	CASE 0
+		SELECTCASE 段 * 3 + RAND:3
+			CASE 0
+				RESULTS '= "「……っ、……ん……」"
+			CASE 1
+				RESULTS '= "「……あ。……ん、……っ」"
+			CASE 2
+				RESULTS '= "「……っ……く、……は……」"
+			CASE 3
+				RESULTS '= "「……んっ……あ、……っ、は……」"
+			CASE 4
+				RESULTS '= "「……あっ……ん、……そこ、……っ」"
+			CASE 5
+				RESULTS '= "「……はぁ……っ、……あ、んっ……」"
+			CASE 6
+				RESULTS '= "「……あっ、……あ、……っ、……だめ……っ」"
+			CASE 7
+				RESULTS '= "「……んんっ……！　……あっ、あ……っ、……く……」"
+			CASE 8
+				RESULTS '= "「……っ、あ、……あぁっ……！　……もう、……っ」"
+		ENDSELECT
+	CASE 1
+		SELECTCASE 段 * 3 + RAND:3
+			CASE 0
+				RESULTS '= "「……ん。……っ、は……」"
+			CASE 1
+				RESULTS '= "「……あ……っ。……ふ、……ん」"
+			CASE 2
+				RESULTS '= "「……っ……そう……、……あ……」"
+			CASE 3
+				RESULTS '= "「……んっ、……あ、……はぁ……っ」"
+			CASE 4
+				RESULTS '= "「……あっ……ん、……っ、……上手い……」"
+			CASE 5
+				RESULTS '= "「……く……っ、あ……、……んん……っ」"
+			CASE 6
+				RESULTS '= "「……あっ、……あ、……っ、……もう……っ」"
+			CASE 7
+				RESULTS '= "「……んんっ……！　……あ、……だめ……っ、……あっ」"
+			CASE 8
+				RESULTS '= "「……はっ、あ、……あぁっ……！　……っ、……イ……っ」"
+		ENDSELECT
+	CASE 2
+		SELECTCASE 段 * 3 + RAND:3
+			CASE 0
+				RESULTS '= "「……っ、……あ。……入って……、……ん……」"
+			CASE 1
+				RESULTS '= "「……ん……っ、は……あ、……っ」"
+			CASE 2
+				RESULTS '= "「……あ……っ。……く、……ゆっくり……、……ん」"
+			CASE 3
+				RESULTS '= "「……あっ、……んっ、……は、……あぁ……っ」"
+			CASE 4
+				RESULTS '= "「……っ、あ、……あっ……奥……、……っ」"
+			CASE 5
+				RESULTS '= "「……んっ、……あ、……あぁっ……もっと……、……っ」"
+			CASE 6
+				RESULTS '= "「……あっ、……あ、……あっ、……っ、……もう……っ！」"
+			CASE 7
+				RESULTS '= "「……んんっ……！　……あ、……だめ……、……っ、あぁっ」"
+			CASE 8
+				RESULTS '= "「……あぁっ……！　……あ、あ、……イ……っ、……く……っ！」"
+		ENDSELECT
+	CASE 3
+		SELECTCASE 段 * 3 + RAND:3
+			CASE 0
+				RESULTS '= "「……っ。……そこは……、……ん……」"
+			CASE 1
+				RESULTS '= "「……あ……っ。……く、……へん……」"
+			CASE 2
+				RESULTS '= "「……ん……っ、……は、……うしろ……、……っ」"
+			CASE 3
+				RESULTS '= "「……あっ、……んっ……！　……へん、……っ、……あ」"
+			CASE 4
+				RESULTS '= "「……っ、あ……、……そこ……、……あっ、……んん」"
+			CASE 5
+				RESULTS '= "「……はぁ……っ、……あ、……っ、……やめ……、……あ……」"
+			CASE 6
+				RESULTS '= "「……あっ、……あ、……っ、……だめ……、……あぁっ！」"
+			CASE 7
+				RESULTS '= "「……んんっ……！　……あ、……うしろ、……で……、……っ」"
+			CASE 8
+				RESULTS '= "「……あぁっ……！　……っ、……あ、……っ、……イ……く……！」"
+		ENDSELECT
+	CASE 4
+		SELECTCASE 段 * 3 + RAND:3
+			CASE 0
+				RESULTS '= "「……ん。……ちゅ、……っ」"
+			CASE 1
+				RESULTS '= "「……ん……っ。……は、……」"
+			CASE 2
+				RESULTS '= "「……んっ……、……ちゅ……」"
+			CASE 3
+				RESULTS '= "「……んっ、……ちゅ……、……は、あ……っ」"
+			CASE 4
+				RESULTS '= "「……ん……っ、……あ、……んん……ちゅ」"
+			CASE 5
+				RESULTS '= "「……は……っ、……ん、……もっと……、……ちゅ」"
+			CASE 6
+				RESULTS '= "「……んんっ……！　……ちゅ、……あ、……っ」"
+			CASE 7
+				RESULTS '= "「……っ、……んっ……、……あ、……ちゅ……だめ……」"
+			CASE 8
+				RESULTS '= "「……んん……っ、……は、あ……っ、……とけ……、……ちゅ」"
+		ENDSELECT
+ENDSELECT
+
+@口上_喘ぎ_クール_男(番号, 行為, 向き, 段)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 段
+#DIM 群
+
+RESULTS '= ""
+群 = 喘ぎの群(行為)
+SELECTCASE 群
+	CASE 0
+		SELECTCASE 段 * 3 + RAND:3
+			CASE 0
+				RESULTS '= "「……っ。……ん……」"
+			CASE 1
+				RESULTS '= "「……く。……っ、……は」"
+			CASE 2
+				RESULTS '= "「……っ……、……あ……」"
+			CASE 3
+				RESULTS '= "「……っ、……く、……は……」"
+			CASE 4
+				RESULTS '= "「……あ……っ。……ん、……っ」"
+			CASE 5
+				RESULTS '= "「……っ、……そこ……、……く……」"
+			CASE 6
+				RESULTS '= "「……っ、……あ……、……く……っ！」"
+			CASE 7
+				RESULTS '= "「……く……っ！　……は、……あ、……もう……」"
+			CASE 8
+				RESULTS '= "「……っ、……あ、……っ、……だめ……だ……」"
+		ENDSELECT
+	CASE 1
+		SELECTCASE 段 * 3 + RAND:3
+			CASE 0
+				RESULTS '= "「……ん。……っ、……」"
+			CASE 1
+				RESULTS '= "「……く……。……は、……」"
+			CASE 2
+				RESULTS '= "「……っ……、……そう……だ……」"
+			CASE 3
+				RESULTS '= "「……く……っ、……あ、……は……」"
+			CASE 4
+				RESULTS '= "「……っ、……ん、……上手い……」"
+			CASE 5
+				RESULTS '= "「……あ……っ、……く……、……っ」"
+			CASE 6
+				RESULTS '= "「……っ、……あ、……く、……もう……っ」"
+			CASE 7
+				RESULTS '= "「……く……っ！　……は、……出……っ」"
+			CASE 8
+				RESULTS '= "「……っ、……あっ、……だめ……だ……っ！」"
+		ENDSELECT
+	CASE 2
+		SELECTCASE 段 * 3 + RAND:3
+			CASE 0
+				RESULTS '= "「……っ、……あ。……ん……」"
+			CASE 1
+				RESULTS '= "「……く……。……きつ……、……っ」"
+			CASE 2
+				RESULTS '= "「……っ……、……は、……あ……」"
+			CASE 3
+				RESULTS '= "「……く、……あ、……っ、……は……」"
+			CASE 4
+				RESULTS '= "「……っ、……あ……っ、……しまる……」"
+			CASE 5
+				RESULTS '= "「……く……っ、……あ、……いい……、……っ」"
+			CASE 6
+				RESULTS '= "「……っ、……く、……あ……っ、……だめ……だ……！」"
+			CASE 7
+				RESULTS '= "「……く……っ！　……あ、……出……、……っ」"
+			CASE 8
+				RESULTS '= "「……っ、……あ、……あっ、……イ……く……っ！」"
+		ENDSELECT
+	CASE 3
+		SELECTCASE 段 * 3 + RAND:3
+			CASE 0
+				RESULTS '= "「……っ。……そこ、……は……」"
+			CASE 1
+				RESULTS '= "「……く……。……へん……、……だ……」"
+			CASE 2
+				RESULTS '= "「……ん……っ、……は、……うしろ……」"
+			CASE 3
+				RESULTS '= "「……く……っ、……あ、……へん……、……っ」"
+			CASE 4
+				RESULTS '= "「……っ、……は、……あ……っ、……そこ……」"
+			CASE 5
+				RESULTS '= "「……あ……っ、……く、……やめ……、……ろ」"
+			CASE 6
+				RESULTS '= "「……っ、……あ、……く……っ、……だめ……だ……！」"
+			CASE 7
+				RESULTS '= "「……く……っ！　……うしろ、……で……、……っ」"
+			CASE 8
+				RESULTS '= "「……っ、……あっ、……イ……く……、……っ！」"
+		ENDSELECT
+	CASE 4
+		SELECTCASE 段 * 3 + RAND:3
+			CASE 0
+				RESULTS '= "「……ん。……っ、……」"
+			CASE 1
+				RESULTS '= "「……ん……っ。……は……」"
+			CASE 2
+				RESULTS '= "「……んっ……、……ちゅ……」"
+			CASE 3
+				RESULTS '= "「……ん……っ、……は、……ちゅ……」"
+			CASE 4
+				RESULTS '= "「……っ、……ん、……あ……、……ちゅ」"
+			CASE 5
+				RESULTS '= "「……は……っ、……ん、……もっと……」"
+			CASE 6
+				RESULTS '= "「……んん……っ！　……は、……ちゅ……、……っ」"
+			CASE 7
+				RESULTS '= "「……っ、……ん、……あ……、……ちゅ、……だめ……」"
+			CASE 8
+				RESULTS '= "「……んっ……、……は、……っ、……ちゅ……とけ……」"
+		ENDSELECT
+ENDSELECT

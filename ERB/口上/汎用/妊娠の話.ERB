@@ -1,0 +1,338 @@
+;腹の目立つ妊娠についての NPC の一言（→画面イメージ「妊娠の話」。2026-09-21 ユーザ指定 memo「妊娠がはっきり見た目でわかるくらいになると、NPCが対応した口上で話すことがあるように。あなたの場合、NPCの場合それぞれ」）。
+;入口は 妊娠.ERB @妊娠の話(番号, 局面, 相手)。番号＝喋る NPC、相手＝妊婦（「自分の腹」なら本人と同じ）。
+;呼ぶ順は一言と同じ：口上_妊娠の話_{キャラ番号} → 口上_妊娠の話_{タイプ}_{性別} →（ふたなりは _女）→ 口上_妊娠の話_{タイプ}。空を返せば次へ落ちる
+;局面：
+;  気づいた …… 相手の腹に初めて目を留めた（→妊娠.ERB @妊娠の露見。あなたが居合わせたときだけ見える）
+;  相手の腹 …… 会話で、妊娠中の相手（あなた）の腹のことを言う（→主役.ERB @会話）。腹段階(相手) 2／3／4 で文を変える
+;  自分の腹 …… 会話で、妊娠中の本人が自分の腹のことを言う。腹段階(番号) で文を変える
+;書き手は RESULTS に台詞を返す。女言葉・男言葉は避ける（客の男も喋る。性別ファイルが無いとここに全員が落ちる）。
+;分岐に使える値：腹段階(相手)、胎児数:相手:0、父親:相手:0 == MASTER（自分の腹であなたの子か）、好感度の段(好感度_恋愛:番号:0)
+
+@口上_妊娠の話_クール(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= "「……ん。……その腹。……そう」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= "「……もう、いつでもおかしくないんでしょ。……座ってて」"
+			CASE 3
+				RESULTS '= "「……大きくなった。……重そう。……無理はしないで」"
+			CASEELSE
+				RESULTS '= "「……目立ってきた。……別に、何も言わないけど」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= "「……もうすぐ。……分かってる。……慌てない」"
+			CASE 3
+				RESULTS '= "「……重い。……それだけ。……気にしないで」"
+			CASEELSE
+				RESULTS '= "「……見てるの、分かる。……目立ってきたから」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_妊娠の話_上品(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= "「……まあ。……そのお腹……もしかして、そういうことですの？」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= "「もう臨月ですのね。……どうぞお掛けになって。何かあれば、すぐ呼んでくださいまし」"
+			CASE 3
+				RESULTS '= "「お腹、すっかり大きくなりましたわね。……お体、大切になさって」"
+			CASEELSE
+				RESULTS '= "「……お腹、目立ってきましたわね。……ご無理はなさらないで」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= "「……もう、いつ生まれてもおかしくないそうですの。……少し、怖いですわ」"
+			CASE 3
+				RESULTS '= "「……ふふ。この頃は、座るのも立つのも一苦労ですの」"
+			CASEELSE
+				RESULTS '= "「……ええ、目立ってまいりましたでしょう。……隠しようもありませんわ」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_妊娠の話_世話焼き(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= @"「……ちょっと。そのお腹……%対称_あんた(番号)%、もしかして？」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= "「もう臨月でしょ。立ってないで座ってなさい。……何かあったらすぐ言うのよ」"
+			CASE 3
+				RESULTS '= "「お腹、大きくなったわねえ。重いでしょう。……ほら、これ持ってあげる」"
+			CASEELSE
+				RESULTS '= "「お腹、目立ってきたわね。……無理しちゃだめよ。ちゃんと食べてる？」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= @"「もうすぐなのよ。……%自称_あたし(番号)%のことはいいから、%対称_あんた(番号)%は%対称_あんた(番号)%の仕事をなさい」"
+			CASE 3
+				RESULTS '= "「はぁ……重いったら。……でもね、蹴るのよ、この子。元気なんだから」"
+			CASEELSE
+				RESULTS '= @"「見て、ちょっと出てきたでしょ。……ふふ、%自称_あたし(番号)%が母親なんて、ねえ」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_妊娠の話_内気(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= "「あ、あの……お腹……。も、もしかして……ご、ごめんなさい、見ちゃって……」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= @"「も、もう臨月……ですよね。……む、無理しないでください……わ、%自称_わたし(番号)%にできることがあれば……」"
+			CASE 3
+				RESULTS '= "「お腹……大きく、なりましたね……。お、重くないですか……？」"
+			CASEELSE
+				RESULTS '= "「あ、あの……お腹……目立ってきましたね……。だ、大事にしてください……」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= "「も、もうすぐ……なんです。……こ、怖くて……眠れなくて……」"
+			CASE 3
+				RESULTS '= "「お、お腹……こんなに大きくなって……。み、見ないでください……」"
+			CASEELSE
+				RESULTS '= "「あ、あの……目立ってきちゃって……。み、みんなに、見られてる気がして……」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_妊娠の話_奔放(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= "「あら。そのお腹……ふふ、やったわね？」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= "「もう臨月？　ふふ、いつ生まれてもおかしくないじゃない。……ちゃんと座ってなさいよ」"
+			CASE 3
+				RESULTS '= "「お腹、立派になったわね。……ふふ、触ってもいい？」"
+			CASEELSE
+				RESULTS '= "「目立ってきたじゃない、お腹。……誰の子か、聞いてもいい？」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= @"「もういつ出てきてもいいって。……ふふ、%自称_あたし(番号)%の腹から出てくるのよ。おかしいでしょ」"
+			CASE 3
+				RESULTS '= "「見なさいよ、この腹。……ふふ、重いったら。でも悪くないわ」"
+			CASEELSE
+				RESULTS '= "「ふふ、目立ってきたでしょ。……隠す気もないけどね」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_妊娠の話_無邪気(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= "「あれ？　お腹……。ねえ、赤ちゃんいるの？」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= "「もうすぐ生まれるんでしょ？　わあ……ねえ、生まれたら見せてね！」"
+			CASE 3
+				RESULTS '= "「お腹、おっきくなったね！　……ねえ、触っていい？　動く？」"
+			CASEELSE
+				RESULTS '= "「お腹、ちょっと出てきたね。……赤ちゃん、そこにいるんだ。ふしぎ」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= "「もうすぐなんだって！　……ちょっとこわいけど、楽しみ」"
+			CASE 3
+				RESULTS '= "「見て見て、おっきいでしょ！　……さっき、蹴ったんだよ」"
+			CASEELSE
+				RESULTS '= "「ねえ、お腹出てきたの分かる？　……えへへ、赤ちゃんいるんだって」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_妊娠の話_甘え(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= "「……ねぇ。……お腹……。もしかして……？」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= "「……もうすぐ、なんだよね。……ねぇ、無理しないで。……そばにいるから」"
+			CASE 3
+				RESULTS '= "「……お腹、大きくなったね。……ねぇ、触ってもいい……？」"
+			CASEELSE
+				RESULTS '= "「……お腹、目立ってきたね。……ねぇ、大事にしてね……」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= "「……もうすぐ、なんだって。……ねぇ、こわいよ……。そばにいて……」"
+			CASE 3
+				RESULTS '= "「……重いの。……ねぇ、ちょっとだけ、寄りかかっていい……？」"
+			CASEELSE
+				RESULTS '= "「……目立ってきたでしょ。……ねぇ、変じゃない……？」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_妊娠の話_真面目(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= "「……失礼ですが、そのお腹は……。もしかして、妊娠を？」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= "「もう臨月ですね。……いつでも動けるよう、準備はしてあります。どうぞ座っていてください」"
+			CASE 3
+				RESULTS '= @"「お腹、大きくなりましたね。……重いものは持たないでください。%自称_私(番号)%がやります」"
+			CASEELSE
+				RESULTS '= "「……お腹、目立ってきましたね。無理はなさらないように」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= "「……予定日が近いので、いつでも動けるようにしています。ご心配なく」"
+			CASE 3
+				RESULTS '= "「……この頃は、動くのに時間がかかります。……ご迷惑をおかけしますが」"
+			CASEELSE
+				RESULTS '= "「……ええ、目立ってきました。……お気になさらず。仕事は、きちんとします」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_妊娠の話_高慢(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= "「……ちょっと。そのお腹……。ふん、そういうことなの」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= @"「臨月でしょう。……座っていなさい。%自称_私(番号)%の目の前で倒れられたら困るのよ」"
+			CASE 3
+				RESULTS '= "「お腹、大きくなったわね。……ふん、無理をして倒れたりしないでよ」"
+			CASEELSE
+				RESULTS '= "「……お腹、目立ってきたわね。……別に、心配してるわけじゃないけど」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= @"「もうすぐよ。……ふん、%自称_私(番号)%を誰だと思っているの。産むくらい、どうということはないわ」"
+			CASE 3
+				RESULTS '= "「……見なさい、この腹。……重いに決まってるでしょう。何か言いたいことでも？」"
+			CASEELSE
+				RESULTS '= "「……目立ってきたわね。……ふん、じろじろ見ないで」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_妊娠の話_元気(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= "「あれっ、お腹……。え、もしかして？　まじで？」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= "「もう臨月じゃん！　いつ生まれてもおかしくないんでしょ？　ほら座って座って」"
+			CASE 3
+				RESULTS '= "「お腹、でっかくなったねー。重くない？　……ねえ、触っていい？」"
+			CASEELSE
+				RESULTS '= "「お腹、目立ってきたじゃん。……無理すんなよ？」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= "「もうすぐなんだよねー。……あはは、ちょっとだけ、びびってる」"
+			CASE 3
+				RESULTS '= "「見てよこの腹！　でっかいでしょ。……重いけど、蹴られるとさ、なんか笑っちゃうんだよね」"
+			CASEELSE
+				RESULTS '= @"「見て、だいぶ出てきたでしょ。……%自称_あたし(番号)%、ほんとに母親になるんだなあ」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_妊娠の話_無口(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= "「……ん。……その腹」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= "「……座って」"
+			CASE 3
+				RESULTS '= "「……重そう」"
+			CASEELSE
+				RESULTS '= "「……目立ってきた」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= "「……もうすぐ」"
+			CASE 3
+				RESULTS '= "「……重い」"
+			CASEELSE
+				RESULTS '= "「……見てる」"
+		ENDSELECT
+ENDSELECT

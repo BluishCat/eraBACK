@@ -1,0 +1,198 @@
+﻿;AAを1文字ずつ走査して、数字をボタンにしたHTMLを組み立てる
+;数字を見たら必ず2桁取る。だからAAに数字で始まる文字列は書けない（階の表記は漢字）
+@DRAW_MAP
+#DIMS AA, 40
+#DIMS 出力
+#DIMS 一時
+#DIM 行
+#DIM 桁
+#DIM 幅
+#DIM 番号
+#DIM 画面
+
+VARSET AA
+画面 = 見ている画面()
+
+TRYCCALLFORM MAP_VIEWING_{画面}(AA)
+CATCH
+	RESULTS = 
+	RETURN 0
+ENDCATCH
+
+出力 = 
+
+FOR 行, 0, VARSIZE("AA")
+	SIF AA:行 == ""
+		CONTINUE
+	一時 = 
+	桁 = 0
+	幅 = STRLENSU(AA:行)
+	WHILE 桁 < 幅
+		SUBSTRINGU AA:行, 桁, 1
+		IF ISNUMERIC(RESULTS)
+			;必ず2桁取る
+			SUBSTRINGU AA:行, 桁, 2
+			番号 = TOINT(RESULTS) + 画面 * 100
+			IF 番号 == CFLAG:MASTER:現在位置
+				;現在地もボタンにする。09や15はリンクでもあるので、立っていても押せる必要がある
+				一時 += @"<font color='#ff5050'><button value='{番号}'>%RESULTS%</button></font>"
+			ELSE
+				一時 += @"<font color='#ffcc44'><button value='{番号}'>%RESULTS%</button></font>"
+			ENDIF
+			桁 += 2
+		ELSE
+			一時 += @"%RESULTS%"
+			桁 += 1
+		ENDIF
+	WEND
+	出力 += @"%一時%<br>"
+NEXT
+
+RESULTS = %出力%
+
+
+;凡例。マップ本体には番号だけを置き、場所名はここに並べる。凡例の番号もボタンになる
+;階ごとに行を分け、可変の部屋は区分名でまとめ、画面をまたぐ出口は最後に置く
+;分を出す：1 なら固定の部屋に「いまの場所から何分か」を添える（移動画面だけ。サイドの移動タブは幅が足りないので 0）
+;（2026-09-22 ユーザ指定「判断材料となる情報を画面に表示」→画面イメージ「移動中」）
+@DRAW_凡例(分を出す)
+#DIM 分を出す
+#DIM 幅
+#DIMS 出力
+#DIMS 名前
+#DIMS 見出し
+#DIMS 一項目
+#DIMS 区分
+#DIM 番号
+#DIM 画面
+#DIM 階
+#DIM 並び
+#DIM 階の最初
+;凡例に出す番号は入力できる番号そのもの（AA の絵は下2桁、凡例は 309 のような実番号。
+;打った番号と行き先が食い違うのを防ぐ。2026-09-12）
+#DIM 凡例の桁
+;階の並びは 凡例の階の順（変数定義.ERH）。地下は建ててあるときだけ名前が付くので、無ければ行ごと出ない
+#DIM 順
+
+画面 = 見ている画面()
+;固定の部屋の項目の幅。分を添えるぶん広げる（「[18] 地下カウンター 15分」が入る 27）
+幅 = 20
+SIF 分を出す
+	幅 = 27
+;店（画面0）は2桁、それ以外は3桁で揃える
+凡例の桁 = 2
+SIF 画面 > 0
+	凡例の桁 = 3
+出力 = 
+
+FOR 順, 0, 5
+	階 = 凡例の階の順:順
+	SELECTCASE 階
+		CASE 0
+			見出し = B1
+		CASE 1
+			見出し = 1F
+		CASE 2
+			見出し = 2F
+		CASE 3
+			見出し = 3F
+		CASEELSE
+			見出し = 出口
+	ENDSELECT
+
+	;--- 固定の部屋 ---
+	並び = 0
+	階の最初 = 1
+	FOR 番号, 1, 100
+		SIF GET_PLACE_FLOOR(画面 * 100 + 番号) != 階
+			CONTINUE
+		SIF GET_PLACE_GROUP(画面 * 100 + 番号) != ""
+			CONTINUE
+		名前 = %GET_PLACE_NAME(画面 * 100 + 番号)%
+		SIF 名前 == ""
+			CONTINUE
+
+		IF 階の最初
+			出力 += @"<font color='#808080'>%埋める(見出し, 6)%</font>"
+			階の最初 = 0
+		ENDIF
+
+		;幅20は「[18] 地下カウンター」（19）が入る長さ（2026-09-15 に 18 から広げた）
+		IF 分を出す
+			一項目 = %埋める(@"[{画面 * 100 + 番号, 凡例の桁, RIGHT}] %名前% %移動の分の文(画面 * 100 + 番号)%", 幅)%
+		ELSE
+			一項目 = %埋める(@"[{画面 * 100 + 番号, 凡例の桁, RIGHT}] %名前%", 幅)%
+		ENDIF
+		IF 画面 * 100 + 番号 == CFLAG:MASTER:現在位置
+			出力 += @"<font color='#ff5050'><button value='{画面 * 100 + 番号}'>%一項目%</button></font>"
+		ELSE
+			出力 += @"<button value='{画面 * 100 + 番号}'>%一項目%</button>"
+		ENDIF
+
+		並び ++
+		IF 並び >= 4
+			出力 += @"<br>%埋める("", 6)%"
+			並び = 0
+		ENDIF
+	NEXT
+	SIF 並び > 0
+		出力 += "<br>"
+
+	;--- 可変の部屋。区分名でまとめて番号だけ並べる ---
+	区分 = 
+	並び = 0
+	FOR 番号, 1, 100
+		SIF GET_PLACE_FLOOR(画面 * 100 + 番号) != 階
+			CONTINUE
+		名前 = %GET_PLACE_GROUP(画面 * 100 + 番号)%
+		SIF 名前 == ""
+			CONTINUE
+		SIF GET_PLACE_NAME(画面 * 100 + 番号) == ""
+			CONTINUE
+
+		;区分が変わったら行を改める
+		IF 名前 != 区分
+			SIF 区分 != ""
+				出力 += "<br>"
+			区分 = %名前%
+			IF 階の最初
+				出力 += @"<font color='#808080'>%埋める(見出し, 6)%</font>"
+				階の最初 = 0
+			ELSE
+				出力 += @"%埋める("", 6)%"
+			ENDIF
+			出力 += @"<font color='#808080'>%埋める(区分, 14)%</font>"
+			並び = 0
+		ENDIF
+
+		IF 画面 * 100 + 番号 == CFLAG:MASTER:現在位置
+			出力 += @"<font color='#ff5050'><button value='{画面 * 100 + 番号}'>[{画面 * 100 + 番号, 凡例の桁, RIGHT}]</button></font>　"
+		ELSE
+			出力 += @"<button value='{画面 * 100 + 番号}'>[{画面 * 100 + 番号, 凡例の桁, RIGHT}]</button>　"
+		ENDIF
+		並び ++
+	NEXT
+	SIF 区分 != ""
+		出力 += "<br>"
+NEXT
+
+RESULTS = %出力%
+
+
+;いまの場所からそこまで何分か。いま居る場所と、道が繋がっていない場所は空にする
+@移動の分の文(先)
+#FUNCTIONS
+#DIM 先
+#DIM 手数
+
+SIF 先 == CFLAG:MASTER:現在位置
+	RETURNF ""
+;出入口は見取り図の切り替えで、移動ではないので時間は添えない
+SIF 入口の行き先画面(先) >= 0
+	RETURNF ""
+手数 = 行き先までの手数(先)
+SIF 手数 < 0
+	RETURNF ""
+SIF 手数 < 1
+	手数 = 1
+RETURNF @"{手数 * 一手の分数}分"

@@ -1,0 +1,311 @@
+﻿;目標カード（段階的な目標。→画面イメージ「目標カード」）
+;台帳は CSV/台帳/目標.csv（SYSTEM.ERB @台帳を読む）。台帳の順に、未達成の先頭 進行中の枚数 枚が進行中。判定は進行中の枚だけ。
+;判定は即時：コマンドの切れ目（USERCOM.ERB @USERCOM の末尾）と起床前メニューを描くたび（一日.ERB @SHOW_SHOP）に @目標を見る を呼ぶ
+
+
+;料理・飲み物を開ける目標を台帳から引く。報酬の「料理:名前」「飲み物:名前」を、台帳の名前で探す
+@目標の鍵を引く
+#DIMS 欄, 8
+#DIM 目標
+#DIM 数
+#DIM 件
+#DIM 品
+
+VARSET 料理の鍵
+VARSET 飲み物の鍵
+FOR 目標, 0, 目標数
+	SIF 目標名:目標 == ""
+		CONTINUE
+	SPLIT 目標の報酬:目標, "／", 欄
+	数 = RESULT
+	FOR 件, 0, 数
+		IF STRLENSU(欄:件) > 3 && SUBSTRINGU(欄:件, 0, 3) == "料理:"
+			FOR 品, 0, 料理数
+				SIF 料理名:品 == SUBSTRINGU(欄:件, 3, 99)
+					料理の鍵:品 = 目標 + 1
+			NEXT
+		ELSEIF STRLENSU(欄:件) > 4 && SUBSTRINGU(欄:件, 0, 4) == "飲み物:"
+			FOR 品, 0, 飲み物数
+				SIF 飲み物名:品 == SUBSTRINGU(欄:件, 4, 99)
+					飲み物の鍵:品 = 目標 + 1
+			NEXT
+		ENDIF
+	NEXT
+NEXT
+
+
+;その料理を客が頼めるか。目標で開ける品は、その目標が済むまで閉じている
+@料理は開いているか(品)
+#FUNCTION
+#DIM 品
+
+SIF 料理の鍵:品 <= 0
+	RETURNF 1
+RETURNF 目標の達成:(料理の鍵:品 - 1) > 0
+
+
+@飲み物は開いているか(品)
+#FUNCTION
+#DIM 品
+
+SIF 飲み物の鍵:品 <= 0
+	RETURNF 1
+RETURNF 目標の達成:(飲み物の鍵:品 - 1) > 0
+
+
+;種類ごとの今の値
+@目標の現在値(種類)
+#FUNCTION
+#DIMS 種類
+#DIM 番号
+#DIM 技能
+#DIM 最高
+
+SELECTCASE 種類
+	CASE "営業日数"
+		RETURNF 営業日数
+	CASE "通算来客"
+		RETURNF 通算来客 + 今日の来客
+	CASE "通算売上"
+		RETURNF 通算売上 + 今日の売上
+	CASE "評判"
+		RETURNF 評判
+	CASE "スタッフ"
+		RETURNF スタッフ数()
+	CASE "ボックス席"
+		RETURNF ボックス席数
+	CASE "地下"
+		RETURNF 地下あり
+	CASE "技能"
+		最高 = 0
+		FOR 番号, 0, キャラ枠
+			SIF !実キャラ:番号:0
+				CONTINUE
+			SIF 番号 != 0 && !スタッフ:番号:0
+				CONTINUE
+			FOR 技能, 0, 技能数
+				SIF ABL:番号:技能 > 最高
+					最高 = ABL:番号:技能
+			NEXT
+		NEXT
+		RETURNF 最高
+ENDSELECT
+RETURNF 0
+
+
+;「通算来客 38／50人」。通算売上は円、地下は「建てた／まだ」
+@目標の進み(目標)
+#FUNCTIONS
+#DIM 目標
+#DIM 今
+#DIM 値
+
+今 = 目標の現在値(目標の種類:目標)
+値 = 目標の値:目標
+SIF 今 > 値
+	今 = 値
+SELECTCASE 目標の種類:目標
+	CASE "通算売上"
+		RETURNF @"通算売上 %金額(今, 0)%／%金額(値, 0)%円"
+	CASE "営業日数"
+		RETURNF @"営業日数 {今}／{値}日"
+	CASE "通算来客"
+		RETURNF @"通算来客 {今}／{値}人"
+	CASE "スタッフ"
+		RETURNF @"スタッフ {今}／{値}人"
+	CASE "ボックス席"
+		RETURNF @"ボックス席 {今}／{値}席"
+	CASE "技能"
+		RETURNF @"誰かの技能 Lv{今}／Lv{値}"
+	CASE "地下"
+		SIF 今 > 0
+			RETURNF "地下 建てた"
+		RETURNF "地下 まだ"
+ENDSELECT
+RETURNF @"%目標の種類:目標% {今}／{値}"
+
+
+;報酬の一つを文にする。「評判の上限 +10」「料理「ローストビーフ」が出せるようになる」「称号「開店」」
+@報酬の一つの文(欄)
+#FUNCTIONS
+#DIMS 欄
+
+IF STRLENSU(欄) > 5 && SUBSTRINGU(欄, 0, 5) == "評判上限:"
+	RETURNF @"評判の上限 +%SUBSTRINGU(欄, 5, 99)%"
+ELSEIF STRLENSU(欄) > 3 && SUBSTRINGU(欄, 0, 3) == "料理:"
+	RETURNF @"料理「%SUBSTRINGU(欄, 3, 99)%」が出せるようになる"
+ELSEIF STRLENSU(欄) > 4 && SUBSTRINGU(欄, 0, 4) == "飲み物:"
+	RETURNF @"飲み物「%SUBSTRINGU(欄, 4, 99)%」が出せるようになる"
+ELSEIF STRLENSU(欄) > 3 && SUBSTRINGU(欄, 0, 3) == "称号:"
+	RETURNF @"称号「%SUBSTRINGU(欄, 3, 99)%」"
+ENDIF
+RETURNF 欄
+
+
+;目標の報酬を一文に（／を「・」でつなぐ）。まだ済んでいない枚の一覧に出す
+@報酬の文(目標)
+#FUNCTIONS
+#DIM 目標
+#DIMS 欄, 8
+#DIMS 出力
+#DIM 数
+#DIM 件
+
+SPLIT 目標の報酬:目標, "／", 欄
+数 = RESULT
+出力 '= ""
+FOR 件, 0, 数
+	SIF 件 > 0
+		出力 += "・"
+	出力 += 報酬の一つの文(欄:件)
+NEXT
+RETURNF 出力
+
+
+;報酬を渡して文を出す（達成の知らせの「報酬：」の下に並べる）。評判の上限は加算して「100 → 110」まで出す
+@報酬を渡す(目標)
+#DIM 目標
+#DIMS 欄, 8
+#DIM 数
+#DIM 件
+#DIM 前
+#DIM 加
+
+SPLIT 目標の報酬:目標, "／", 欄
+数 = RESULT
+FOR 件, 0, 数
+	IF STRLENSU(欄:件) > 5 && SUBSTRINGU(欄:件, 0, 5) == "評判上限:"
+		前 = 評判の上限()
+		加 = TOINT(SUBSTRINGU(欄:件, 5, 99))
+		目標の評判上限 += 加
+		PRINTFORML 　報酬：評判の上限 +{加}（{前} → {評判の上限()}）
+	ELSE
+		PRINTFORML 　報酬：%報酬の一つの文(欄:件)%
+	ENDIF
+NEXT
+
+
+;未達成の先頭から数えた順（0 始まり）の番号。無ければ -1
+@進行中の目標(何枚目)
+#FUNCTION
+#DIM 何枚目
+#DIM 目標
+#DIM 見た
+
+見た = 0
+FOR 目標, 0, 目標数
+	SIF 目標名:目標 == "" || 目標の達成:目標 > 0
+		CONTINUE
+	SIF 見た == 何枚目
+		RETURNF 目標
+	見た += 1
+NEXT
+RETURNF -1
+
+
+;進行中の枚を判定し、済んだら報酬を渡して知らせる。済んだ枚があれば次の枚が前に出てくるので、出尽くすまで繰り返す
+@目標を見る
+#DIM 周
+#DIM 枠
+#DIM 目標
+#DIM 変化
+#DIM 次
+
+REPEAT 目標数 + 1
+	変化 = 0
+	FOR 枠, 0, 進行中の枚数
+		目標 = 進行中の目標(枠)
+		SIF 目標 < 0
+			BREAK
+		SIF 目標の現在値(目標の種類:目標) < 目標の値:目標
+			CONTINUE
+		目標の達成:目標 = 経過日数 + 1
+		PRINTL
+		SETCOLOR 0xffd27f
+		PRINTFORML ★ 目標達成「%目標名:目標%」　%目標の進み(目標)%
+		RESETCOLOR
+		SIF 目標の一言:目標 != ""
+			PRINTFORML 　　%目標の一言:目標%
+		CALL 報酬を渡す(目標)
+		次 = 進行中の目標(0)
+		SIF 次 >= 0
+			PRINTFORML 　次の目標：%目標名:次%
+		変化 = 1
+		BREAK
+	NEXT
+	SIF !変化
+		BREAK
+REND
+
+
+;サイドの［目標］。進行中の枚だけ。全部済んでいれば一行（サイドは <br> 区切りの文字列を返す形）
+@サイドの目標
+#FUNCTIONS
+#DIMS 出力
+#DIM 枠
+#DIM 目標
+
+出力 '= ""
+FOR 枠, 0, 進行中の枚数
+	目標 = 進行中の目標(枠)
+	SIF 目標 < 0
+		BREAK
+	出力 += @"　%目標名:目標%　%目標の進み(目標)%<br>"
+NEXT
+SIF 出力 == "" && 目標数 > 0
+	出力 '= "　今のところ全部済み<br>"
+RETURNF 出力
+
+
+;================================ 目標の一覧 ================================
+;起床前の [113]・行動中の [1903]。見るだけ
+@目標の一覧
+#DIM 目標
+#DIM 枠
+#DIM 見た
+#DIMS 欄, 8
+#DIM 数
+#DIM 件
+#DIMS 称号
+
+PRINTL
+CALL 本文罫線
+PRINTL 目標
+CALL 本文罫線
+PRINTL 【進行中】
+見た = 0
+FOR 枠, 0, 進行中の枚数
+	目標 = 進行中の目標(枠)
+	SIF 目標 < 0
+		BREAK
+	PRINTFORML 　%目標名:目標, 16, LEFT%%目標の進み(目標)%　　報酬：%報酬の文(目標)%
+	見た += 1
+NEXT
+SIF 見た == 0
+	PRINTL 　今のところ全部済み
+PRINTL
+PRINTL 【達成】
+見た = 0
+称号 '= ""
+FOR 目標, 0, 目標数
+	SIF 目標名:目標 == "" || 目標の達成:目標 <= 0
+		CONTINUE
+	PRINTFORML 　%目標名:目標, 16, LEFT%{目標の達成:目標}日目　　%報酬の文(目標)%
+	見た += 1
+	SPLIT 目標の報酬:目標, "／", 欄
+	数 = RESULT
+	FOR 件, 0, 数
+		IF STRLENSU(欄:件) > 3 && SUBSTRINGU(欄:件, 0, 3) == "称号:"
+			SIF 称号 != ""
+				称号 += "／"
+			称号 += SUBSTRINGU(欄:件, 3, 99)
+		ENDIF
+	NEXT
+NEXT
+SIF 見た == 0
+	PRINTL 　まだ無い
+PRINTL
+SIF 称号 != ""
+	PRINTFORML 称号：%称号%
+PRINTL [0] 戻る
+INPUT

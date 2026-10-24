@@ -1,0 +1,110 @@
+﻿;Emuera が呼び出す標準関数。無いと「関数が見つかりません」で止まる
+;eraBACK は TRAINフェーズ一本＋自前モードで回すので、中身は自前側に寄せてある（→設計メモ「ゲームループ」）
+
+;TRAINフェーズに入るたび。BEGIN TRAIN は全キャラの PALAM を0に戻すので、満タンが既定の値はここで入れ直す
+@EVENTTRAIN
+
+CALL 理性を戻す
+
+;SHOW_USERCOM の前に呼ばれる。見出しもマップもモード側で出すので、ここは空
+@SHOW_STATUS
+
+;コマンド実行後。Train.csv を使わないので通らないが、必須なので置く
+@SOURCE_CHECK
+
+;コマンドが終わるたび
+@EVENTCOMEND
+
+;ゲーム終了時
+@EVENTEND
+
+;ABLUP画面。使わない
+@SHOW_JUEL
+
+@SHOW_ABLUP_SELECT
+
+@USERABLUP
+
+
+;分単位の時刻を 24時間表記 "08:05" の形に。時・分とも0埋め2桁
+;0時を過ぎた時刻は 1440 を足して持っているので（→変数定義「一日の終わり」）、割った余りを出す
+@時刻表示(分)
+#FUNCTIONS
+#DIM 分
+
+分 = 分 % 1440
+RETURNF @"%TOSTR(分 / 60, "00")%:%TOSTR(分 % 60, "00")%"
+
+
+;進んだ分を「30分」「2時間」「7時間30分」の形に
+@経過分の文(分)
+#FUNCTIONS
+#DIM 分
+
+SIF 分 < 60
+	RETURNF @"{分}分"
+SIF 分 % 60 == 0
+	RETURNF @"{分 / 60}時間"
+RETURNF @"{分 / 60}時間{分 % 60}分"
+
+
+;曜日番号を1文字の曜日名に
+;半角換算で幅まで空白を足す。`%式, 幅, LEFT%` の PAD は**文字数**で数えるので、全角と半角が混じる列は揃わない
+;（ＭＳ ゴシックは全角＝半角2つ。→ メモ「列を揃えるのも STRLENS」。2026-09-22 に増築の設備の列がずれて気づいた）
+@埋める(文字, 幅)
+#FUNCTIONS
+#DIMS 文字
+#DIM 幅
+#DIMS 出力
+
+出力 '= 文字
+WHILE STRLENS(出力) < 幅
+	出力 += " "
+WEND
+RETURNF 出力
+
+
+;Lv1 以上の技能だけ「会話3 清掃2」の形で並べ、幅（半角。STRLENS は全角を 2 と数える）まで空白で埋める。
+;最初のスタッフ・スタッフを見る・雇う で共用する（2026-09-22 に @最初のスタッフの技能 から広げた）
+@技能の並び(番号, 幅)
+#FUNCTIONS
+#DIM 番号
+#DIM 幅
+#DIM 技能
+#DIMS 出力
+
+出力 '= ""
+FOR 技能, 0, 技能数
+	SIF ABL:番号:技能 <= 0
+		CONTINUE
+	出力 += ABLNAME:技能 + TOSTR(ABL:番号:技能) + " "
+NEXT
+WHILE STRLENS(出力) < 幅
+	出力 += " "
+WEND
+;幅 0（揃えない）で呼ばれたときは、後ろに付いた区切りの空白を落とす
+SIF 幅 <= 0 && STRLENSU(出力) > 0
+	出力 '= SUBSTRINGU(出力, 0, STRLENSU(出力) - 1)
+RETURNF 出力
+
+
+@曜日名(番号)
+#FUNCTIONS
+#DIM 番号
+
+SELECTCASE 番号
+	CASE 0
+		RETURNF "日"
+	CASE 1
+		RETURNF "月"
+	CASE 2
+		RETURNF "火"
+	CASE 3
+		RETURNF "水"
+	CASE 4
+		RETURNF "木"
+	CASE 5
+		RETURNF "金"
+	CASEELSE
+		RETURNF "土"
+ENDSELECT

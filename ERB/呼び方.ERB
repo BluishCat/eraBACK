@@ -1,0 +1,305 @@
+﻿;================================ 呼び方（一人称・二人称）================================
+;キャラごとに「自分をどう呼ぶか（一人称）」「相手をどう呼ぶか（二人称）」を持つ（→画面イメージ「呼び方」。2026-10-04 ユーザ指定）。
+;CSTR 一人称・二人称。空なら「指定なし」＝汎用口上に書いてある語のまま。話し手の設定なので、相手側の口上でも主人公側の口上でも同じ。
+;汎用口上の台詞は %自称_あたし(番号)%・%対称_あんた(番号)% の形で呼ぶ（既定の語は関数名。指定なしならそれが出る）。番号は話し手
+
+;自称＝一人称。指定があればそれ、なければ既定（口上に書いてあった語）
+@自称(番号, 既定)
+#FUNCTIONS
+#DIM 番号
+#DIMS 既定
+
+SIF CSTR:番号:一人称 != ""
+	RETURNF CSTR:番号:一人称
+RETURNF 既定
+
+
+;対称＝二人称。同上
+@対称(番号, 既定)
+#FUNCTIONS
+#DIM 番号
+#DIMS 既定
+
+SIF CSTR:番号:二人称 != ""
+	RETURNF CSTR:番号:二人称
+RETURNF 既定
+
+
+;台詞から呼ぶ語ごとの入口。台詞の文字列の中では引用符が書けないので、既定の語を関数名に持たせる（%自称_あたし(番号)% ＝ 指定が無ければ「あたし」）
+@自称_あたくし(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 自称(番号, "あたくし")
+
+
+@自称_わたくし(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 自称(番号, "わたくし")
+
+
+@自称_あたし(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 自称(番号, "あたし")
+
+
+@自称_わたし(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 自称(番号, "わたし")
+
+
+@自称_私(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 自称(番号, "私")
+
+
+@自称_俺(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 自称(番号, "俺")
+
+
+@自称_おれ(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 自称(番号, "おれ")
+
+
+@自称_僕(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 自称(番号, "僕")
+
+
+@自称_ぼく(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 自称(番号, "ぼく")
+
+
+@自称_うち(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 自称(番号, "うち")
+
+
+@自称_おら(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 自称(番号, "おら")
+
+
+@対称_あんた(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 対称(番号, "あんた")
+
+
+@対称_あなた(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 対称(番号, "あなた")
+
+
+@対称_お前(番号)
+#FUNCTIONS
+#DIM 番号
+
+RETURNF 対称(番号, "お前")
+
+
+;候補。種別 0=一人称 1=二人称、添字は 1 から。範囲外は ""
+@呼び方の候補(種別, 添字)
+#FUNCTIONS
+#DIM 種別
+#DIM 添字
+
+IF 種別 == 0
+	SELECTCASE 添字
+		CASE 1
+			RETURNF "あたし"
+		CASE 2
+			RETURNF "あたくし"
+		CASE 3
+			RETURNF "わたし"
+		CASE 4
+			RETURNF "わたくし"
+		CASE 5
+			RETURNF "私"
+		CASE 6
+			RETURNF "おれ"
+		CASE 7
+			RETURNF "俺"
+		CASE 8
+			RETURNF "ぼく"
+		CASE 9
+			RETURNF "僕"
+		CASE 10
+			RETURNF "うち"
+		CASE 11
+			RETURNF "おら"
+	ENDSELECT
+ELSE
+	SELECTCASE 添字
+		CASE 1
+			RETURNF "あなた"
+		CASE 2
+			RETURNF "あんた"
+		CASE 3
+			RETURNF "お前"
+		CASE 4
+			RETURNF "きみ"
+	ENDSELECT
+ENDIF
+RETURNF ""
+
+
+@呼び方の候補数(種別)
+#FUNCTION
+#DIM 種別
+
+SIF 種別 == 0
+	RETURNF 11
+RETURNF 4
+
+
+;いまの設定の文。指定なしは「口上のまま」
+@呼び方の今(番号, 種別)
+#FUNCTIONS
+#DIM 番号
+#DIM 種別
+
+IF 種別 == 0
+	SIF CSTR:番号:一人称 == ""
+		RETURNF "指定なし（口上のまま）"
+	RETURNF CSTR:番号:一人称
+ENDIF
+SIF CSTR:番号:二人称 == ""
+	RETURNF "指定なし（口上のまま）"
+RETURNF CSTR:番号:二人称
+
+
+;一枚の画面に添える一行。指定が一つも無ければ空
+@呼び方の行(番号)
+#FUNCTIONS
+#DIM 番号
+
+SIF CSTR:番号:一人称 == "" && CSTR:番号:二人称 == ""
+	RETURNF ""
+RETURNF @"呼び方：自分は「%呼び方の今(番号, 0)%」　相手は「%呼び方の今(番号, 1)%」"
+
+
+;選ぶ画面。値段が 0 より大きければ、変えるたびに払う（怪しい店の施術。足りなければ変えない）。戻り値は変えた回数
+@呼び方を選ぶ(番号, 値段)
+#DIM 番号
+#DIM 値段
+#DIM 変えた
+#DIM 種別
+
+変えた = 0
+DO
+	PRINTL
+	PRINTFORML 呼び方　一人称：%呼び方の今(番号, 0)%　二人称：%呼び方の今(番号, 1)%
+	SIF 値段 > 0
+		PRINTFORML 　変えるたびに %金額(値段)%円　所持金 %金額(MONEY:MASTER)%円
+	PRINTL [1] 一人称を選ぶ　　[2] 二人称を選ぶ　　[0] 戻る
+	INPUT
+	SELECTCASE RESULT
+		CASE 1
+			種別 = 0
+		CASE 2
+			種別 = 1
+		CASEELSE
+			RETURN 変えた
+	ENDSELECT
+	CALL 呼び方の語を選ぶ(番号, 種別, 値段)
+	変えた += RESULT
+LOOP 1
+RETURN 変えた
+
+
+;一つの種別を選ぶ。変えたら 1
+@呼び方の語を選ぶ(番号, 種別, 値段)
+#DIM 番号
+#DIM 種別
+#DIM 値段
+#DIM 数
+#DIM 添字
+#DIM 自由
+#DIM 戻す
+#DIMS 新しい
+
+PRINTL
+IF 種別 == 0
+	PRINTFORML 一人称（自分をどう呼ぶか。いま：%呼び方の今(番号, 0)%）
+ELSE
+	PRINTFORML 二人称（相手をどう呼ぶか。いま：%呼び方の今(番号, 1)%）
+ENDIF
+数 = 呼び方の候補数(種別)
+FOR 添字, 1, 数 + 1
+	PRINTFORM [{添字, 2}] %呼び方の候補(種別, 添字), 10, LEFT%
+	SIF 添字 % 5 == 0
+		PRINTL
+NEXT
+SIF 数 % 5 != 0
+	PRINTL
+自由 = 数 + 1
+戻す = 数 + 2
+PRINTFORML [{自由, 2}] 自由に入力　　[{戻す, 2}] 指定なしに戻す　　[ 0] 戻る
+INPUT
+新しい '= ""
+IF RESULT == 自由
+	PRINTL 語を入力してください（空のまま決定でやめる）
+	INPUTS
+	SIF RESULTS == ""
+		RETURN 0
+	新しい '= RESULTS
+ELSEIF RESULT == 戻す
+	新しい '= ""
+ELSEIF RESULT >= 1 && RESULT <= 数
+	新しい '= 呼び方の候補(種別, RESULT)
+ELSE
+	RETURN 0
+ENDIF
+
+;いまと同じなら何もしない
+IF 種別 == 0
+	SIF CSTR:番号:一人称 == 新しい
+		RETURN 0
+ELSE
+	SIF CSTR:番号:二人称 == 新しい
+		RETURN 0
+ENDIF
+IF 値段 > 0
+	IF MONEY:MASTER < 値段
+		PRINTFORML %金額(値段)%円かかる。金が足りない
+		WAIT
+		RETURN 0
+	ENDIF
+	MONEY:MASTER -= 値段
+	今日の店の外:外_怪しい店 -= 値段
+ENDIF
+IF 種別 == 0
+	CSTR:番号:一人称 = %新しい%
+ELSE
+	CSTR:番号:二人称 = %新しい%
+ENDIF
+SIF 値段 > 0
+	PRINTFORML %CALLNAME:番号%の呼び方を変えた（%金額(値段)%円）
+RETURN 1

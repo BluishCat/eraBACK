@@ -1,0 +1,12 @@
+# セーブ・実行時に出るもの
+sav/
+profile
+emuera.log
+debug/
+*.log
+# 配布物の組み立ての出力
+_build/
+# 動作確認のスクリーンショット
+_tools/*.png
+# ルートに残っている古い複製（本体は ERB/ の中）
+/デバッグ.ERB

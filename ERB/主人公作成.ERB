@@ -1,0 +1,1039 @@
+﻿;主人公を作る（ゲーム開始。→画面イメージ「主人公を作る」）
+;era標準（eraJK の CUSTOM_CHARAMAKE）と同じ形：主人公の全体を一枚に出し、番号で小画面へ入って直し、[0] で始める。点数の枠は無い。
+;最初に名前と性別だけ順に聞く（性別で体型の既定と部位が変わる）。サイドは出さない（幅を全部使う）。
+;2026-09-15 ユーザ指定「名前、性別、性格（口上タイプ）、使用口上、体型、技能、素質、好物、服装、経験」「era標準のものを参考に」
+
+@主人公を作る
+#DIM 技能
+
+;キャラ番号0が主人公。era の慣習どおり
+MASTER = 0
+PLAYER = 0
+;1日目の月（既定は4月。[12] で変える。→暦.ERB）。初期化_店 は触らない
+開始月 = 4
+
+PRINTL
+DRAWLINE
+CALL 主人公作成_名前
+PRINTL
+CALL 主人公作成_性別
+CALL 体型を入れる(MASTER)
+CALL 周期を揃える(MASTER)
+
+WHILE 1
+	CALL 主人公作成_画面
+	INPUT
+	SELECTCASE RESULT
+		CASE 0
+			BREAK
+		CASE 1
+			CALL 主人公作成_名前
+		CASE 2
+			CALL 主人公作成_性別
+			;性別が変わると体型の既定と部位が変わる。部位の値（開発度・回数）は触らない（→設計メモ「行為の値」）
+			CALL 体格の段を空にする(MASTER)
+			CALL 体型を入れる(MASTER)
+			CALL 周期を揃える(MASTER)
+		CASE 3
+			PRINTL
+			CALL 口上タイプを選ぶ(MASTER)
+		CASE 4
+			CALL 主人公作成_使用口上
+		CASE 5
+			CALL 主人公作成_体型
+		CASE 6
+			CALL 主人公作成_技能
+		CASE 7
+			CALL 主人公作成_素質
+		CASE 8
+			CALL 主人公作成_好物
+		CASE 9
+			CALL 主人公作成_服装
+		CASE 10
+			CALL 主人公作成_経験
+		CASE 11
+			CALL 呼び方を選ぶ(MASTER, 0)
+		CASE 12
+			CALL 主人公作成_開始の月
+	ENDSELECT
+WEND
+
+;技能の Lv に見合う経験を入れる（キャラCSVの初期Lv と同じ扱い。下げた Lv にも合わせるので @経験を揃える ではなく直接）
+FOR 技能, 0, 技能数
+	EXP:MASTER:技能 = ABL:MASTER:技能 * 技能の一段
+NEXT
+
+PRINTL
+PRINTFORML %CALLNAME:MASTER%として始めます。
+WAIT
+
+
+;================================ 一枚の画面 ================================
+@主人公作成_画面
+#DIM 技能
+#DIM 部位
+#DIM 行為
+#DIM 数
+#DIMS 名
+
+PRINTL
+DRAWLINE
+SETCOLOR 0xffcc44
+PRINTFORM ■%CALLNAME:MASTER%
+RESETCOLOR
+PRINTFORML 　%性別名(MASTER)%%処女のタグ(MASTER)%　　口上：%口上タイプ(MASTER)%・%方言の名(MASTER)%（%口上の使い方の名()%）
+SIF 呼び方の行(MASTER) != ""
+	PRINTFORML 　%呼び方の行(MASTER)%
+DRAWLINE
+
+HTML_PRINT 能力表示_見出し("開始")
+PRINTL
+PRINTFORML 　{開始の月()}月1日（%季節名(暦の季節(0))%）に店を継ぐ
+PRINTL
+
+HTML_PRINT 能力表示_見出し("体型")
+PRINTL
+PRINTFORM 　身長 %小数表示(身長:MASTER:0)%cm　　体重 %小数表示(体重:MASTER:0)%kg　　B/W/H %小数表示(胸囲:MASTER:0)%cm
+SIF 性別ビット(MASTER) & 6
+	PRINTFORM (%カップ(MASTER)%)
+PRINTFORML  / %小数表示(胴囲:MASTER:0)%cm / %小数表示(腰囲:MASTER:0)%cm
+PRINTFORML 　%体格の行(MASTER)%
+PRINTL
+
+HTML_PRINT 能力表示_見出し("技能")
+PRINTL
+PRINT 　
+FOR 技能, 0, 技能数
+	PRINTFORM %ABLNAME:技能% Lv{ABL:MASTER:技能}　
+NEXT
+PRINTL
+PRINTL
+
+HTML_PRINT 能力表示_見出し("素質")
+PRINTL
+HTML_PRINT 能力表示_素質(MASTER)
+PRINTL
+PRINTL
+
+HTML_PRINT 能力表示_見出し("服装")
+PRINTL
+名 '= CSTR:MASTER:服装
+SIF 名 == ""
+	名 '= "私服"
+PRINTFORML 　%名%　%着ているものの文(MASTER)%　容姿 %容姿の文(MASTER)%
+PRINTL
+
+HTML_PRINT 能力表示_見出し("経験")
+PRINTL
+PRINT 　
+FOR 部位, 0, 6
+	SIF !(部位のある性別:部位 & 性別ビット(MASTER))
+		CONTINUE
+	PRINTFORM 感度%部位記号:部位% Lv{開発度_感度:MASTER:部位 / 開発度の一段}　
+NEXT
+PRINTFORML 耐性 Lv{開発度_耐性:MASTER:0 / 開発度の一段}　慣れ Lv{開発度_慣れ:MASTER:0 / 開発度の一段}
+;回数が入っている行為だけ
+数 = 0
+FOR 行為, 0, 行為数
+	SIF 行為名:行為 == "" || 経験回数:MASTER:行為 <= 0
+		CONTINUE
+	IF 数 == 0
+		PRINT 　行為の回数：
+	ELSEIF 数 % 6 == 0
+		PRINTL
+		PRINT 　　　　　　
+	ENDIF
+	PRINTFORM %行為名:行為% {経験回数:MASTER:行為}回　
+	数 += 1
+NEXT
+SIF 数 == 0
+	PRINT 　行為の回数：まだ何もない
+PRINTL
+DRAWLINE
+PRINTL [1] 名前　　[2] 性別　　[3] 性格（口上タイプ）　　[4] 使用口上
+PRINTL [5] 体型　　[6] 技能　　[7] 素質　　[8] 好物　　[9] 服装　　[10] 経験　　[11] 呼び方　　[12] 開始の月
+PRINTL [0] これで始める
+
+
+;0.1 単位の整数を「158.0」の形に
+@小数表示(値)
+#FUNCTIONS
+#DIM 値
+
+RETURNF @"{値 / 10}.{値 % 10}"
+
+
+;口上の使い方の名（→変数定義.ERH 口上の使い方）。口上なし（主人公のあり／なし）なら「（口上なし）」を添える
+@口上の使い方の名
+#FUNCTIONS
+#DIMS 名
+
+名 '= "固有＋汎用"
+SIF 口上の使い方 == 1
+	名 '= "固有のみ"
+SIF 口上の使い方 == 2
+	名 '= "汎用のみ"
+SIF CFLAG:MASTER:口上なし
+	名 += "（口上なし）"
+RETURNF 名
+
+
+;================================ [1] 名前 ================================
+;era標準と同じく NAME と CALLNAME を別に聞く。呼び名はキャラが主人公を呼ぶときの名。空なら名前と同じ
+@主人公作成_名前
+#DIMS 入力名
+
+PRINTFORML 名前を決めてください（いま：%NAME:MASTER%。そのまま決定で変えない）
+INPUTS
+入力名 '= RESULTS
+IF 入力名 != ""
+	NAME:MASTER = %入力名%
+	CALLNAME:MASTER = %入力名%
+ENDIF
+PRINTFORML 呼び名を決めてください（いま：%CALLNAME:MASTER%。そのまま決定で名前と同じ）
+INPUTS
+入力名 '= RESULTS
+IF 入力名 != ""
+	CALLNAME:MASTER = %入力名%
+ELSE
+	CALLNAME:MASTER = %NAME:MASTER%
+ENDIF
+
+
+;================================ [12] 開始の月 ================================
+;1日目の月を決める（→画面イメージ「暦」）。押したら決まって画面に戻る
+@主人公作成_開始の月
+#DIM 月
+
+PRINTL
+DRAWLINE
+PRINTFORML 店を継ぐ月を決めてください（1日目はその月の1日。いま：{開始の月()}月）
+FOR 月, 1, 13
+	PRINTFORM [{月}] {月}月　　
+	SIF 月 % 6 == 0
+		PRINTL
+NEXT
+PRINTL [0] 戻る
+INPUT
+SIF RESULT >= 1 && RESULT <= 12
+	開始月 = RESULT
+
+
+;================================ [2] 性別 ================================
+;素質タグで持つ。不正なら女（→設計メモ「キャラCSV仕様」）
+@主人公作成_性別
+
+PRINTFORML 性別を選んでください（いま：%性別名(MASTER)%）
+PRINTL [1] 男　　[2] 女　　[3] ふたなり　　[4] 性別なし
+INPUT
+TALENT:MASTER:男 = 0
+TALENT:MASTER:女 = 0
+TALENT:MASTER:ふたなり = 0
+TALENT:MASTER:性別なし = 0
+SELECTCASE RESULT
+	CASE 1
+		TALENT:MASTER:男 = 1
+	CASE 3
+		TALENT:MASTER:ふたなり = 1
+	CASE 4
+		TALENT:MASTER:性別なし = 1
+	CASEELSE
+		TALENT:MASTER:女 = 1
+ENDSELECT
+
+
+;================================ [4] 使用口上 ================================
+;設定 [5] からも同じ画面（→一日.ERB @設定画面）
+@主人公作成_使用口上
+
+PRINTL
+PRINTFORML 使用口上　いま：%口上の使い方の名()%
+PRINTL [1] 固有のみ　　　　固有口上（ERB/口上/あなた口上/ 直下）だけ。無い局面は黙る
+PRINTL [2] 固有＋汎用　　　固有があればそれ、無ければタイプ_性別 → タイプ の汎用
+PRINTL [3] 汎用のみ　　　　固有を使わない。タイプ_性別 → タイプ
+PRINTFORML [4] 口上のあり／なし　　いま：%口上の状態(MASTER)%　　押すたびに反転（なしなら [1]〜[3] は効かない）
+PRINTL [0] 戻る
+INPUT
+SELECTCASE RESULT
+	CASE 1
+		口上の使い方 = 1
+	CASE 2
+		口上の使い方 = 0
+	CASE 3
+		口上の使い方 = 2
+	CASE 4
+		CALL 口上を切り替える(MASTER)
+ENDSELECT
+
+
+;================================ [5] 体型 ================================
+;数字を直接入れる（cm／kg の実数）か 1 刻み・5 刻み。帯から入れる（小柄〜爆乳）は身長・胸囲を帯の値にする（→SYSTEM.ERB @体型を帯から入れる）
+@主人公作成_体型
+#DIM 入口
+
+WHILE 1
+	PRINTL
+	PRINTFORML 体型　（0.1cm／0.1kg 単位）　%体型の名札(MASTER)%
+	PRINTFORML [1] 身長　%小数表示(身長:MASTER:0), 6, RIGHT%cm　　[11] −5cm　[12] −1cm　[13] ＋1cm　[14] ＋5cm
+	PRINTFORML [2] 体重　%小数表示(体重:MASTER:0), 6, RIGHT%kg　　[21] −5kg　[22] −1kg　[23] ＋1kg　[24] ＋5kg
+	PRINTFORM [3] 胸囲　%小数表示(胸囲:MASTER:0), 6, RIGHT%cm
+	SIF 性別ビット(MASTER) & 6
+		PRINTFORM (%カップ(MASTER)%)
+	PRINTL 　　[31] −5cm　[32] −1cm　[33] ＋1cm　[34] ＋5cm
+	PRINTFORML [4] 胴囲　%小数表示(胴囲:MASTER:0), 6, RIGHT%cm　　[41] −5cm　[42] −1cm　[43] ＋1cm　[44] ＋5cm
+	PRINTFORML [5] 腰囲　%小数表示(腰囲:MASTER:0), 6, RIGHT%cm　　[51] −5cm　[52] −1cm　[53] ＋1cm　[54] ＋5cm
+	;段（体型・バスト・下半身。→ERB/体格.ERB）。段を動かすと数字を段の帯に作り直す。数字を動かすと段も引き直される
+	PRINTFORML 　体型　　　%埋める(体型の段名(TALENT:MASTER:体型), 10)%[61] ひとつ細く　[62] ひとつ太く
+	IF 性別ビット(MASTER) & 6
+		PRINTFORML 　バスト　　%埋める(バストの段名(TALENT:MASTER:バストサイズ), 10)%[71] ひとつ小さく　[72] ひとつ大きく
+	ENDIF
+	PRINTFORML 　下半身　　%埋める(下半身の段名(TALENT:MASTER:下半身), 10)%[81] ひとつ細く　[82] ひとつ張らせる
+	IF 男性器があるか(MASTER)
+		PRINTFORML 　男性器　　%埋める(男性器の段名(TALENT:MASTER:男性器サイズ), 10)%[91] ひとつ小さく　[92] ひとつ大きく
+	ENDIF
+	PRINT 　帯から入れる：
+	FOR 入口, 体型入口の始め, 体型入口の終わり + 1
+		SIF TALENTNAME:入口 == ""
+			CONTINUE
+		PRINTS 選択肢のマス(入口, TALENTNAME:入口, 選択肢のマス幅)
+	NEXT
+	PRINTL
+	PRINTL 　[9] 性別の既定に戻す
+	PRINTL [0] 戻る
+	INPUT
+	SELECTCASE RESULT
+		CASE 0
+			BREAK
+		CASE 1
+			CALL 小数の入力(身長:MASTER:0, 身長の下限, 身長の上限, "cm")
+			身長:MASTER:0 = RESULT
+		CASE 2
+			CALL 小数の入力(体重:MASTER:0, 体重の下限, 体重の上限, "kg")
+			体重:MASTER:0 = RESULT
+		CASE 3
+			CALL 小数の入力(胸囲:MASTER:0, 体型の下限, 体型の上限, "cm")
+			胸囲:MASTER:0 = RESULT
+		CASE 4
+			CALL 小数の入力(胴囲:MASTER:0, 体型の下限, 体型の上限, "cm")
+			胴囲:MASTER:0 = RESULT
+		CASE 5
+			CALL 小数の入力(腰囲:MASTER:0, 体型の下限, 体型の上限, "cm")
+			腰囲:MASTER:0 = RESULT
+		CASE 11
+			身長:MASTER:0 = LIMIT(身長:MASTER:0 - 50, 身長の下限, 身長の上限)
+		CASE 12
+			身長:MASTER:0 = LIMIT(身長:MASTER:0 - 10, 身長の下限, 身長の上限)
+		CASE 13
+			身長:MASTER:0 = LIMIT(身長:MASTER:0 + 10, 身長の下限, 身長の上限)
+		CASE 14
+			身長:MASTER:0 = LIMIT(身長:MASTER:0 + 50, 身長の下限, 身長の上限)
+		CASE 21
+			体重:MASTER:0 = LIMIT(体重:MASTER:0 - 50, 体重の下限, 体重の上限)
+		CASE 22
+			体重:MASTER:0 = LIMIT(体重:MASTER:0 - 10, 体重の下限, 体重の上限)
+		CASE 23
+			体重:MASTER:0 = LIMIT(体重:MASTER:0 + 10, 体重の下限, 体重の上限)
+		CASE 24
+			体重:MASTER:0 = LIMIT(体重:MASTER:0 + 50, 体重の下限, 体重の上限)
+		CASE 31
+			胸囲:MASTER:0 = LIMIT(胸囲:MASTER:0 - 50, 体型の下限, 体型の上限)
+		CASE 32
+			胸囲:MASTER:0 = LIMIT(胸囲:MASTER:0 - 10, 体型の下限, 体型の上限)
+		CASE 33
+			胸囲:MASTER:0 = LIMIT(胸囲:MASTER:0 + 10, 体型の下限, 体型の上限)
+		CASE 34
+			胸囲:MASTER:0 = LIMIT(胸囲:MASTER:0 + 50, 体型の下限, 体型の上限)
+		CASE 41
+			胴囲:MASTER:0 = LIMIT(胴囲:MASTER:0 - 50, 体型の下限, 体型の上限)
+		CASE 42
+			胴囲:MASTER:0 = LIMIT(胴囲:MASTER:0 - 10, 体型の下限, 体型の上限)
+		CASE 43
+			胴囲:MASTER:0 = LIMIT(胴囲:MASTER:0 + 10, 体型の下限, 体型の上限)
+		CASE 44
+			胴囲:MASTER:0 = LIMIT(胴囲:MASTER:0 + 50, 体型の下限, 体型の上限)
+		CASE 51
+			腰囲:MASTER:0 = LIMIT(腰囲:MASTER:0 - 50, 体型の下限, 体型の上限)
+		CASE 52
+			腰囲:MASTER:0 = LIMIT(腰囲:MASTER:0 - 10, 体型の下限, 体型の上限)
+		CASE 53
+			腰囲:MASTER:0 = LIMIT(腰囲:MASTER:0 + 10, 体型の下限, 体型の上限)
+		CASE 54
+			腰囲:MASTER:0 = LIMIT(腰囲:MASTER:0 + 50, 体型の下限, 体型の上限)
+		CASE 61, 62
+			TALENT:MASTER:体型 = LIMIT(TALENT:MASTER:体型 + (RESULT == 62 ? 1 # -1), -3, 3)
+			CALL 体格の段から数値を作る(MASTER, 体格_体型)
+		CASE 71, 72
+			SIF 性別ビット(MASTER) & 6
+				TALENT:MASTER:バストサイズ = LIMIT(TALENT:MASTER:バストサイズ + (RESULT == 72 ? 1 # -1), -2, 3)
+			CALL 体格の段から数値を作る(MASTER, 体格_バスト)
+		CASE 81, 82
+			TALENT:MASTER:下半身 = LIMIT(TALENT:MASTER:下半身 + (RESULT == 82 ? 1 # -1), -1, 1)
+			CALL 体格の段から数値を作る(MASTER, 体格_下半身)
+		CASE 91, 92
+			SIF 男性器があるか(MASTER)
+				TALENT:MASTER:男性器サイズ = LIMIT(TALENT:MASTER:男性器サイズ + (RESULT == 92 ? 1 # -1), -2, 2)
+		CASE 9
+			CALL 体格の段を空にする(MASTER)
+			CALL 体型を入れる(MASTER)
+		CASEELSE
+			IF RESULT >= 体型入口の始め && RESULT <= 体型入口の終わり
+				SIF TALENTNAME:RESULT != ""
+					CALL 体型を帯から入れる(MASTER, RESULT)
+			ENDIF
+	ENDSELECT
+	;数字を動かしたら段を引き直す（段を動かして数字を作ったときは、帯の内側なので同じ段に戻る）
+	CALL 体格の段を引き直す(MASTER, 体格_全部)
+WEND
+
+
+;小数一桁の入力。0.1 単位の整数で返す。空や範囲外なら今のまま
+;マウスだけで打てる数値パッドに直した（2026-09-23 ユーザ指定。→マップ/共通.ERB @数値パッド）
+@小数の入力(今, 下限, 上限, 単位)
+#DIM 今
+#DIM 下限
+#DIM 上限
+#DIMS 単位
+
+CALL 数値パッド(@"何%単位%にしますか", 下限, 上限, 今, 10, 今)
+RETURN RESULT
+
+
+;================================ [6] 技能 ================================
+;era標準の ABL_CUSTOM と同じ [−][＋]。番号は 技能×2+1 が −、技能×2+2 が ＋
+@主人公作成_技能
+#DIM 技能
+
+WHILE 1
+	PRINTL
+	PRINTFORML 技能　（Lv 0〜{技能Lv上限}）
+	FOR 技能, 0, 技能数
+		PRINTFORM %ABLNAME:技能% Lv{ABL:MASTER:技能} [{技能 * 2 + 1}−][{技能 * 2 + 2}＋]　　
+		SIF 技能 % 3 == 2
+			PRINTL
+	NEXT
+	SIF 技能数 % 3 != 0
+		PRINTL
+	PRINTL [0] 戻る
+	INPUT
+	SIF RESULT <= 0 || RESULT > 技能数 * 2
+		BREAK
+	技能 = (RESULT - 1) / 2
+	IF RESULT % 2 == 1
+		SIF ABL:MASTER:技能 > 0
+			ABL:MASTER:技能 -= 1
+	ELSE
+		SIF ABL:MASTER:技能 < 技能Lv上限
+			ABL:MASTER:技能 += 1
+	ENDIF
+WEND
+
+
+;================================ [7] 素質 ================================
+;番号は Talent.csv の素質番号そのまま（口上タイプ・怪しい店と同じ流儀）。付け外し。排他のものは付けると相手が外れる。
+;伸び（60〜89）・体質（100〜139）・裏の好み（50〜59）・性癖（180〜189）・妊娠の上書き（5〜6）。性別・口上タイプ・好物はここに出さない（それぞれの画面で）
+@主人公作成_素質
+#DIM 素質
+#DIM 相方
+
+WHILE 1
+	PRINTL
+	PRINTL 素質　（番号で付け外し。排他のものは付けると相手が外れる）
+	PRINTFORM 　%"伸び", 10, LEFT%
+	CALL 素質の帯を出す(伸び素質の始め, 伸び素質の始め + 2, 0)
+	PRINTFORM 　%"才", 10, LEFT%
+	CALL 素質の帯を出す(70, 80, 0)
+	PRINTFORM 　%"苦手", 10, LEFT%
+	CALL 素質の帯を出す(80, 90, 0)
+	PRINTFORM 　%"敏感", 10, LEFT%
+	CALL 素質の帯を出す(敏感の始め, 敏感の始め + 6, 1)
+	PRINTFORM 　%"鈍感", 10, LEFT%
+	CALL 素質の帯を出す(鈍感の始め, 鈍感の始め + 6, 1)
+	PRINTFORM 　%"体質", 10, LEFT%
+	CALL 素質の帯を出す(120, 体質素質の終わり + 1, 1)
+	PRINTFORM 　%"裏の好み", 10, LEFT%
+	CALL 素質の帯を出す(40, 裏の好み素質の終わり + 1, 0)
+	PRINTFORM 　%"性癖", 10, LEFT%
+	CALL 素質の帯を出す(性癖素質の始め, 性癖素質の終わり + 1, 0)
+	PRINTFORM 　%"妊娠", 10, LEFT%
+	CALL 素質の帯を出す(5, 7, 0)
+	PRINTL 　（どちらも無ければ性別のとおり）
+	PRINTL [0] 戻る
+	INPUT
+	素質 = RESULT
+	SIF 素質 <= 0 || 素質 >= VARSIZE("TALENT") || TALENTNAME:素質 == ""
+		BREAK
+	SIF !主人公作成で付けられる素質か(素質)
+		CONTINUE
+	IF TALENT:MASTER:素質
+		TALENT:MASTER:素質 = 0
+	ELSE
+		相方 = 素質の相方(素質)
+		SIF 相方 >= 0
+			TALENT:MASTER:相方 = 0
+		TALENT:MASTER:素質 = 1
+	ENDIF
+WEND
+
+
+;始め〜終わり−1 の素質を列に揃えて並べる（→マップ/共通.ERB @選択肢を並べる）。性別で＝敏感／鈍感・濡れ系は性別に無いものを飛ばす（→@素質の許す性別）。付いているものは色を変える（付いている色）
+@素質の帯を出す(始め, 終わり, 性別で)
+#DIM 始め
+#DIM 終わり
+#DIM 性別で
+#DIM 素質
+#DIM 数
+
+数 = 0
+FOR 素質, 始め, 終わり
+	SIF TALENTNAME:素質 == ""
+		CONTINUE
+	SIF 性別で && !(素質の許す性別(素質) & 性別ビット(MASTER))
+		CONTINUE
+	;4列で折る。折った行頭は見出し（全角1＋10）ぶん空ける
+	CALL 選択肢を並べる(数, 素質, TALENTNAME:素質, TALENT:MASTER:素質, 4, "　　　　　　")
+	数 += 1
+NEXT
+PRINTL
+
+
+;素質の条件が通る性別（性別ビット）。敏感／鈍感は部位のある性別、濡れやすい／濡れにくい／潮吹き体質は膣のある性別（潤滑が入る性別。→個室.ERB @性の値を整える）、母乳体質は子宮のある性別（女・ふたなり）、それ以外は全部
+@素質の許す性別(素質)
+#FUNCTION
+#DIM 素質
+
+SIF 素質 >= 敏感の始め && 素質 < 敏感の始め + 6
+	RETURNF 部位のある性別:(素質 - 敏感の始め)
+SIF 素質 >= 鈍感の始め && 素質 < 鈍感の始め + 6
+	RETURNF 部位のある性別:(素質 - 鈍感の始め)
+SIF TALENTNAME:素質 == "濡れやすい" || TALENTNAME:素質 == "濡れにくい" || TALENTNAME:素質 == "潮吹き体質"
+	RETURNF 部位のある性別:3
+;母乳体質は子宮のある性別＝女とふたなり（妊娠の対象と同じ 6。男・性別なしには付けない。2026-10-20 ユーザ指定）
+SIF TALENTNAME:素質 == "母乳体質"
+	RETURNF 6
+RETURNF 15
+
+
+;この画面で付け外しできる素質か（伸び・体質・裏の好み・性癖・中出し癖・妊娠の上書き）
+@主人公作成で付けられる素質か(素質)
+#FUNCTION
+#DIM 素質
+
+SIF 素質 >= 伸び素質の始め && 素質 <= 伸び素質の終わり
+	RETURNF 1
+SIF 素質 >= 体質素質の始め && 素質 <= 体質素質の終わり
+	RETURNF 1
+SIF 素質 >= 裏の好み素質の始め && 素質 <= 裏の好み素質の終わり
+	RETURNF 1
+SIF 性癖の素質か(素質)
+	RETURNF 1
+SIF TALENTNAME:素質 == "中出し癖"
+	RETURNF 1
+SIF TALENTNAME:素質 == "眠りが浅い" || TALENTNAME:素質 == "眠りが深い"
+	RETURNF 1
+SIF TALENTNAME:素質 == "妊娠する" || TALENTNAME:素質 == "妊娠しない"
+	RETURNF 1
+RETURNF 0
+
+
+;排他の相方。伸びは @伸びの相方（怪しい店.ERB）、体質は 敏感↔鈍感（同じ部位）と対の名前、妊娠は する↔しない。無ければ -1
+@素質の相方(素質)
+#FUNCTION
+#DIM 素質
+#DIMS 名
+
+SIF 素質 >= 伸び素質の始め && 素質 <= 伸び素質の終わり
+	RETURNF 伸びの相方(素質)
+SIF 素質 >= 敏感の始め && 素質 < 敏感の始め + 6
+	RETURNF 素質 - 敏感の始め + 鈍感の始め
+SIF 素質 >= 鈍感の始め && 素質 < 鈍感の始め + 6
+	RETURNF 素質 - 鈍感の始め + 敏感の始め
+名 '= TALENTNAME:素質
+SIF 名 == "痛みに強い"
+	RETURNF GETNUM(TALENT, "痛みに弱い")
+SIF 名 == "痛みに弱い"
+	RETURNF GETNUM(TALENT, "痛みに強い")
+SIF 名 == "眠りが浅い"
+	RETURNF GETNUM(TALENT, "眠りが深い")
+SIF 名 == "眠りが深い"
+	RETURNF GETNUM(TALENT, "眠りが浅い")
+SIF 名 == "恥じらい"
+	RETURNF GETNUM(TALENT, "恥薄い")
+SIF 名 == "恥薄い"
+	RETURNF GETNUM(TALENT, "恥じらい")
+SIF 名 == "濡れやすい"
+	RETURNF GETNUM(TALENT, "濡れにくい")
+SIF 名 == "濡れにくい"
+	RETURNF GETNUM(TALENT, "濡れやすい")
+SIF 名 == "快感に素直"
+	RETURNF GETNUM(TALENT, "快感の否定")
+SIF 名 == "快感の否定"
+	RETURNF GETNUM(TALENT, "快感に素直")
+SIF 名 == "回復早い"
+	RETURNF GETNUM(TALENT, "回復遅い")
+SIF 名 == "回復遅い"
+	RETURNF GETNUM(TALENT, "回復早い")
+SIF 名 == "妊娠する"
+	RETURNF GETNUM(TALENT, "妊娠しない")
+SIF 名 == "妊娠しない"
+	RETURNF GETNUM(TALENT, "妊娠する")
+RETURNF -1
+
+
+;================================ [8] 好物 ================================
+;排他は無い（客と同じ。複数持てる）。主人公側でまだ効く先は無い（客側だけが見る値）。「主人公も同じ尺」の線で持たせておく
+@主人公作成_好物
+#DIM 素質
+
+WHILE 1
+	PRINTL
+	PRINTL 好物　（番号で付け外し）
+	PRINTFORM 　%"食べ物", 10, LEFT%
+	CALL 素質の帯を出す(20, 30, 0)
+	PRINTFORM 　%"飲み物", 10, LEFT%
+	CALL 素質の帯を出す(30, 好物素質の終わり + 1, 0)
+	PRINTL [0] 戻る
+	INPUT
+	素質 = RESULT
+	SIF 素質 < 好物素質の始め || 素質 > 好物素質の終わり || TALENTNAME:素質 == ""
+		BREAK
+	TALENT:MASTER:素質 = !TALENT:MASTER:素質
+WEND
+
+
+;================================ [9] 服装 ================================
+;衣装.csv の組の名前を並べる（同じ名前の女／男の行は一つに。台帳が増えれば増える）。CSTR:MASTER:服装 に名前で入れる。中身は性別で決まる（→個室.ERB @衣装の組）
+@主人公作成_服装
+#DIM 衣装
+#DIM 甲
+#DIM 数
+#DIMS 名
+#DIMS 候補, 64
+
+PRINTL
+名 '= CSTR:MASTER:服装
+SIF 名 == ""
+	名 '= "私服"
+PRINTFORML 服装　いま：%名%（%着ているものの文(MASTER)%）　容姿 %容姿の文(MASTER)%
+;いま着ているものは色を変える（付いている色）
+数 = 0
+FOR 衣装, 0, 衣装数
+	;同じ名前は最初の一つだけ
+	甲 = 0
+	WHILE 甲 < 数 && 候補:甲 != 衣装名:衣装
+		甲 += 1
+	WEND
+	SIF 甲 < 数
+		CONTINUE
+	候補:数 '= 衣装名:衣装
+	CALL 選択肢を並べる(数, 数 + 1, 候補:数, 候補:数 == 名, 4, "")
+	数 += 1
+NEXT
+PRINTL
+PRINTL [0] 戻る
+INPUT
+SIF RESULT < 1 || RESULT > 数
+	RETURN 0
+CSTR:MASTER:服装 = %候補:(RESULT - 1)%
+
+
+;================================ [10] 経験 ================================
+;era標準の EXP_CUSTOM と同じ「番号を選んで数字を入れる」。eraBACK の経験は 行為ごとの回数（128枠）と 開発度（8本）（→設計メモ「行為の値」）。
+;開発度は [1〜16] の [−][＋]（感度M B C V A P・耐性・慣れの順）、行為は 100＋台帳の番号。処女／童貞の素質は置かず、回数 0 で初回を判定する
+@主人公作成_経験
+#DIM 部位
+#DIM 分類
+#DIM 行為
+#DIM 数
+#DIM 番号
+
+WHILE 1
+	PRINTL
+	PRINTL 経験
+	PRINTL 　開発度（Lv 0〜10）
+	PRINT 　
+	FOR 部位, 0, 6
+		SIF !(部位のある性別:部位 & 性別ビット(MASTER))
+			CONTINUE
+		PRINTFORM 感度%部位記号:部位% Lv{開発度_感度:MASTER:部位 / 開発度の一段} [{部位 * 2 + 1}−][{部位 * 2 + 2}＋]　
+	NEXT
+	PRINTL
+	PRINTFORML 　耐性 Lv{開発度_耐性:MASTER:0 / 開発度の一段} [13−][14＋]　慣れ Lv{開発度_慣れ:MASTER:0 / 開発度の一段} [15−][16＋]
+	PRINTL
+	PRINTL 　行為の回数（番号で回数を入れる。0 で消す）
+	FOR 分類, 0, 行為分類数
+		数 = 0
+		FOR 行為, 0, 行為数
+			SIF 行為名:行為 == "" || 行為の分類:行為 != 分類
+				CONTINUE
+			SIF 数 == 0
+				PRINTFORM 　%行為分類名:分類, 8, LEFT%
+			;回数のあるものは色を変える（付いている色）。折った行頭は見出し（全角1＋8）ぶん空ける。行為は多いので5列（この画面はサイドが無く幅を全部使える）
+			CALL 選択肢を並べる(数, 行為 + 100, 行為名:行為 + " " + TOSTR(経験回数:MASTER:行為), 経験回数:MASTER:行為 > 0, 5, "　　　　　")
+			数 += 1
+		NEXT
+		SIF 数 > 0
+			PRINTL
+	NEXT
+	PRINTL [0] 戻る
+	INPUT
+	番号 = RESULT
+	IF 番号 >= 1 && 番号 <= 12
+		部位 = (番号 - 1) / 2
+		CALL 開発度を刻む(部位, 番号 % 2 == 0)
+	ELSEIF 番号 >= 13 && 番号 <= 16
+		CALL 開発度を刻む(6 + (番号 - 13) / 2, 番号 % 2 == 0)
+	ELSEIF 番号 >= 100 && 番号 < 100 + 行為数 && 行為名:(番号 - 100) != ""
+		行為 = 番号 - 100
+		;マウスだけで打てる数値パッドに直した（2026-09-23 ユーザ指定。→マップ/共通.ERB @数値パッド）
+		CALL 数値パッド(@"%行為名:行為%を何回にしますか", 0, 9999, 経験回数:MASTER:行為, 1, 経験回数:MASTER:行為)
+		経験回数:MASTER:行為 = RESULT
+	ELSE
+		BREAK
+	ENDIF
+WEND
+
+
+;開発度を Lv ひとつ上げ下げ。部位 0〜5 は感度、6 は耐性、7 は慣れ。上限 Lv10（開発度の一段 × 10）
+@開発度を刻む(部位, 上げる)
+#DIM 部位
+#DIM 上げる
+#DIM 幅
+
+幅 = 開発度の一段
+SIF !上げる
+	幅 = 0 - 開発度の一段
+IF 部位 < 6
+	開発度_感度:MASTER:部位 = LIMIT(開発度_感度:MASTER:部位 + 幅, 0, 開発度の一段 * 10)
+ELSEIF 部位 == 6
+	開発度_耐性:MASTER:0 = LIMIT(開発度_耐性:MASTER:0 + 幅, 0, 開発度の一段 * 10)
+ELSE
+	開発度_慣れ:MASTER:0 = LIMIT(開発度_慣れ:MASTER:0 + 幅, 0, 開発度の一段 * 10)
+ENDIF
+
+
+;================================ 最初のスタッフ ================================
+;ゲーム開始のとき、同梱キャラから 最初のスタッフの上限 人まで雇って始める（→画面イメージ「最初のスタッフ」）。
+;寮は6部屋で始まり（初期化_店）、3部屋は後から自分で雇う分。選ばなくてもいい。
+;雇い方は 行動.ERB @雇う と同じ（スタッフ・寮の部屋）。友情は 雇うのに要る段 に届くまで上げる（雇えている以上はそれだけの仲）
+;トップは「組（テンプレ）で選ぶ／個別に選ぶ」の二択（2026-09-23 ユーザ指定「出力項目が多すぎて見切れている」）。
+;個別に選ぶは人数が多いので 最初のスタッフ一覧の一段 人ごとにページを分ける（→ @最初のスタッフ_個別に選ぶ）
+@最初のスタッフを選ぶ
+#DIM 番号
+#DIM 部屋
+#DIM 数
+;キャラ枠（500）ぶん。#DIM の大きさに定数名は使わない
+#DIM 選んだ, 500
+#DIMS 名
+
+WHILE 1
+	数 = 0
+	FOR 番号, 1, キャラ枠
+		SIF 選んだ:番号
+			数 += 1
+	NEXT
+	PRINTL
+	DRAWLINE
+	SETCOLOR 0xffcc44
+	PRINT ■最初のスタッフ
+	RESETCOLOR
+	PRINTFORML 　　選んだ {数}人／{最初のスタッフの上限}人
+	DRAWLINE
+	PRINTL 　マスターの下で働いていた顔ぶれ。誰に残ってもらうか決める。
+	PRINTFORML 　番号で付け外し。日給は出勤した日だけ払う。寮は{寮の部屋数}部屋で、{寮の部屋数 - 最初のスタッフの上限}部屋は後から雇う分に空けておく。
+	PRINTL
+	PRINTFORM 　選んだ：
+	IF 数 == 0
+		PRINT なし
+	ELSE
+		名 '= ""
+		FOR 番号, 1, キャラ枠
+			SIF !選んだ:番号
+				CONTINUE
+			SIF 名 != ""
+				名 += "・"
+			名 += CALLNAME:番号
+		NEXT
+		PRINTS 名
+	ENDIF
+	PRINTFORML （{数}人／{最初のスタッフの上限}人）
+	PRINTL
+	SIF 最初の組数 > 0
+		PRINTL [1] 組（テンプレ）で選ぶ
+	PRINTL [2] 個別に選ぶ
+	PRINTL [0] これで始める
+	INPUT
+	IF RESULT == 0
+		BREAK
+	ELSEIF RESULT == 1 && 最初の組数 > 0
+		CALL 最初のスタッフ_テンプレで選ぶ(選んだ)
+	ELSEIF RESULT == 2
+		CALL 最初のスタッフ_個別に選ぶ(選んだ)
+	ENDIF
+WEND
+
+;雇う。部屋は 410 から順に
+PRINTL
+数 = 0
+FOR 番号, 1, キャラ枠
+	SIF !選んだ:番号
+		CONTINUE
+	部屋 = 空き部屋()
+	SIF 部屋 == 0
+		BREAK
+	スタッフ:番号:0 = 1
+	寮の部屋:番号:0 = 部屋
+	SIF 好感度の段(好感度_友情:番号:0) < 雇うのに要る段
+		好感度_友情:番号:0 = 雇うのに要る段 * 好感度の一段
+	IF 数 == 0
+		PRINTFORM %CALLNAME:番号%
+	ELSE
+		PRINTFORM ・%CALLNAME:番号%
+	ENDIF
+	数 += 1
+NEXT
+IF 数 == 0
+	PRINTL 誰にも残ってもらわず、一人で始める
+ELSE
+	PRINT に残ってもらった。
+	数 = 0
+	FOR 番号, 1, キャラ枠
+		SIF !選んだ:番号
+			CONTINUE
+		SIF 数 > 0
+			PRINT ・
+		PRINTFORM %GET_PLACE_NAME(寮の部屋:番号:0)%
+		数 += 1
+	NEXT
+	PRINTL に住む
+ENDIF
+WAIT
+
+
+;組で選ぶ（CSV/台帳/最初のスタッフ.csv →画面イメージ「最初のスタッフ」）。[901] から順。押すと 選んだ を丸ごとその顔ぶれに入れ替える。
+;CSV の無い番号は飛ばし、一人も居ない組は行ごと出さない。いま選んでいる顔ぶれと一致する組は 付いている色
+@最初のスタッフ_テンプレで選ぶ(選んだ)
+#DIM REF 選んだ, 0
+#DIM 番号
+#DIM 数
+#DIMS 名
+#DIM 組番
+#DIM 品
+#DIM 人数
+#DIM 一致
+
+WHILE 1
+	数 = 0
+	FOR 番号, 1, キャラ枠
+		SIF 選んだ:番号
+			数 += 1
+	NEXT
+	PRINTL
+	DRAWLINE
+	PRINTL ■組（テンプレ）で選ぶ
+	DRAWLINE
+	PRINTL 　押すと選んだを丸ごとその顔ぶれに入れ替える。戻ったあとも個別に付け外しできる。
+	PRINTL
+	FOR 組番, 0, 最初の組数
+		名 '= ""
+		人数 = 0
+		一致 = 1
+		FOR 品, 0, 最初のスタッフの上限
+			番号 = 最初の組の番号:組番:品
+			SIF 番号 <= 0 || 番号 >= キャラ枠 || !実キャラ:番号:0
+				CONTINUE
+			SIF 名 != ""
+				名 += "・"
+			名 += CALLNAME:番号
+			人数 += 1
+			SIF !選んだ:番号
+				一致 = 0
+		NEXT
+		SIF 人数 == 0
+			CONTINUE
+		SIF 人数 != 数
+			一致 = 0
+		SIF 一致
+			SETCOLOR 付いている色
+		PRINTFORM 　%選択肢のマス(最初の組の番号の始まり + 組番, 最初の組名:組番, 24)%
+		WHILE STRLENS(名) < 30
+			名 += " "
+		WEND
+		PRINTS 名
+		PRINTFORML %最初の組の一言:組番%
+		RESETCOLOR
+	NEXT
+	PRINTL
+	PRINTL [0] 戻る
+	INPUT
+	IF RESULT == 0
+		RETURN
+	ELSEIF RESULT >= 最初の組の番号の始まり && RESULT < 最初の組の番号の始まり + 最初の組数
+		;一人も居ない組（行を出していない）は何もしない
+		組番 = RESULT - 最初の組の番号の始まり
+		人数 = 0
+		FOR 品, 0, 最初のスタッフの上限
+			番号 = 最初の組の番号:組番:品
+			SIF 番号 > 0 && 番号 < キャラ枠 && 実キャラ:番号:0
+				人数 += 1
+		NEXT
+		SIF 人数 == 0
+			CONTINUE
+		FOR 番号, 1, キャラ枠
+			選んだ:番号 = 0
+		NEXT
+		FOR 品, 0, 最初のスタッフの上限
+			番号 = 最初の組の番号:組番:品
+			SIF 番号 > 0 && 番号 < キャラ枠 && 実キャラ:番号:0
+				選んだ:番号 = 1
+		NEXT
+		RETURN
+	ENDIF
+WEND
+
+
+;個別に選ぶ。先頭のタグで組を切って見出しを挟む（組の順は先頭のタグが最初に出た番号順。タグの無い人は最後）。
+;項目が多いので 最初のスタッフ一覧の一段 人ごとにページを分ける（[920] 前のページ／[921] 次のページ）
+@最初のスタッフ_個別に選ぶ(選んだ)
+#DIM REF 選んだ, 0
+#DIM 番号
+#DIM 数
+#DIM 順位, 500
+#DIM 総数
+#DIM 総ページ
+#DIM ページ
+#DIMS 組, 500
+#DIM 組の数
+#DIM 組番
+#DIMS 名
+#DIM 人数
+
+;実キャラをキャラ番号順に並べて何番目かを控える（ページの範囲判定に使う）
+総数 = 0
+FOR 番号, 1, キャラ枠
+	SIF !実キャラ:番号:0
+		CONTINUE
+	順位:番号 = 総数
+	総数 += 1
+NEXT
+総ページ = (総数 - 1) / 最初のスタッフ一覧の一段 + 1
+
+;先頭のタグで組を切る（→画面イメージ「最初のスタッフ」）。組の順は先頭のタグが最初に出た番号順。タグの無い人は最後
+組の数 = 0
+FOR 番号, 1, キャラ枠
+	SIF !実キャラ:番号:0
+		CONTINUE
+	名 '= タグの先頭(番号)
+	SIF 名 == ""
+		CONTINUE
+	組番 = 0
+	WHILE 組番 < 組の数
+		SIF 組:組番 == 名
+			BREAK
+		組番 += 1
+	WEND
+	IF 組番 == 組の数
+		組:組の数 '= 名
+		組の数 += 1
+	ENDIF
+NEXT
+
+ページ = 0
+WHILE 1
+	数 = 0
+	FOR 番号, 1, キャラ枠
+		SIF 選んだ:番号
+			数 += 1
+	NEXT
+	PRINTL
+	DRAWLINE
+	SETCOLOR 0xffcc44
+	PRINT ■個別に選ぶ
+	RESETCOLOR
+	PRINTFORML 　　選んだ {数}人／{最初のスタッフの上限}人　　（{ページ + 1}／{総ページ}ページ）
+	DRAWLINE
+	FOR 組番, 0, 組の数 + 1
+		人数 = 0
+		FOR 番号, 1, キャラ枠
+			SIF !実キャラ:番号:0
+				CONTINUE
+			IF 組番 < 組の数
+				SIF タグの先頭(番号) != 組:組番
+					CONTINUE
+			ELSE
+				SIF タグの先頭(番号) != ""
+					CONTINUE
+			ENDIF
+			SIF 順位:番号 < ページ * 最初のスタッフ一覧の一段 || 順位:番号 >= ページ * 最初のスタッフ一覧の一段 + 最初のスタッフ一覧の一段
+				CONTINUE
+			人数 += 1
+		NEXT
+		SIF 人数 == 0
+			CONTINUE
+		IF 組番 < 組の数
+			PRINTFORML 　── %組:組番% ──
+		ELSEIF 組の数 > 0
+			PRINTL 　── （タグなし）──
+		ENDIF
+		FOR 番号, 1, キャラ枠
+			SIF !実キャラ:番号:0
+				CONTINUE
+			IF 組番 < 組の数
+				SIF タグの先頭(番号) != 組:組番
+					CONTINUE
+			ELSE
+				SIF タグの先頭(番号) != ""
+					CONTINUE
+			ENDIF
+			SIF 順位:番号 < ページ * 最初のスタッフ一覧の一段 || 順位:番号 >= ページ * 最初のスタッフ一覧の一段 + 最初のスタッフ一覧の一段
+				CONTINUE
+			CALL 最初のスタッフの行(番号, 選んだ:番号)
+		NEXT
+	NEXT
+	PRINTL
+	SIF ページ > 0
+		PRINTFORML [{最初のスタッフの前のページ}] 前のページ
+	SIF ページ < 総ページ - 1
+		PRINTFORML [{最初のスタッフの次のページ}] 次のページ
+	PRINTL [0] 戻る
+	INPUT
+	IF RESULT == 0
+		RETURN
+	ELSEIF RESULT == 最初のスタッフの前のページ && ページ > 0
+		ページ -= 1
+		CONTINUE
+	ELSEIF RESULT == 最初のスタッフの次のページ && ページ < 総ページ - 1
+		ページ += 1
+		CONTINUE
+	ELSEIF RESULT < 1 || RESULT >= キャラ枠 || !実キャラ:RESULT:0
+		CONTINUE
+	ENDIF
+	IF 選んだ:RESULT
+		選んだ:RESULT = 0
+	ELSEIF 数 >= 最初のスタッフの上限
+		PRINTFORML {最初のスタッフの上限}人までにしておく
+		WAIT
+	ELSE
+		選んだ:RESULT = 1
+	ENDIF
+WEND
+
+
+;一覧の一行：[番号] 名前　性別（処女タグ）　技能　日給。名前 22・性別 22 の半角幅で列を揃える。選んでいれば 付いている色
+@最初のスタッフの行(番号, 付いている)
+#DIM 番号
+#DIM 付いている
+#DIMS 名
+
+SIF 付いている
+	SETCOLOR 付いている色
+PRINTFORM 　%選択肢のマス(番号, CALLNAME:番号, 22)%
+名 '= 性別名(番号) + 処女のタグ(番号)
+WHILE STRLENS(名) < 22
+	名 += " "
+WEND
+PRINTS 名
+PRINTFORM %技能の並び(番号, 30)%
+PRINTFORML 日給 %金額(給料(番号))%円
+RESETCOLOR
+
+

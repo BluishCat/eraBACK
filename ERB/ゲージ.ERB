@@ -1,0 +1,31 @@
+﻿;ゲージ描画。eraJK の COLORBAR.ERB（元は erablue_resort の PRINT_COLORBAR）から
+;HTML版だけを移植したもの
+;
+;矩形の単位は 100＝全角1文字（フォントサイズ）。縦幅は100以下
+
+;<shape> の断片を返す。HTML_PRINT の文中に埋め込んで使う
+@ゲージHTML(現在値, 上限値, 横幅, 縦幅, 残色, 失色)
+#FUNCTIONS
+#DIM 現在値
+#DIM 上限値
+#DIM 横幅
+#DIM 縦幅
+#DIMS 残色
+#DIMS 失色
+#DIMS 出力
+#DIM 残り
+
+;上限が0以下なら暗色のフルバー
+SIF 上限値 <= 0
+	RETURNF @"<shape type='rect' param='0, {100 - 縦幅}, {横幅}, {縦幅}' color='#%失色%'>"
+
+現在値 = LIMIT(現在値, 0, 上限値)
+残り = 現在値 * 横幅 / 上限値
+
+出力 = 
+SIF 残り > 0
+	出力 += @"<shape type='rect' param='0, {100 - 縦幅}, {残り}, {縦幅}' color='#%残色%'>"
+SIF 横幅 - 残り > 0
+	出力 += @"<shape type='rect' param='0, {100 - 縦幅}, {横幅 - 残り}, {縦幅}' color='#%失色%'>"
+
+RETURNF 出力

@@ -1,0 +1,629 @@
+﻿;口上タイプ「無口」・女の関西弁（素質 方言_関西 が付いているとき、タイプ_無口_女 の手前に呼ばれる。2026-10-01）。
+;書いてある行為だけ関西弁になり、空なら標準語（タイプ_無口_女.ERB）に落ちる。分岐に使える値は標準語版と同じ
+;無口：ほとんど喋らない。「……」と息づかい、短いひと声だけで、時々うなずくしぐさ（地の文）で返す。クールよりさらに言葉が少ない。関西弁はひと言の語尾にだけ出す（「ええ」「せや」「あかん」「もうちょい」）。しぐさの地の文は標準語版と同じ
+
+@口上_行為_無口_女_関西(番号, 行為, 向き)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+
+RESULTS '= ""
+SELECTCASE 行為
+	;---- 会話 ----
+	CASE 0
+		RESULTS '= "「……せや」"
+	CASE 1
+		RESULTS '= "（小さく頷いた）"
+	CASE 2
+		RESULTS '= "「……ん、……そこ」"
+	;---- 見せる ----
+	CASE 10
+		RESULTS '= "（わずかに目を見開いた）"
+	CASE 11
+		RESULTS '= "「……別に」"
+	CASE 12
+		RESULTS '= "「……せや」"
+	CASE 13
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	CASE 14
+		RESULTS '= "（目を伏せたまま、頷く）"
+	;---- 愛撫 ----
+	CASE 20
+		IF 昂ぶりか(番号)
+			RESULTS '= "「……」"
+		ELSE
+			RESULTS '= "「……分かった」"
+		ENDIF
+	CASE 21
+		RESULTS '= "「……ん」"
+	CASE 22
+		RESULTS '= "「……せや」"
+	CASE 23
+		RESULTS '= "（何も言わず、視線を向けた）"
+	CASE 24
+		RESULTS '= "「……はぁ」"
+	CASE 25
+		IF 経験回数:番号:25 == 1
+			RESULTS '= "「……別に」"
+		ELSE
+			RESULTS '= "「……ん……」"
+		ENDIF
+	CASE 26
+		RESULTS '= "「……ん」"
+	CASE 27
+		RESULTS '= "「……っ。……待って」"
+	CASE 28
+		RESULTS '= "「……嫌や」"
+	CASE 29
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	CASE 30
+		RESULTS '= "「……うん」"
+	CASE 31
+		RESULTS '= "「……ふ、……ぅ」"
+	CASE 32
+		RESULTS '= "「……っ！」"
+	;---- 奉仕 ----
+	CASE 40
+		RESULTS '= "「……」"
+	CASE 41
+		RESULTS '= "「……もうちょい」"
+	CASE 42
+		RESULTS '= "「……ん」"
+	CASE 43
+		RESULTS '= "「……せや」"
+	CASE 44
+		RESULTS '= "「……ん、……そこ」"
+	CASE 45
+		RESULTS '= "「……ええ」"
+	CASE 46
+		RESULTS '= "（小さく頷いた）"
+	CASE 47
+		RESULTS '= "「……せや」"
+	CASE 48
+		RESULTS '= "「……は、……あ……っ」"
+	CASE 49
+		RESULTS '= "（何も言わず、視線を向けた）"
+	CASE 50
+		RESULTS '= "「……はぁ」"
+	CASE 51
+		RESULTS '= "「……それは、……」"
+	CASE 52
+		RESULTS '= "「……別に」"
+	CASE 53
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	CASE 54
+		RESULTS '= "（目を伏せたまま、頷く）"
+	CASE 55
+		RESULTS '= "「……分かった」"
+	CASE 56
+		RESULTS '= "「……ぁ、……っ」"
+	CASE 57
+		RESULTS '= "「……ん」"
+	;---- Ｖ系 ----
+	CASE 60
+		RESULTS '= "「……ん……」"
+	CASE 61
+		RESULTS '= "「……っ、く……」"
+	CASE 62
+		RESULTS '= "「……うん」"
+	CASE 63
+		RESULTS '= "「……あかん」"
+	CASE 64
+		RESULTS '= "「……」"
+	CASE 65
+		RESULTS '= "「……ふ、……ぅ」"
+	CASE 66
+		RESULTS '= "「……ん」"
+	CASE 67
+		RESULTS '= "「……もうちょい」"
+	CASE 68
+		RESULTS '= "「……っ、……あ」"
+	CASE 69
+		RESULTS '= "「……せや」"
+	CASE 70
+		RESULTS '= "（何も言わず、視線を向けた）"
+	CASE 71
+		RESULTS '= "「……ん、……そこ」"
+	;---- Ａ系 ----
+	CASE 80
+		RESULTS '= "「……ん、……っ！」"
+	CASE 81
+		RESULTS '= "「…………っ」"
+	CASE 82
+		RESULTS '= "「……は、……あ……っ」"
+	CASE 83
+		RESULTS '= "「……ええ」"
+	CASE 84
+		RESULTS '= "「……別に」"
+	CASE 85
+		RESULTS '= "「……っ。……待って」"
+	CASE 86
+		RESULTS '= "「……ぁ、……っ」"
+	CASE 87
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	;---- 特殊 ----
+	CASE 100
+		RESULTS '= "「……嫌や」"
+	CASE 101
+		RESULTS '= "「……っ、く……」"
+	CASE 102
+		RESULTS '= "（小さく頷いた）"
+	CASE 103
+		RESULTS '= "「……」"
+	CASE 104
+		RESULTS '= "「……ん」"
+	CASE 105
+		RESULTS '= "「……せや」"
+	CASE 106
+		RESULTS '= "「……せや」"
+	CASE 107
+		RESULTS '= "（何も言わず、視線を向けた）"
+	CASE 108
+		RESULTS '= "「……別に」"
+	CASE 109
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	;---- 脱衣 ----
+	CASE 110, 111, 112
+		RESULTS '= "（目を伏せたまま、頷く）"
+	CASE 113
+		RESULTS '= "「……っ！」"
+	CASE 114, 115, 116, 117
+		RESULTS '= "「……」"
+	CASE 118
+		RESULTS '= "「……ん」"
+	;---- 2026-09-15 に足した帯（愛撫の続き・母乳・密着・秘貝開帳・拭う・Ｖ系とＡ系の派生）----
+	CASE 33
+		RESULTS '= "「……分かった」"
+	CASE 34
+		RESULTS '= "「……ん」"
+	CASE 35
+		RESULTS '= "「……はぁ」"
+	CASE 36
+		RESULTS '= "「……せや」"
+	CASE 37
+		RESULTS '= "「……っ、……あ」"
+	CASE 38
+		RESULTS '= "「……ん……」"
+	CASE 39
+		RESULTS '= "「……うん」"
+	CASE 58
+		RESULTS '= "「……ふ、……ぅ」"
+	CASE 59
+		RESULTS '= "「……ええ」"
+	CASE 119
+		RESULTS '= "（小さく頷いた）"
+	CASE 120
+		RESULTS '= "「……ん、……っ！」"
+	CASE 121
+		RESULTS '= "「……もうちょい」"
+	CASE 122
+		RESULTS '= "（小さく息を呑んだ）"
+	CASE 123
+		RESULTS '= "「……別に」"
+	CASE 124
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	CASE 125
+		RESULTS '= "「……せや」"
+	CASE 130
+		RESULTS '= "「……ん、……そこ」"
+	CASE 131
+		RESULTS '= "「…………っ」"
+	CASE 132
+		RESULTS '= "「……」"
+	CASE 133
+		RESULTS '= "「……ん」"
+	CASE 134
+		RESULTS '= "「……は、……あ……っ」"
+	CASE 135
+		RESULTS '= "「……ぁ、……っ」"
+	CASE 136
+		RESULTS '= "「……せや」"
+	CASE 137
+		RESULTS '= "「……それは、……」"
+	CASE 138
+		RESULTS '= "（何も言わず、視線を向けた）"
+	CASE 139
+		RESULTS '= "「……別に」"
+	CASE 140
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	CASE 141
+		RESULTS '= "「……」"
+	CASE 142
+		RESULTS '= "「……はぁ」"
+	CASE 143
+		RESULTS '= "「……っ、く……」"
+	CASE 144
+		RESULTS '= "「……ん」"
+	CASE 145
+		RESULTS '= "「……せや」"
+	CASE 146
+		RESULTS '= "「……あかん」"
+	CASE 147
+		RESULTS '= "「……ん……」"
+	CASE 150
+		RESULTS '= "「……っ、……あ」"
+	CASE 151
+		RESULTS '= "「……ん、……っ！」"
+	CASE 152
+		RESULTS '= "「…………っ」"
+	CASE 153
+		RESULTS '= "「……は、……あ……っ」"
+	CASE 154
+		RESULTS '= "「……ぁ、……っ」"
+	CASE 155
+		RESULTS '= "「……っ、く……」"
+	CASE 156
+		RESULTS '= "「……っ、……あ」"
+	CASE 157
+		RESULTS '= "「……ん、……っ！」"
+	CASE 158
+		RESULTS '= "（何も言わず、視線を向けた）"
+	CASE 159
+		RESULTS '= "「……別に」"
+	CASE 160
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	CASE 161
+		RESULTS '= "「……」"
+	CASE 162
+		RESULTS '= "「……ん」"
+	CASE 163
+		RESULTS '= "「…………っ」"
+	CASE 164
+		RESULTS '= "「……せや」"
+	CASE 165
+		RESULTS '= "（何も言わず、視線を向けた）"
+	CASE 166
+		RESULTS '= "「……は、……あ……っ」"
+	CASE 167
+		RESULTS '= "「……別に」"
+	CASE 168
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	CASE 169
+		RESULTS '= "「……ぁ、……っ」"
+	CASE 170
+		RESULTS '= "「……っ、く……」"
+ENDSELECT
+
+
+;破瓜（膣に初めて入れられた一手）。この手は行為の口上の代わりにこれが出る（→個室.ERB「処女・童貞」）。番号は散った本人。一行
+@口上_破瓜_無口_女_関西(番号)
+#DIM 番号
+
+RESULTS '= "「……っ。……大丈夫や」"
+
+
+;絶頂（部位の快感が線に達した一手。射精は「出した」の行の後）。地の文の後に一行。番号は達した本人。部位 0=口 1=胸 2=クリトリス 3=膣 4=尻 5=射精（ふたなり）（→個室.ERB「絶頂の演出と口上」）
+@口上_絶頂_無口_女_関西(番号, 部位)
+#DIM 番号
+#DIM 部位
+
+RESULTS '= ""
+SELECTCASE 部位
+	;口
+	CASE 0
+		RESULTS '= "「……ん、っ……」"
+	;胸
+	CASE 1
+		RESULTS '= "「……っ。……あ」"
+	;クリトリス
+	CASE 2
+		RESULTS '= "「……っ、……！」"
+	;膣
+	CASE 3
+		RESULTS '= "「……っ、く……っ。……はぁ」"
+	;尻
+	CASE 4
+		RESULTS '= "「……っ、……ぁ」"
+	;射精
+	CASE 5
+		RESULTS '= "「……っ、……出る」"
+ENDSELECT
+
+
+;着替え（主人公が衣装棚から着せた・断った。→ショップ.ERB @服装を変える、個室.ERB @着替えの口上）。一行。場面 0=着せた 1=露出の高い組を着せた（同意あり） 2=断った
+@口上_着替え_無口_女_関西(番号, 場面)
+#DIM 番号
+#DIM 場面
+
+RESULTS '= ""
+SELECTCASE 場面
+	CASE 0
+		RESULTS '= "「……ん」"
+	CASE 1
+		RESULTS '= @"「……ええ。……%対称_あんた(番号)%なら」"
+	CASE 2
+		RESULTS '= "「……嫌や」"
+ENDSELECT
+
+
+;訪ねてきた（主人公が自宅に居るときに訪ねてきた。→行動.ERB @来客を聞く／@訪問の口上）。一行。場面 0=玄関に来た 1=同居人が部屋に来た 2=帰される
+@口上_訪問_無口_女_関西(番号, 場面)
+#DIM 番号
+#DIM 場面
+
+RESULTS '= ""
+SELECTCASE 場面
+	CASE 0
+		RESULTS '= "「……通りかかった」"
+	CASE 1
+		RESULTS '= "「……ええ？」"
+	CASE 2
+		RESULTS '= "「……ん。……また」"
+ENDSELECT
+
+
+;盛り上がり版（相手の台詞・女。段 1=昂ぶり 2=高まり。段が 0 のときは呼ばれず、空なら 口上_行為 に落ちる。書き方は タイプ_元気_女.ERB の @口上_盛り上がり_元気_女 と同じ）
+;先に 行為のまとまりごと（手・胸・キス・クンニ・指・フェラ・正常位・後背位・アナル・叩く・縛る。受ける側／動く側 × 段 1／2）、無ければ 分類（2 愛撫・3 奉仕・4 Ｖ系・5 Ａ系・6 特殊）ごと。向き 0・2 は相手が受ける側、1 は相手が動く側。会話・見せる・脱衣・浴室は返さない
+@口上_盛り上がり_無口_女_関西(番号, 行為, 向き, 段)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 段
+#DIM 受け
+
+RESULTS '= ""
+受け = 向き != 1
+SELECTCASE 行為
+	;手
+	CASE 20, 31, 40, 45
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん。……そこ」"
+			ELSE
+				RESULTS '= "「……っ、……あ……っ」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん。……ここ」"
+			ELSE
+				RESULTS '= "「……は、……っ」"
+			ENDIF
+		ENDIF
+	;胸
+	CASE 21, 22, 30
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん。……そこ。……もっと」"
+			ELSE
+				RESULTS '= "「……っ、……あ……っ」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん……。……柔らかい」"
+			ELSE
+				RESULTS '= "「……は、……っ」"
+			ENDIF
+		ENDIF
+	;キス
+	CASE 23, 24, 38
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん。……ふ」"
+			ELSE
+				RESULTS '= "「……っ、……ん……っ」"
+			ENDIF
+		ENDIF
+	;クンニ
+	CASE 25, 126, 32, 127
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……っ、……ん。……そこ」"
+			ELSE
+				RESULTS '= "「……あ、……っ！」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん、……ちゅ」"
+			ELSE
+				RESULTS '= "「……ん、……はっ」"
+			ENDIF
+		ENDIF
+	;指
+	CASE 26, 27
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん……。……そこ」"
+			ELSE
+				RESULTS '= "「……あ、……っ、……っ！」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ここ。……ん」"
+			ELSE
+				RESULTS '= "「……は、……っ」"
+			ENDIF
+		ENDIF
+	;フェラ
+	CASE 41, 46, 53
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……っ、……ん。……ええ」"
+			ELSE
+				RESULTS '= "「……っ、……もう……っ」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん、……ん」"
+			ELSE
+				RESULTS '= "「……んっ、……っ」"
+			ENDIF
+		ENDIF
+	;正常位
+	CASE 60, 65
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん……。……そこ」"
+			ELSE
+				RESULTS '= "「……あ、……っ、……っ！」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん、……ふ」"
+			ELSE
+				RESULTS '= "「……っ、……く……っ」"
+			ENDIF
+		ENDIF
+	;後背位
+	CASE 61, 66
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん……っ。……深い」"
+			ELSE
+				RESULTS '= "「……あ、……っ、……っ！」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん、……ふ」"
+			ELSE
+				RESULTS '= "「……っ、……は……っ」"
+			ENDIF
+		ENDIF
+	;アナル
+	CASE 80, 83, 81, 84
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ぅ、……ん」"
+			ELSE
+				RESULTS '= "「……っ、……あ……っ」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん、……狭い」"
+			ELSE
+				RESULTS '= "「……っ、……はっ」"
+			ENDIF
+		ENDIF
+	;叩く
+	CASE 100, 101, 106
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……っ。……もっと」"
+			ELSE
+				RESULTS '= "「……あ、……っ！」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ふ。……もう一回」"
+			ELSE
+				RESULTS '= "「……は、……っ」"
+			ENDIF
+		ENDIF
+	;縛る
+	CASE 102, 107
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん。……動かれへん」"
+			ELSE
+				RESULTS '= "「……あ、……っ」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ふ。……ええ顔」"
+			ELSE
+				RESULTS '= "「……は、……っ」"
+			ENDIF
+		ENDIF
+ENDSELECT
+SIF RESULTS != ""
+	RETURN 0
+SELECTCASE 行為の分類:行為
+	;愛撫
+	CASE 2
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "（小さく頷いた）"
+			ELSE
+				RESULTS '= "「……っ、……あかん……っ」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん……」"
+			ELSE
+				RESULTS '= "「……は、……っ」"
+			ENDIF
+		ENDIF
+	;奉仕
+	CASE 3
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん。……もっと」"
+			ELSE
+				RESULTS '= "「……っ、……もう……っ」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん、……」"
+			ELSE
+				RESULTS '= "「……んっ、……っ」"
+			ENDIF
+		ENDIF
+	;Ｖ系
+	CASE 4
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん……っ」"
+			ELSE
+				RESULTS '= "（唇を噛んで、声を殺した）"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ふ、……ぅ」"
+			ELSE
+				RESULTS '= "「……っ、……く……っ」"
+			ENDIF
+		ENDIF
+	;Ａ系
+	CASE 5
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ぅ、……ん」"
+			ELSE
+				RESULTS '= "「……っ、……あ……っ」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん、……」"
+			ELSE
+				RESULTS '= "「……っ、……はっ」"
+			ENDIF
+		ENDIF
+	;特殊
+	CASE 6
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん。……もっと」"
+			ELSE
+				RESULTS '= "「……あ、……っ！」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "（わずかに口元を緩めた）"
+			ELSE
+				RESULTS '= "「……はぁ……っ」"
+			ENDIF
+		ENDIF
+ENDSELECT
+
+
+;連続絶頂版（相手の台詞・女。同じ個室で 2 回目以降に達したとき、口上_絶頂 より先に呼ばれる。空なら 口上_絶頂 に落ちる）。回数＝この個室で続けて達した回数（2 回目は 2）。部位 0=口 1=胸 2=クリトリス 3=膣 4=尻 5=射精
+@口上_連続絶頂_無口_女_関西(番号, 部位, 回数)
+#DIM 番号
+#DIM 部位
+#DIM 回数
+
+RESULTS '= ""
+IF 部位 == 5
+	RESULTS '= "「……っ、……また……っ」"
+ELSEIF 回数 == 2
+	RESULTS '= "「……っ、……また……っ」"
+ELSE
+	RESULTS '= "（肩で息をしながら、顔を伏せた）"
+ENDIF
+
+
+;同時絶頂版（相手の台詞・女・関西弁。関西弁の素質が付いていれば標準語版より先に呼ばれる）
+@口上_同時絶頂_無口_女_関西(番号)
+#DIM 番号
+
+RESULTS '= "「……っ、……いっしょ……」"
+RESULTS += "（息を詰めたまま、あなたの手をぎゅっと握った）"

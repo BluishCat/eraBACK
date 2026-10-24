@@ -1,0 +1,105 @@
+﻿;口上タイプ「無口」の妊娠・出産の口上の関西弁（素質 方言_関西 が付いているとき、タイプ_無口_妊娠 の手前に呼ばれる。2026-10-01）。書き方と局面は タイプ_元気_妊娠.ERB と同じ。空なら標準語に落ちる
+;無口：ほとんど喋らない。痛みも産むときも、ひと声と息づかいだけ。クールよりさらに言葉が少ない。関西弁はひと言の語尾にだけ出す
+
+@口上_妊娠_無口_関西(番号, 局面)
+#DIM 番号
+#DIMS 局面
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "着床"
+		RESULTS '= "「……ん。……？」"
+	CASE "妊娠発覚"
+		RESULTS '= "「……せや。……そう、か」"
+	CASE "陣痛開始"
+		RESULTS '= "「……来た」"
+	CASE "破水"
+		;前期破水（陣痛より先）か、陣痛の途中の適時破水か
+		IF 陣痛:番号:0 <= 1
+			RESULTS '= "「……っ。……破水」"
+		ELSE
+			RESULTS '= "「……っ、く……。……破水」"
+		ENDIF
+	CASE "活動期"
+		RESULTS '= "「……く。……詰まってきた」"
+	CASE "移行期"
+		RESULTS '= "「……っ、う……。……もう、出す」"
+	CASE "娩出期"
+		RESULTS '= "「……来る。……押す」"
+	CASE "波_本格化"
+		SELECTCASE RAND(3)
+			CASE 0
+				RESULTS '= "「……っ」"
+			CASE 1
+				RESULTS '= "「……ん」"
+			CASE 2
+				RESULTS '= "「……ふぅ」"
+		ENDSELECT
+	CASE "波_活動期"
+		SELECTCASE RAND(3)
+			CASE 0
+				RESULTS '= "「……く、ぅ……」"
+			CASE 1
+				RESULTS '= "「……っ、……はぁ」"
+			CASE 2
+				RESULTS '= "「……痛い」"
+		ENDSELECT
+	CASE "波_移行期"
+		SELECTCASE RAND(3)
+			CASE 0
+				RESULTS '= "「ぐ、ぅ……っ！」"
+			CASE 1
+				RESULTS '= "「……あ、ぁ……っ」"
+			CASE 2
+				RESULTS '= "「……っ、はぁ、はぁ……」"
+		ENDSELECT
+	CASE "波_娩出期"
+		SELECTCASE RAND(3)
+			CASE 0
+				RESULTS '= "「んぐ……っ！」"
+			CASE 1
+				RESULTS '= "「……っ、……く、ぅ……」"
+			CASE 2
+				RESULTS '= "「はぁ……はぁ……」"
+		ENDSELECT
+	CASE "いきみ"
+		IF 分娩済:番号:0 >= 1
+			RESULTS '= "「……もう一人。……んんっ……！」"
+		ELSE
+			RESULTS '= "「……んん……っ！」"
+		ENDIF
+	CASE "多胎に気づく"
+		RESULTS '= "「……まだ、おる」"
+	CASE "出産直後"
+		IF 胎児数:番号:0 >= 2
+			RESULTS '= "「……はぁ。……みんな、無事」"
+		ELSE
+			RESULTS '= "「……はぁ。……泣いてる。……せや」"
+		ENDIF
+	CASE "妊娠の報告"
+		RESULTS '= @"「……来てへん。……たぶん、%対称_あんた(番号)%の」"
+	CASE "妊娠の確信の報告"
+		IF 妊娠の報告済:番号:0 >= 1
+			RESULTS '= @"「……はっきりした。……妊娠。%対称_あんた(番号)%の子」"
+		ELSE
+			RESULTS '= @"「……妊娠してる。……%対称_あんた(番号)%の子」"
+		ENDIF
+	CASE "報告_喜ばれた"
+		RESULTS '= "「……せや。……ん」"
+	CASE "報告_戸惑われた"
+		RESULTS '= "「……知っといてほしかった。……それだけ」"
+	CASE "報告_突き放された"
+		RESULTS '= "「……せや。……分かった」"
+	CASE "立ち会いの知らせ"
+		RESULTS '= "「……始まった」"
+	CASE "立ち会いに来た"
+		RESULTS '= "「……来たん。……ん」"
+	CASE "出産直後_父へ"
+		IF 胎児数:番号:0 >= 2
+			RESULTS '= "「……見て。……全員」"
+		ELSE
+			RESULTS '= @"「……見て。……%対称_あんた(番号)%の」"
+		ENDIF
+	CASE "流産"
+		RESULTS '= "「……せや。……一人に、して」"
+ENDSELECT

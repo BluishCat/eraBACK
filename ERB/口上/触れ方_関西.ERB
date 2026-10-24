@@ -1,0 +1,1555 @@
+﻿;触れ方で変わる口上・関西版（2026-10-15 ユーザ指定「作って」。標準語版は 触れ方.ERB。構成は同じ）。
+;呼ぶ順：キャラ別 → タイプ_方言（主人公は タイプ_主人公_方言）→ 標準語（触れ方.ERB）。空なら標準語に落ちる。
+;性別では分けない。手書き（口調はタイプに合わせる。上品＝京ことば寄り、高慢＝「〜しなはれ」、クール・無口＝語尾だけ）。
+
+;---- 元気 ----
+@口上_触れ方_元気_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ちょ、布越しとか焦らしすぎやん……」"
+			CASE 2
+				RESULTS '= "「あ、中まで入ってきた……！　ちょ、早いて」"
+			CASEELSE
+				RESULTS '= "「うわ、直接……！　そこ、あかんて」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上からでもわかってまうやん……なぁ、もっと」"
+			CASE 2
+				RESULTS '= "「ちょ、手ぇ入ってるやん……あったか」"
+			CASEELSE
+				RESULTS '= "「ひゃっ、じかに……！　ちょっと強いて」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻？　服の上からでもエッチやん」"
+			CASE 2
+				RESULTS '= "「あ、中に……手ぇ、つっこむの早ない？」"
+			CASEELSE
+				RESULTS '= "「うわ、直に……ひゃっ、冷たっ」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上からでも熱いの、わかるで」"
+			CASE 2
+				RESULTS '= "「ん、中……すご、もう熱いやん」"
+			CASEELSE
+				RESULTS '= "「じかやとやばいなぁ……全部わかってまうわ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上からでもやわらか〜」"
+			CASE 2
+				RESULTS '= "「中に手ぇ、入れてもた……ふふ、あったかい」"
+			CASEELSE
+				RESULTS '= "「直接やと……やば、すべすべや」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻、服の上から失礼〜」"
+			CASE 2
+				RESULTS '= "「中に手ぇ、入れるで？」"
+			CASEELSE
+				RESULTS '= "「直に触るで……ええ手触り」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+@口上_触れ方_元気_主人公_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布越しでもわかるで、熱いなぁ」"
+			CASE 2
+				RESULTS '= "「中、入るで。……お、もうこんなんなってるやん」"
+			CASEELSE
+				RESULTS '= "「直接さわるで。……ふふ、ええ反応」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上からでもやわらかいなぁ」"
+			CASE 2
+				RESULTS '= "「手ぇ、入れるで。……あったか」"
+			CASEELSE
+				RESULTS '= "「直接触るで。……すべすべや」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻、服の上から失礼〜」"
+			CASE 2
+				RESULTS '= "「中に手ぇ、入れるで？」"
+			CASEELSE
+				RESULTS '= "「直に触るで……ええ手触り」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上からかぁ……もどかしいなぁ」"
+			CASE 2
+				RESULTS '= "「あっ、中まで……ちょっと、早いて」"
+			CASEELSE
+				RESULTS '= "「じかに……っ、あ、やば」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上から……ん、くすぐったい」"
+			CASE 2
+				RESULTS '= "「手ぇ、入ってきた……あったか」"
+			CASEELSE
+				RESULTS '= "「直接……んっ、声出てまう」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻？　服の上からでもエッチやん」"
+			CASE 2
+				RESULTS '= "「あ、中に……手ぇ、つっこむの早ない？」"
+			CASEELSE
+				RESULTS '= "「うわ、直に……ひゃっ、冷たっ」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+;---- クール ----
+@口上_触れ方_クール_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……布越しか。まあ、悪うない」"
+			CASE 2
+				RESULTS '= "「……手ぇが、入ってきたな」"
+			CASEELSE
+				RESULTS '= "「……っ、直接か。……悪うない」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……服の上からでも、わかるわ」"
+			CASE 2
+				RESULTS '= "「……中まで入れるんか」"
+			CASEELSE
+				RESULTS '= "「……直に、触るんか。……ん」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……そこは、服の上からでええ」"
+			CASE 2
+				RESULTS '= "「……中に、手ぇを……」"
+			CASEELSE
+				RESULTS '= "「……直に、か。……っ」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上からでも、熱が伝わるわ」"
+			CASE 2
+				RESULTS '= "「中は、もうこんなに熱いんか」"
+			CASEELSE
+				RESULTS '= "「直接触れると、よぉわかるわ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上からでも、柔らかいな」"
+			CASE 2
+				RESULTS '= "「……中は、温かいな」"
+			CASEELSE
+				RESULTS '= "「直に触れると、違うもんやな」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上から、失礼するで」"
+			CASE 2
+				RESULTS '= "「中に、手ぇを入れる」"
+			CASEELSE
+				RESULTS '= "「直に触れるで」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+@口上_触れ方_クール_主人公_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布越しでも、わかるわ」"
+			CASE 2
+				RESULTS '= "「中を触る。……もう熱いな」"
+			CASEELSE
+				RESULTS '= "「直接触れる。……ええ反応や」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上から、触れるで」"
+			CASE 2
+				RESULTS '= "「手ぇを入れる。……温かい」"
+			CASEELSE
+				RESULTS '= "「直に触れるわ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上から、失礼するで」"
+			CASE 2
+				RESULTS '= "「中に、手ぇを入れる」"
+			CASEELSE
+				RESULTS '= "「直に触れるで」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……布越しやと、もどかしいな」"
+			CASE 2
+				RESULTS '= "「……中まで、入ってくるんか」"
+			CASEELSE
+				RESULTS '= "「……っ、直接は……やめんでええ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……服の上からか。……もどかしいな」"
+			CASE 2
+				RESULTS '= "「……手ぇが、入ってきたな」"
+			CASEELSE
+				RESULTS '= "「……直に、か。……っ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……そこは、服の上からでええ」"
+			CASE 2
+				RESULTS '= "「……中に、手ぇを……」"
+			CASEELSE
+				RESULTS '= "「……直に、か。……っ」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+;---- 上品 ----
+@口上_触れ方_上品_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「あの、布の上からでも……恥ずかしゅうおす」"
+			CASE 2
+				RESULTS '= "「まあ、中に手ぇが……あきまへんえ」"
+			CASEELSE
+				RESULTS '= "「そ、そない直接やなんて……あ……」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お洋服の上からでも……なんや、胸が高鳴りますえ」"
+			CASE 2
+				RESULTS '= "「中に手ぇが……あ、あったかい手ぇどすなぁ」"
+			CASEELSE
+				RESULTS '= "「直接やなんて……はしたない声が出てまいますえ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「そ、そないなとこを服の上から……」"
+			CASE 2
+				RESULTS '= "「中に手ぇを入れられるやなんて……」"
+			CASEELSE
+				RESULTS '= "「直に触れられるやなんて……恥ずかしゅうおす」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上からでも、熱いのがわかりますえ」"
+			CASE 2
+				RESULTS '= "「中は……こない熱いんどすなぁ」"
+			CASEELSE
+				RESULTS '= "「直接触れると……みなわかってしまいますんやなぁ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お洋服の上からでも、柔らかいどすえ」"
+			CASE 2
+				RESULTS '= "「中は、あたたかいんどすなぁ」"
+			CASEELSE
+				RESULTS '= "「直に触れると……なんて滑らかなお肌どすやろ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上から、失礼いたしますえ」"
+			CASE 2
+				RESULTS '= "「中に、手ぇを入れさせていただきますえ」"
+			CASEELSE
+				RESULTS '= "「直に、触れさせていただきますえ」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+@口上_触れ方_上品_主人公_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「失礼いたしますえ。……布越しでも、温かいどす」"
+			CASE 2
+				RESULTS '= "「中に、失礼しますえ。……もうこない」"
+			CASEELSE
+				RESULTS '= "「直接、触れさせていただきますえ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お洋服の上から、失礼しますえ」"
+			CASE 2
+				RESULTS '= "「中に手ぇを入れさせていただきます。……あたたかい」"
+			CASEELSE
+				RESULTS '= "「直に触れさせていただきますえ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上から、失礼いたしますえ」"
+			CASE 2
+				RESULTS '= "「中に、手ぇを入れさせていただきますえ」"
+			CASEELSE
+				RESULTS '= "「直に、触れさせていただきますえ」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上からやと……もどかしゅうおす」"
+			CASE 2
+				RESULTS '= "「中に……手ぇが。……あ、あきまへん」"
+			CASEELSE
+				RESULTS '= "「直接……あ、そない……」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上からでも……なんや、くすぐったいどすえ」"
+			CASE 2
+				RESULTS '= "「手ぇが、中に……あたたかい」"
+			CASEELSE
+				RESULTS '= "「直接やなんて……声が、出てしまいますえ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「そ、そないなとこを服の上から……」"
+			CASE 2
+				RESULTS '= "「中に手ぇを入れられるやなんて……」"
+			CASEELSE
+				RESULTS '= "「直に触れられるやなんて……恥ずかしゅうおす」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+;---- 世話焼き ----
+@口上_触れ方_世話焼き_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「もう、布の上からなんて……遠慮せんでええのに」"
+			CASE 2
+				RESULTS '= "「あら、中に手ぇ入れて……もう、しゃあないなぁ」"
+			CASEELSE
+				RESULTS '= "「直接なん？　……もう、せっかちやなぁ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上から……ふふ、くすぐったいで」"
+			CASE 2
+				RESULTS '= "「中に入ってきて……もう、あったかい手ぇやな」"
+			CASEELSE
+				RESULTS '= "「直に触るん？……もう、やさしゅうしてな」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻？　もう、服の上からでもいやらしいんやから」"
+			CASE 2
+				RESULTS '= "「中に手ぇ入れて……もう、手ぇ早いなぁ」"
+			CASEELSE
+				RESULTS '= "「直に……もう、冷たい手ぇやな」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上からでも、熱いわ……しんどかったやろ」"
+			CASE 2
+				RESULTS '= "「中は、もうこんなに……よしよし」"
+			CASEELSE
+				RESULTS '= "「直接触ると、よぉわかるなぁ。……我慢せんでええんよ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上からでも、やわらかいんやなぁ」"
+			CASE 2
+				RESULTS '= "「中は、あったかいなぁ」"
+			CASEELSE
+				RESULTS '= "「直接触ると……すべすべ。気持ちええわ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻、服の上から失礼するで」"
+			CASE 2
+				RESULTS '= "「中に手ぇ入れるで」"
+			CASEELSE
+				RESULTS '= "「直接触るで。……ええ手触り」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+@口上_触れ方_世話焼き_主人公_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上から触るで。……もう、熱いやん」"
+			CASE 2
+				RESULTS '= "「中に手ぇ入れるで。……よしよし、こんなに」"
+			CASEELSE
+				RESULTS '= "「直接触るで。……我慢してたんやな」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上から触るで。……やわらかい」"
+			CASE 2
+				RESULTS '= "「手ぇ入れるで。……あったかい」"
+			CASEELSE
+				RESULTS '= "「直接触るで。……すべすべやな」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻、服の上から失礼するで」"
+			CASE 2
+				RESULTS '= "「中に手ぇ入れるで」"
+			CASEELSE
+				RESULTS '= "「直接触るで。……ええ手触り」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上からやと、もどかしいんよ……もう」"
+			CASE 2
+				RESULTS '= "「中に入ってきた……もう、せっかちやなぁ」"
+			CASEELSE
+				RESULTS '= "「直接……ん、もう、やさしゅうしてな」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上からでも、くすぐったいで」"
+			CASE 2
+				RESULTS '= "「中に手ぇが……あったかいなぁ」"
+			CASEELSE
+				RESULTS '= "「直接なんて……もう、声出てまうやん」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻？　もう、服の上からでもいやらしいんやから」"
+			CASE 2
+				RESULTS '= "「中に手ぇ入れて……もう、手ぇ早いなぁ」"
+			CASEELSE
+				RESULTS '= "「直に……もう、冷たい手ぇやな」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+;---- 内気 ----
+@口上_触れ方_内気_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「あ、あの……布の上からでも、は、恥ずかしいです……」"
+			CASE 2
+				RESULTS '= "「あっ、手ぇが……中に……っ」"
+			CASEELSE
+				RESULTS '= "「じ、直接なんて……あ、あきません……っ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふ、服の上からでも……ど、どきどきします……」"
+			CASE 2
+				RESULTS '= "「あ、手ぇが入って……あ、あったかい……」"
+			CASEELSE
+				RESULTS '= "「直接……あっ、あ、あかん、声が……」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「そ、そこ、服の上から……恥ずかしい……」"
+			CASE 2
+				RESULTS '= "「中に、手ぇが……あっ」"
+			CASEELSE
+				RESULTS '= "「じ、直に……や、やや……恥ずかしい……」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ぬ、布の上からでも、あ、熱い……ですね……」"
+			CASE 2
+				RESULTS '= "「な、中、こんなに……あ、熱い……」"
+			CASEELSE
+				RESULTS '= "「じ、直接さわってもた……ど、どないしよ……」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふ、服の上からでも、や、やわらかい……」"
+			CASE 2
+				RESULTS '= "「て、手ぇ、入れてもた……あ、あったかい……」"
+			CASEELSE
+				RESULTS '= "「じ、直接……す、すべすべ……ご、ごめんなさい……」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お、お尻、ふ、服の上から、しつれいします……」"
+			CASE 2
+				RESULTS '= "「な、中に手ぇを……い、入れます……」"
+			CASEELSE
+				RESULTS '= "「じ、直接、さ、触ります……」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+@口上_触れ方_内気_主人公_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ぬ、布の上から、さ、触ります……あ、熱い……」"
+			CASE 2
+				RESULTS '= "「な、中に、て、手ぇを入れます……こ、こんなに……」"
+			CASEELSE
+				RESULTS '= "「じ、直接、さ、触ります……ど、どないですか……」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふ、服の上から、しつれいします……」"
+			CASE 2
+				RESULTS '= "「て、手ぇ、入れます……あ、あったかい……」"
+			CASEELSE
+				RESULTS '= "「じ、直接触ります……え、ええですか……」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お、お尻、ふ、服の上から、しつれいします……」"
+			CASE 2
+				RESULTS '= "「な、中に手ぇを……い、入れます……」"
+			CASEELSE
+				RESULTS '= "「じ、直接、さ、触ります……」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ぬ、布の上からでも……は、恥ずかしい……」"
+			CASE 2
+				RESULTS '= "「あ、中に……て、手ぇが……っ」"
+			CASEELSE
+				RESULTS '= "「じ、直接……あ、あ、あかん……っ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふ、服の上からでも……ど、どきどきする……」"
+			CASE 2
+				RESULTS '= "「あ、手ぇが入って……あ、あったかい……」"
+			CASEELSE
+				RESULTS '= "「じ、直接……あっ、こ、声が……」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「そ、そこ、服の上から……恥ずかしい……」"
+			CASE 2
+				RESULTS '= "「中に、手ぇが……あっ」"
+			CASEELSE
+				RESULTS '= "「じ、直に……や、やや……恥ずかしい……」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+;---- 奔放 ----
+@口上_触れ方_奔放_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「あは、布越しで焦らすん？　……ええなぁ、そういうの」"
+			CASE 2
+				RESULTS '= "「お、中まで入ってきた。……ええよ、もっと奥まで」"
+			CASEELSE
+				RESULTS '= "「ん、直接来た……ええなぁ、思いっきりして」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上からでも感じてまう……なぁ、脱がせてぇな」"
+			CASE 2
+				RESULTS '= "「あ、手ぇ入ってきた……ええよ、好きにして」"
+			CASEELSE
+				RESULTS '= "「直接……あは、ええ感じ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻？　服の上からでもええけど……直接でもええよ？」"
+			CASE 2
+				RESULTS '= "「あは、中まで……ええよ、好きに揉んで」"
+			CASEELSE
+				RESULTS '= "「ん、直接……ええなぁ」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上からでも、熱いのわかるで。……脱がせてまう？」"
+			CASE 2
+				RESULTS '= "「中、もうこんなん……あは、素直やなぁ」"
+			CASEELSE
+				RESULTS '= "「直接さわってもた。……ふふ、すごいなぁ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上からでもやわらかい。……直接さわりたいなぁ」"
+			CASE 2
+				RESULTS '= "「手ぇ、入れてもた。……あったか」"
+			CASEELSE
+				RESULTS '= "「直接……あは、気持ちええなぁ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻、服の上から揉んだろ」"
+			CASE 2
+				RESULTS '= "「中に手ぇ、入れるで？」"
+			CASEELSE
+				RESULTS '= "「直接触るで。……ええ手触り」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+@口上_触れ方_奔放_主人公_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上から……熱いなぁ。もう直接いってまう？」"
+			CASE 2
+				RESULTS '= "「中、触るで。……あは、もうこんなん」"
+			CASEELSE
+				RESULTS '= "「直接触るで。……ええ反応」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上から……ええなぁ、やわらかい。直接触りたいなぁ」"
+			CASE 2
+				RESULTS '= "「手ぇ、入れるで。……あったか〜」"
+			CASEELSE
+				RESULTS '= "「直接触るで。……すべすべや」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻、服の上から揉んだろ」"
+			CASE 2
+				RESULTS '= "「中に手ぇ、入れるで？」"
+			CASEELSE
+				RESULTS '= "「直接触るで。……ええ手触り」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上からか……焦らすなぁ。ええよ、そういうの」"
+			CASE 2
+				RESULTS '= "「あっ、中まで……ええよ、もっと」"
+			CASEELSE
+				RESULTS '= "「直接……んっ、ええなぁ、それ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上からでも感じてまう。……直接でもええよ？」"
+			CASE 2
+				RESULTS '= "「手ぇ、入ってきた……ええよ、好きにして」"
+			CASEELSE
+				RESULTS '= "「直接……あ、ええ感じ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻？　服の上からでもええけど……直接でもええよ？」"
+			CASE 2
+				RESULTS '= "「あは、中まで……ええよ、好きに揉んで」"
+			CASEELSE
+				RESULTS '= "「ん、直接……ええなぁ」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+;---- 無口 ----
+@口上_触れ方_無口_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……もどかしいわ」"
+			CASE 2
+				RESULTS '= "「……手ぇが」"
+			CASEELSE
+				RESULTS '= "「……っ、直に」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……服の、上から」"
+			CASE 2
+				RESULTS '= "「……入って、きたわ」"
+			CASEELSE
+				RESULTS '= "「……直に」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……そこ」"
+			CASE 2
+				RESULTS '= "「……中に」"
+			CASEELSE
+				RESULTS '= "「……直に、か」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……熱いわ」"
+			CASE 2
+				RESULTS '= "「……中、熱いわ」"
+			CASEELSE
+				RESULTS '= "「……直に、わかるわ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……やわらかい」"
+			CASE 2
+				RESULTS '= "「……あったかいわ」"
+			CASEELSE
+				RESULTS '= "「……すべすべや」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……お尻、服の上」"
+			CASE 2
+				RESULTS '= "「……中に、入れる」"
+			CASEELSE
+				RESULTS '= "「……直に」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+@口上_触れ方_無口_主人公_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……布越し、熱いわ」"
+			CASE 2
+				RESULTS '= "「……中、触るで」"
+			CASEELSE
+				RESULTS '= "「……直に、触るで」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……服の上から」"
+			CASE 2
+				RESULTS '= "「……手ぇ、入れる」"
+			CASEELSE
+				RESULTS '= "「……直に」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……お尻、服の上」"
+			CASE 2
+				RESULTS '= "「……中に、入れる」"
+			CASEELSE
+				RESULTS '= "「……直に」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……もどかしいわ」"
+			CASE 2
+				RESULTS '= "「……中に、手ぇが」"
+			CASEELSE
+				RESULTS '= "「……っ、直に」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……服の、上から」"
+			CASE 2
+				RESULTS '= "「……入って、きたわ」"
+			CASEELSE
+				RESULTS '= "「……直に、か」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「……そこ」"
+			CASE 2
+				RESULTS '= "「……中に」"
+			CASEELSE
+				RESULTS '= "「……直に、か」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+;---- 無邪気 ----
+@口上_触れ方_無邪気_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「わ、ふくの上からさわってるん？　くすぐったーい」"
+			CASE 2
+				RESULTS '= "「あれ、おてておはいってもた。……へんなかんじ」"
+			CASEELSE
+				RESULTS '= "「わっ、じかにさわってるやん！　ふしぎ……」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふくの上から？　……なんかくすぐったーい」"
+			CASE 2
+				RESULTS '= "「あ、おてて入ってきた。あったかーい」"
+			CASEELSE
+				RESULTS '= "「じかにさわるん？　……あ、ひゃっ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「おしり？　ふくの上からでもくすぐったいで」"
+			CASE 2
+				RESULTS '= "「おててがはいってきた。……ふふ、へんなかんじ」"
+			CASEELSE
+				RESULTS '= "「じかに？　つめたーい」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ぬのの上からでもあったかいなぁ。……ここ、へんなかんじ？」"
+			CASE 2
+				RESULTS '= "「中、めっちゃあったかい。……だいじょうぶ？」"
+			CASEELSE
+				RESULTS '= "「じかにさわってもた。……なんかすごいなぁ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふくの上からでもふわふわ〜」"
+			CASE 2
+				RESULTS '= "「おてて入れてもた。……あったかーい」"
+			CASEELSE
+				RESULTS '= "「じかにさわると、すべすべやー」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「おしり、ふくの上からさわるで」"
+			CASE 2
+				RESULTS '= "「おててを入れるでー」"
+			CASEELSE
+				RESULTS '= "「じかにさわるで。……ぷにぷに」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+@口上_触れ方_無邪気_主人公_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ぬのの上からさわるで。……あったかい」"
+			CASE 2
+				RESULTS '= "「おてて入れるでー。……わ、あったかい」"
+			CASEELSE
+				RESULTS '= "「じかにさわるで。……ふしぎ〜」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふくの上からさわるで。……ふわふわ」"
+			CASE 2
+				RESULTS '= "「おてて入れるで。……あったかーい」"
+			CASEELSE
+				RESULTS '= "「じかにさわるで。……すべすべ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「おしり、ふくの上からさわるで」"
+			CASE 2
+				RESULTS '= "「おててを入れるでー」"
+			CASEELSE
+				RESULTS '= "「じかにさわるで。……ぷにぷに」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ぬのの上から……くすぐったい」"
+			CASE 2
+				RESULTS '= "「おてて入ってきた……へんなかんじ」"
+			CASEELSE
+				RESULTS '= "「じかに……ひゃっ、へんなかんじ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふくの上からでも……くすぐったーい」"
+			CASE 2
+				RESULTS '= "「おてて入ってきた……あったかい」"
+			CASEELSE
+				RESULTS '= "「じかに……あ、ひゃっ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「おしり？　ふくの上からでもくすぐったいで」"
+			CASE 2
+				RESULTS '= "「おててがはいってきた。……ふふ、へんなかんじ」"
+			CASEELSE
+				RESULTS '= "「じかに？　つめたーい」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+;---- 甘え ----
+@口上_触れ方_甘え_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……布の上からやと、もどかしいやぁん」"
+			CASE 2
+				RESULTS '= "「あ……手ぇ、入ってきた……なぁ、もっと」"
+			CASEELSE
+				RESULTS '= "「ん……直接……なぁ、やさしゅうしてな？」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……服の上からやと、もどかしいやぁん」"
+			CASE 2
+				RESULTS '= "「あ……手ぇ、入ってきた……あったかい」"
+			CASEELSE
+				RESULTS '= "「ん……直接……なぁ、もっとぉ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……そこ、服の上から……恥ずかしいやぁん」"
+			CASE 2
+				RESULTS '= "「あ……中に手ぇが……なぁ、あかんてぇ」"
+			CASEELSE
+				RESULTS '= "「ん……直に……なぁ、もっと触ってぇ」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……布の上からでも熱いの、わかるやぁん」"
+			CASE 2
+				RESULTS '= "「なぁ……中、こんなに熱いやぁん」"
+			CASEELSE
+				RESULTS '= "「なぁ……直接さわってもた……えへへ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……服の上からでも、やわらかいなぁ」"
+			CASE 2
+				RESULTS '= "「なぁ……中、あったかいなぁ」"
+			CASEELSE
+				RESULTS '= "「なぁ……直接……すべすべやぁん」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……お尻、服の上からさわるな？」"
+			CASE 2
+				RESULTS '= "「なぁ……中に手ぇ、入れるな？」"
+			CASEELSE
+				RESULTS '= "「なぁ……直接さわるな？」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+@口上_触れ方_甘え_主人公_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……布の上から、さわるな？　……熱いやぁん」"
+			CASE 2
+				RESULTS '= "「なぁ……中、さわるな？　……すごぉい」"
+			CASEELSE
+				RESULTS '= "「なぁ……直接さわるな？　……ええ？」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……服の上から、さわるな？」"
+			CASE 2
+				RESULTS '= "「なぁ……手ぇ、入れるな？　……あったかぁい」"
+			CASEELSE
+				RESULTS '= "「なぁ……直接さわるな？　……すべすべ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……お尻、服の上からさわるな？」"
+			CASE 2
+				RESULTS '= "「なぁ……中に手ぇ、入れるな？」"
+			CASEELSE
+				RESULTS '= "「なぁ……直接さわるな？」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……布の上からやと、もどかしいやぁん」"
+			CASE 2
+				RESULTS '= "「あ……手ぇ、入ってきた……なぁ、もっとぉ」"
+			CASEELSE
+				RESULTS '= "「ん……直接……なぁ、やさしゅうしてぇ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……服の上からやと、もどかしいやぁん」"
+			CASE 2
+				RESULTS '= "「あ……手ぇ、入ってきた……あったかいやぁん」"
+			CASEELSE
+				RESULTS '= "「ん……直接……なぁ、もっとぉ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「なぁ……そこ、服の上から……恥ずかしいやぁん」"
+			CASE 2
+				RESULTS '= "「あ……中に手ぇが……なぁ、あかんてぇ」"
+			CASEELSE
+				RESULTS '= "「ん……直に……なぁ、もっと触ってぇ」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+;---- 真面目 ----
+@口上_触れ方_真面目_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ぬ、布の上からでも、こ、こないなことは……」"
+			CASE 2
+				RESULTS '= "「な、中に手ぇを入れるやなんて……あ、あきません……っ」"
+			CASEELSE
+				RESULTS '= "「じ、直接なんて……そ、そないなことは……っ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふ、服の上からでも、こ、こないなことは……」"
+			CASE 2
+				RESULTS '= "「手ぇを、中に……あ、あきません……」"
+			CASEELSE
+				RESULTS '= "「じ、直接触れるやなんて……はしたない……っ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「そ、そこを、服の上から……あ、あきません」"
+			CASE 2
+				RESULTS '= "「中に手ぇを入れるやなんて……あ、あきません」"
+			CASEELSE
+				RESULTS '= "「じ、直に触れるやなんて……あ、あきません……」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ぬ、布の上からでも、あ、熱いのがわかります……」"
+			CASE 2
+				RESULTS '= "「な、中が、こ、こないに熱いとは……」"
+			CASEELSE
+				RESULTS '= "「じ、直接触れると、す、すべてわかってしまいますね……」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふ、服の上からでも、や、やわらかいですね……」"
+			CASE 2
+				RESULTS '= "「な、中は、あ、あたたかいんですね……」"
+			CASEELSE
+				RESULTS '= "「じ、直接触れると……す、すべすべです……」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お、お尻に、ふ、服の上から失礼します」"
+			CASE 2
+				RESULTS '= "「な、中に手ぇを入れます」"
+			CASEELSE
+				RESULTS '= "「じ、直接失礼します」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+@口上_触れ方_真面目_主人公_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ぬ、布の上から失礼します。……あ、熱いですね」"
+			CASE 2
+				RESULTS '= "「な、中に失礼します。……こ、こないにとは」"
+			CASEELSE
+				RESULTS '= "「じ、直接失礼します。……ど、どないでしょうか」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふ、服の上から失礼します」"
+			CASE 2
+				RESULTS '= "「て、手ぇを入れます。……あ、あたたかいですね」"
+			CASEELSE
+				RESULTS '= "「じ、直接失礼します」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お、お尻に、ふ、服の上から失礼します」"
+			CASE 2
+				RESULTS '= "「な、中に手ぇを入れます」"
+			CASEELSE
+				RESULTS '= "「じ、直接失礼します」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ぬ、布の上からでも……こ、こないなことは……」"
+			CASE 2
+				RESULTS '= "「中に手ぇが……あ、あきません……」"
+			CASEELSE
+				RESULTS '= "「じ、直接なんて……そ、そないな……っ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふ、服の上からでも……こ、こないなことは……」"
+			CASE 2
+				RESULTS '= "「手ぇが、中に……あ、あきません……」"
+			CASEELSE
+				RESULTS '= "「じ、直接なんて……は、はしたない……っ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「そ、そこを、服の上から……あ、あきません」"
+			CASE 2
+				RESULTS '= "「中に手ぇを入れるやなんて……あ、あきません」"
+			CASEELSE
+				RESULTS '= "「じ、直に触れるやなんて……あ、あきません……」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+;---- 高慢 ----
+@口上_触れ方_高慢_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふん、布の上からやなんて……そんな触り方で満足させられる思てるん？」"
+			CASE 2
+				RESULTS '= "「ちょっと、中に手ぇを入れるやなんて……ま、まあ、許したるわ」"
+			CASEELSE
+				RESULTS '= "「直接やなんて……ふ、ふん、好きにしなはれ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上から？　ふん、そんな触り方やと全然足りまへんえ」"
+			CASE 2
+				RESULTS '= "「中に手ぇを……ま、まあ、触らせたるわ」"
+			CASEELSE
+				RESULTS '= "「直接やなんて……ふ、ふん、光栄に思いなはれ」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻を服の上から？　ふん、物好きやなぁ」"
+			CASE 2
+				RESULTS '= "「中に手ぇを入れるやなんて……ふ、ふん、許したるわ」"
+			CASEELSE
+				RESULTS '= "「直に触るやなんて……ま、まあええわ」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふん、布の上からでも熱いのがわかるわ」"
+			CASE 2
+				RESULTS '= "「中はこない熱いんやな。……ふん、正直やないの」"
+			CASEELSE
+				RESULTS '= "「直接触ったったわ。……ふふ、感謝しなはれ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふん、服の上からでもやわらかいやないの」"
+			CASE 2
+				RESULTS '= "「中は温かいんやな。……ふん、悪うないわ」"
+			CASEELSE
+				RESULTS '= "「直接触ったるわ。……ふん、ええ肌やな」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻を、服の上から触ったる」"
+			CASE 2
+				RESULTS '= "「中に手ぇを入れたるわ」"
+			CASEELSE
+				RESULTS '= "「直接触ったる。……光栄に思いなはれ」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+
+@口上_触れ方_高慢_主人公_関西(番号, 行為, 向き, 区分)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 区分
+#DIM 群
+
+RESULTS '= ""
+群 = 触れ方の群(行為)
+IF 向き == 0
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「布の上から触ったるわ。……ふん、熱いやないの」"
+			CASE 2
+				RESULTS '= "「中を触ったるわ。……ふん、もうこんなんなって」"
+			CASEELSE
+				RESULTS '= "「直接触ったる。……光栄に思いなはれ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「服の上から触ったるわ」"
+			CASE 2
+				RESULTS '= "「中に手ぇを入れたる。……ふん、温かいやないの」"
+			CASEELSE
+				RESULTS '= "「直接触ったる。……ふん、ええ肌やな」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻を、服の上から触ったる」"
+			CASE 2
+				RESULTS '= "「中に手ぇを入れたるわ」"
+			CASEELSE
+				RESULTS '= "「直接触ったる。……光栄に思いなはれ」"
+		ENDSELECT
+	ENDIF
+ELSE
+	IF 群 == 0
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふん、布の上からやなんて……もどかしいやないの」"
+			CASE 2
+				RESULTS '= "「中に手ぇを……ふ、ふん、許したるわ」"
+			CASEELSE
+				RESULTS '= "「直接やなんて……ふ、ふん、好きにしなはれ」"
+		ENDSELECT
+	ELSEIF 群 == 1
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「ふん、服の上から？　そんなんやと足りまへんえ」"
+			CASE 2
+				RESULTS '= "「手ぇを中に……ま、まあ、許したるわ」"
+			CASEELSE
+				RESULTS '= "「直接やなんて……ふ、ふん」"
+		ENDSELECT
+	ELSEIF 群 == 2
+		SELECTCASE 区分
+			CASE 1
+				RESULTS '= "「お尻を服の上から？　ふん、物好きやなぁ」"
+			CASE 2
+				RESULTS '= "「中に手ぇを入れるやなんて……ふ、ふん、許したるわ」"
+			CASEELSE
+				RESULTS '= "「直に触るやなんて……ま、まあええわ」"
+		ENDSELECT
+	ENDIF
+ENDIF
+
+

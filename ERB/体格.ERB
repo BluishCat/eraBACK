@@ -1,0 +1,684 @@
+﻿;体格の段（体型・バスト・下半身）と、それを文に出す言い回し。
+;2026-09-30 ユーザ指定「キャラのステータスに体型、下半身の項目を追加したい。バストの項目も含めて。erablue を参考に」
+;「素質として持ち、段としても変わるように」。erablue_resort の 体型／バストサイズ／下半身 素質（BODYSIZE.ERB）に倣う。
+;
+;・段は素質で持つ（Talent.csv 150〜152。キャラCSVに `素質,体型,-1` のように書ける。0 は未記入＝数値から引く）
+;    体型（-3 痩せすぎ 〜 3 肥満）／バストサイズ（-2 絶壁 〜 3 魔乳。男・性別なしは 0 のまま）／下半身（-1 逆三角形・0 普通・1 安産型）
+;・登録のとき（SYSTEM.ERB @体型を入れる）：段が書いてあって胴囲／胸囲／腰囲 の数字が無ければ段から数字を作り、数字があれば段は書いたまま。
+;  どちらも無ければ数字を既定で決めて段を引く
+;・体を変えたら @体格の段を引き直す(番号, 対象) を呼ぶ（施術・妊娠・産後の回復・主人公作成）
+;・段は文に効く：@胸の語 @尻の語 @脚の語 @腰の語 @体の語（行為文・セクハラ）と @分娩の体格の文・@出産の語（出産）
+
+
+;============================== 名前 ==============================
+@体型の段名(段)
+#FUNCTIONS
+#DIM 段
+
+SELECTCASE 段
+	CASE IS <= -3
+		RETURNF "痩せすぎ"
+	CASE -2
+		RETURNF "細身"
+	CASE -1
+		RETURNF "スレンダー"
+	CASE 1
+		RETURNF "肉感的"
+	CASE 2
+		RETURNF "豊満"
+	CASE IS >= 3
+		RETURNF "肥満"
+ENDSELECT
+RETURNF "普通"
+
+
+@バストの段名(段)
+#FUNCTIONS
+#DIM 段
+
+SELECTCASE 段
+	CASE IS <= -2
+		RETURNF "絶壁"
+	CASE -1
+		RETURNF "貧乳"
+	CASE 1
+		RETURNF "巨乳"
+	CASE 2
+		RETURNF "爆乳"
+	CASE IS >= 3
+		RETURNF "魔乳"
+ENDSELECT
+RETURNF "並乳"
+
+
+@下半身の段名(段)
+#FUNCTIONS
+#DIM 段
+
+SELECTCASE 段
+	CASE IS <= -1
+		RETURNF "逆三角形"
+	CASE IS >= 1
+		RETURNF "安産型"
+ENDSELECT
+RETURNF "普通"
+
+
+@男性器の段名(段)
+#FUNCTIONS
+#DIM 段
+
+SELECTCASE 段
+	CASE IS <= -2
+		RETURNF "極小"
+	CASE -1
+		RETURNF "小ぶり"
+	CASE 1
+		RETURNF "巨根"
+	CASE IS >= 2
+		RETURNF "規格外"
+ENDSELECT
+RETURNF "平均"
+
+
+;男性器を持つ性別か（男・ふたなり。性別ビット 1・4）
+@男性器があるか(番号)
+#FUNCTION
+#DIM 番号
+
+RETURNF (性別ビット(番号) & 5) != 0
+
+
+;素質タグに並べる札。普通の段は出さない（男・性別なしにバストは出さない）。[巨乳][スレンダー][安産型]
+@体格の札(番号)
+#FUNCTIONS
+#DIM 番号
+#DIMS 出力
+
+出力 '= ""
+SIF 性別ビット(番号) & 6 && TALENT:番号:バストサイズ != 0
+	出力 += "[" + バストの段名(TALENT:番号:バストサイズ) + "]"
+SIF TALENT:番号:体型 != 0
+	出力 += "[" + 体型の段名(TALENT:番号:体型) + "]"
+SIF TALENT:番号:下半身 != 0
+	出力 += "[" + 下半身の段名(TALENT:番号:下半身) + "]"
+SIF 男性器があるか(番号) && TALENT:番号:男性器サイズ != 0
+	出力 += "[" + 男性器の段名(TALENT:番号:男性器サイズ) + "]"
+RETURNF 出力
+
+
+;情報の欄に出す一行。「体型：普通　　バスト：並乳　　下半身：普通」（バストは女・ふたなりだけ）
+@体格の行(番号)
+#FUNCTIONS
+#DIM 番号
+#DIMS 出力
+
+出力 '= "体型：" + 体型の段名(TALENT:番号:体型)
+SIF 性別ビット(番号) & 6
+	出力 += "　　バスト：" + バストの段名(TALENT:番号:バストサイズ)
+出力 += "　　下半身：" + 下半身の段名(TALENT:番号:下半身)
+SIF 男性器があるか(番号)
+	出力 += "　　男性器：" + 男性器の段名(TALENT:番号:男性器サイズ)
+RETURNF 出力
+
+
+;体格の素質か（タグの一覧に出さない）
+@体格の素質か(素質)
+#FUNCTION
+#DIM 素質
+
+RETURNF 素質 >= 体格素質の始め && 素質 <= 体格素質の終わり
+
+
+;============================== 数値から段を引く ==============================
+;男寄り＝性別が男のとき。ふたなり・性別なし・女は女の係数（@体型を入れる と同じ）
+@男の体格か(番号)
+#FUNCTION
+#DIM 番号
+
+RETURNF 性別ビット(番号) == 1
+
+
+;胴囲の基準（身長に対する％の分母。身長×0.39（女）／×0.45（男））。既定の胴囲（女 60cm・男 76cm）が「普通」の帯（95〜100）の真ん中に来る係数
+;（erablue は 0.38／0.43。既定が 100％ ちょうどだと、既定の半分が肉感的に寄ってしまうので少し大きくした）
+@胴囲の係数(番号)
+#FUNCTION
+#DIM 番号
+
+SIF 男の体格か(番号)
+	RETURNF 45
+RETURNF 39
+
+
+;胴囲の身長比（％）。妊娠中・産後は妊娠前サイズ（回復目標）で見る。腹が膨らんだだけで「肥満」にならないように
+@胴囲の比(番号)
+#FUNCTION
+#DIM 番号
+#DIM 胴
+
+胴 = 胴囲:番号:0
+SIF 回復目標_胴囲:番号:0 > 0
+	胴 = 回復目標_胴囲:番号:0
+RETURNF 胴 * 10000 / (身長:番号:0 * 胴囲の係数(番号))
+
+
+;体型の段。> 110 肥満 > 105 豊満 > 100 肉感的 > 95 普通 > 90 スレンダー > 85 細身 それ以下 痩せすぎ（erablue と同じ帯）
+@体型の段を出す(番号)
+#FUNCTION
+#DIM 番号
+#DIM 比
+
+比 = 胴囲の比(番号)
+SELECTCASE 比
+	CASE IS > 110
+		RETURNF 3
+	CASE IS > 105
+		RETURNF 2
+	CASE IS > 100
+		RETURNF 1
+	CASE IS > 95
+		RETURNF 0
+	CASE IS > 90
+		RETURNF -1
+	CASE IS > 85
+		RETURNF -2
+ENDSELECT
+RETURNF -3
+
+
+;下半身を見るときの体型の補正（％）。細い体は同じ腰でも張って見えるので大きく、太い体は小さく（erablue の INIT_BODYSIZE_HIP）
+@下半身の体型補正(段)
+#FUNCTION
+#DIM 段
+
+SELECTCASE 段
+	CASE IS <= -3
+		RETURNF 108
+	CASE -2
+		RETURNF 105
+	CASE -1
+		RETURNF 102
+	CASE 1
+		RETURNF 96
+	CASE 2
+		RETURNF 92
+	CASE IS >= 3
+		RETURNF 89
+ENDSELECT
+RETURNF 100
+
+
+;腰囲の身長比（％、体型の補正込み）
+@腰囲の比(番号)
+#FUNCTION
+#DIM 番号
+#DIM 腰
+#DIM 係数
+
+腰 = 腰囲:番号:0 * 下半身の体型補正(TALENT:番号:体型) / 100
+;男の既定の腰（90cm）が身長 172 に対して 52％。erablue は 47
+係数 = 54
+SIF 男の体格か(番号)
+	係数 = 52
+RETURNF 腰 * 10000 / (身長:番号:0 * 係数)
+
+
+;下半身の段。> 103 安産型 > 95 普通 > 90 普通（男は逆三角形） それ以下 逆三角形
+@下半身の段を出す(番号)
+#FUNCTION
+#DIM 番号
+#DIM 比
+
+比 = 腰囲の比(番号)
+SELECTCASE 比
+	CASE IS > 103
+		RETURNF 1
+	CASE IS > 95
+		RETURNF 0
+	CASE IS > 90
+		SIF 男の体格か(番号)
+			RETURNF -1
+		RETURNF 0
+ENDSELECT
+RETURNF -1
+
+
+;バストの段。カップ差（胸囲−アンダー）で：〜10cm 絶壁（AAA〜AA）〜15 貧乳（A〜B）〜20 並乳（C〜D）〜25 巨乳（E〜F）〜32.5 爆乳（G〜I）それ以上 魔乳（J〜）
+;男・性別なしは 0
+@バストの段を出す(番号)
+#FUNCTION
+#DIM 番号
+#DIM 差
+
+SIF !(性別ビット(番号) & 6)
+	RETURNF 0
+差 = 胸囲:番号:0 - アンダーバスト(番号)
+SELECTCASE 差
+	CASE IS < 100
+		RETURNF -2
+	CASE IS < 150
+		RETURNF -1
+	CASE IS < 200
+		RETURNF 0
+	CASE IS < 250
+		RETURNF 1
+	CASE IS < 325
+		RETURNF 2
+ENDSELECT
+RETURNF 3
+
+
+;数値を変えたあとに段を引き直す。対象は 体格_体型／体格_バスト／体格_下半身 を足したもの（体格_全部）。
+;下半身は体型の補正を見るので、体型を先に引く
+;（主人公作成で性別を変えるとき・既定に戻すときは、先に @体格の段を空にする で段を消してから @体型を入れる を呼ぶ。段が残っていると数字を作り直してしまう）
+@体格の段を引き直す(番号, 対象)
+#DIM 番号
+#DIM 対象
+
+SIF 対象 & 体格_体型
+	TALENT:番号:体型 = 体型の段を出す(番号)
+SIF 対象 & 体格_バスト
+	TALENT:番号:バストサイズ = バストの段を出す(番号)
+SIF 対象 & 体格_下半身
+	TALENT:番号:下半身 = 下半身の段を出す(番号)
+
+
+;段を全部 0（未記入）に戻す。@体型を入れる をやり直す前に
+@体格の段を空にする(番号)
+#DIM 番号
+
+TALENT:番号:体型 = 0
+TALENT:番号:バストサイズ = 0
+TALENT:番号:下半身 = 0
+TALENT:番号:男性器サイズ = 0
+
+
+;============================== 段から数値を作る ==============================
+;段に合う数字を作る（帯の真ん中あたり＋少しばらつかせる）。登録で数字が書いていないとき、主人公作成の段ボタンから
+;作った数字を引き直すと同じ段に戻る（帯の内側に落とす）。数字は 体型の下限〜上限 に収める
+@体格の段から数値を作る(番号, 対象)
+#DIM 番号
+#DIM 対象
+#DIM 段
+#DIM 比
+#DIM 係数
+#DIM 値
+
+;胴囲：身長比 ％。痩せすぎ80 細身88 スレンダー93 普通98 肉感的103 豊満108 肥満116
+IF 対象 & 体格_体型
+	段 = TALENT:番号:体型
+	SELECTCASE 段
+		CASE IS <= -3
+			比 = 80
+		CASE -2
+			比 = 88
+		CASE -1
+			比 = 93
+		CASE 0
+			比 = 98
+		CASE 1
+			比 = 103
+		CASE 2
+			比 = 108
+		CASEELSE
+			比 = 116
+	ENDSELECT
+	比 += ゆらぎ(1)
+	値 = 比 * 身長:番号:0 * 胴囲の係数(番号) / 10000
+	胴囲:番号:0 = LIMIT(値, 体型の下限, 体型の上限)
+ENDIF
+
+;胸囲：アンダー＋カップ差。絶壁8.5cm 貧乳12.5 並乳17.5 巨乳22.5 爆乳28.5 魔乳35
+IF (対象 & 体格_バスト) && (性別ビット(番号) & 6)
+	段 = TALENT:番号:バストサイズ
+	SELECTCASE 段
+		CASE IS <= -2
+			値 = 85 + ゆらぎ(10)
+		CASE -1
+			値 = 125 + ゆらぎ(15)
+		CASE 0
+			値 = 175 + ゆらぎ(15)
+		CASE 1
+			値 = 225 + ゆらぎ(15)
+		CASE 2
+			値 = 285 + ゆらぎ(20)
+		CASEELSE
+			値 = 350 + ゆらぎ(15)
+	ENDSELECT
+	胸囲:番号:0 = LIMIT(アンダーバスト(番号) + 値, 体型の下限, 体型の上限)
+ENDIF
+
+;腰囲：身長比 ％（体型の補正込み）。逆三角形88 普通99 安産型108
+IF 対象 & 体格_下半身
+	段 = TALENT:番号:下半身
+	SELECTCASE 段
+		CASE IS <= -1
+			比 = 88
+		CASE 0
+			比 = 99
+		CASEELSE
+			比 = 108
+	ENDSELECT
+	比 += ゆらぎ(1)
+	係数 = 54
+	SIF 男の体格か(番号)
+		係数 = 52
+	値 = 比 * 身長:番号:0 * 係数 / (下半身の体型補正(TALENT:番号:体型) * 100)
+	腰囲:番号:0 = LIMIT(値, 体型の下限, 体型の上限)
+ENDIF
+
+
+;============================== 文の言い回し ==============================
+;区切りは「/」。候補から一つ選ぶ（毎回変わる）
+@ひとつ選ぶ(候補)
+#FUNCTIONS
+#DIMS 候補
+#DIMS 一覧, 16
+
+SPLIT 候補, "/", 一覧
+RETURNF 一覧:RAND(RESULT)
+
+
+;尻・脚を見る段（-3〜3）。体型に、下半身の張りを2段ぶん足す（安産型なら太めに、逆三角形なら締まって見える）
+@下半身の見た目(番号)
+#FUNCTION
+#DIM 番号
+
+RETURNF LIMIT(TALENT:番号:体型 + TALENT:番号:下半身 * 2, -3, 3)
+
+
+;胸。「○○の(これ)を〜」の名詞句。男・性別なしは「胸」
+@胸の語(番号)
+#FUNCTIONS
+#DIM 番号
+
+SIF !(性別ビット(番号) & 6)
+	RETURNF "胸"
+SELECTCASE TALENT:番号:バストサイズ
+	CASE IS <= -2
+		RETURNF ひとつ選ぶ("ほとんど平らな胸/ささやかな胸/薄い胸")
+	CASE -1
+		RETURNF ひとつ選ぶ("小ぶりな胸/控えめな胸/慎ましい胸")
+	CASE 0
+		RETURNF ひとつ選ぶ("胸/やわらかな胸/形のいい胸")
+	CASE 1
+		RETURNF ひとつ選ぶ("豊かな胸/たっぷりとした胸/重たげな胸")
+	CASE 2
+		RETURNF ひとつ選ぶ("豊満な胸/たわわな胸/零れそうな胸")
+ENDSELECT
+RETURNF ひとつ選ぶ("規格外に大きな胸/両手でも抱えきれない胸/圧倒的な量感の胸")
+
+
+;胸を手で受けたときの感触（「を」で受ける名詞句）
+@胸の触感(番号)
+#FUNCTIONS
+#DIM 番号
+
+SIF !(性別ビット(番号) & 6)
+	RETURNF "厚みのある胸板の硬さ"
+SELECTCASE TALENT:番号:バストサイズ
+	CASE IS <= -2
+		RETURNF "わずかな膨らみ"
+	CASE -1
+		RETURNF "掌にすっぽり収まる柔らかさ"
+	CASE 0
+		RETURNF "ほどよい弾力"
+	CASE 1
+		RETURNF "指が沈むほどの重み"
+	CASE 2
+		RETURNF "ずしりとした重み"
+ENDSELECT
+RETURNF "両手でも余る量感"
+
+
+;胸の谷間（パイズリ・乳圧・胸に挟む）。小さければ「寄せて作る」形になる。男・性別なしは「胸板」
+@谷間の語(番号)
+#FUNCTIONS
+#DIM 番号
+
+SIF !(性別ビット(番号) & 6)
+	RETURNF "厚い胸板"
+SELECTCASE TALENT:番号:バストサイズ
+	CASE IS <= -2
+		RETURNF "無理に寄せ集めたわずかな膨らみ"
+	CASE -1
+		RETURNF "寄せて作った浅い谷間"
+	CASE 0
+		RETURNF "胸の谷間"
+	CASE 1
+		RETURNF "豊かな胸の谷間"
+	CASE 2
+		RETURNF "深い胸の谷間"
+ENDSELECT
+RETURNF "顔まで埋まりそうな深い谷間"
+
+
+;男性器（「○○の(これ)を〜」の名詞句）。平均は「もの」で、いままでの文と同じ。男性器の無い性別も「もの」
+@男性器の語(番号)
+#FUNCTIONS
+#DIM 番号
+
+SIF !男性器があるか(番号)
+	RETURNF "もの"
+SELECTCASE TALENT:番号:男性器サイズ
+	CASE IS <= -2
+		RETURNF ひとつ選ぶ("ささやかなもの/小さなもの/可愛らしいもの")
+	CASE -1
+		RETURNF ひとつ選ぶ("小ぶりなもの/控えめなもの")
+	CASE 0
+		RETURNF "もの"
+	CASE 1
+		RETURNF ひとつ選ぶ("大きなもの/太く長いもの/立派なもの")
+ENDSELECT
+RETURNF ひとつ選ぶ("規格外に巨大なもの/凶器のように太いもの/常識外れのもの")
+
+
+;挿入したときの大きさの一文。平均と男性器の無い性別は ""（呼ぶ側は空なら何も出さない）。男側＝男性器の持ち主、受け側＝受け入れる側
+@挿入の大きさの文(男側, 受け側)
+#FUNCTIONS
+#DIM 男側
+#DIM 受け側
+#DIMS 名
+
+SIF !男性器があるか(男側)
+	RETURNF ""
+名 '= ""
+SIF 受け側 != MASTER
+	名 '= CALLNAME:受け側 + "の"
+SELECTCASE TALENT:男側:男性器サイズ
+	CASE IS <= -2
+		RETURNF @"%名%奥には届かず、入口のあたりをくすぐるだけだった"
+	CASE -1
+		RETURNF @"%名%奥まで、あと少し届かない"
+	CASE 1
+		RETURNF @"%名%中がみっちりと押し広げられる"
+	CASE IS >= 2
+		RETURNF @"規格外の太さが、%名%体の奥を限界まで押し広げていく"
+ENDSELECT
+RETURNF ""
+
+
+;尻
+@尻の語(番号)
+#FUNCTIONS
+#DIM 番号
+
+SELECTCASE 下半身の見た目(番号)
+	CASE IS <= -3
+		RETURNF ひとつ選ぶ("骨張った小さな尻/薄い尻")
+	CASE -2
+		RETURNF ひとつ選ぶ("小ぶりな尻/きゅっと引き締まった尻")
+	CASE -1
+		RETURNF ひとつ選ぶ("引き締まった尻/形のいい尻")
+	CASE 0
+		RETURNF ひとつ選ぶ("尻/ほどよく丸みのある尻")
+	CASE 1
+		RETURNF ひとつ選ぶ("むっちりとした尻/肉づきのいい尻")
+	CASE 2
+		RETURNF ひとつ選ぶ("たっぷりと肉のついた尻/豊かな尻")
+ENDSELECT
+RETURNF ひとつ選ぶ("重たげに揺れる大きな尻/はち切れそうな尻")
+
+
+;尻を手で受けたときの感触
+@尻の触感(番号)
+#FUNCTIONS
+#DIM 番号
+
+SELECTCASE 下半身の見た目(番号)
+	CASE IS <= -3
+		RETURNF "骨の感触が残る薄い肉付き"
+	CASE -2
+		RETURNF "きゅっと締まった張り"
+	CASE -1
+		RETURNF "引き締まった弾力"
+	CASE 0
+		RETURNF "ほどよい弾力"
+	CASE 1
+		RETURNF "指が沈む柔らかさ"
+	CASE 2
+		RETURNF "たっぷりとした肉の重み"
+ENDSELECT
+RETURNF "手に余る肉の波"
+
+
+;脚（太もも）。脚を開かせる・挟む・絡めるに使う
+@脚の語(番号)
+#FUNCTIONS
+#DIM 番号
+
+SELECTCASE 下半身の見た目(番号)
+	CASE IS <= -3
+		RETURNF "折れそうに細い脚"
+	CASE -2
+		RETURNF "すらりと細い脚"
+	CASE -1
+		RETURNF "すらりとした脚"
+	CASE 0
+		RETURNF "しなやかな脚"
+	CASE 1
+		RETURNF "むっちりとした太もも"
+	CASE 2
+		RETURNF "肉づきのいい太もも"
+ENDSELECT
+RETURNF "はち切れそうな太もも"
+
+
+;腰つき（下半身の段）。腰をつかむ・引き寄せるに使う
+@腰の語(番号)
+#FUNCTIONS
+#DIM 番号
+
+SELECTCASE TALENT:番号:下半身
+	CASE IS <= -1
+		RETURNF ひとつ選ぶ("細い腰/華奢な腰つき")
+	CASE IS >= 1
+		RETURNF ひとつ選ぶ("肉の乗った腰/しっかりとした腰つき")
+ENDSELECT
+RETURNF "腰"
+
+
+;体つき。抱きしめる・組み敷くに使う
+@体の語(番号)
+#FUNCTIONS
+#DIM 番号
+
+SELECTCASE TALENT:番号:体型
+	CASE IS <= -3
+		RETURNF "折れそうなほど痩せた体"
+	CASE -2
+		RETURNF "華奢な体"
+	CASE -1
+		RETURNF "すらりとした体"
+	CASE 1
+		RETURNF ひとつ選ぶ("肉づきのいい体/むっちりとした体")
+	CASE 2
+		RETURNF ひとつ選ぶ("豊満な体/ふくよかな体")
+	CASE IS >= 3
+		RETURNF "たっぷりと肉のついた体"
+ENDSELECT
+RETURNF "体"
+
+
+;============================== 出産 ==============================
+;分娩の局面ごとの体の描写。局面：移行期／娩出期／直後。主人公は体感の文、NPC は三人称。普通の段は "" を返す（呼ぶ側は空なら何も出さない）
+;下半身を先に（骨盤の広さが分娩に一番効く）、無ければ体型が両極端のときだけ
+@分娩の体格の文(母, 局面)
+#FUNCTIONS
+#DIM 母
+#DIMS 局面
+#DIM 下
+#DIM 体
+#DIM 自分
+
+下 = TALENT:母:下半身
+体 = TALENT:母:体型
+自分 = 母 == MASTER
+IF 下 >= 1
+	SELECTCASE 局面
+		CASE "移行期"
+			IF 自分
+				RETURNF "腰の奥で骨盤がゆっくりと開いていくのが分かる。しっかりした腰つきのおかげか、痛みの割に体が素直に開いていく"
+			ENDIF
+			RETURNF @"%CALLNAME:母%の骨盤が、児を迎えるようにゆっくりと開いていく"
+		CASE "娩出期"
+			IF 自分
+				RETURNF "広い骨盤が児を迎え入れるように開き、頭が押し下げられてくる。力を逃がす場所があって、いきみやすい"
+			ENDIF
+			RETURNF @"腰つきのしっかりした%CALLNAME:母%は、力をうまく逃がしながらいきんでいる"
+		CASE "直後"
+			IF 自分
+				RETURNF "思いのほか、すんなりと産み終えた。この腰つきがものを言ったのだろう"
+			ENDIF
+			RETURNF @"%CALLNAME:母%は、思いのほか軽く産み終えたようだ"
+	ENDSELECT
+ELSEIF 下 <= -1
+	SELECTCASE 局面
+		CASE "移行期"
+			IF 自分
+				RETURNF "細い骨盤がみしみしと軋む。通り道の狭さを、痛みが嫌でも教えてくる"
+			ENDIF
+			RETURNF @"細い腰つきの%CALLNAME:母%は、骨盤が軋むのか、苦しげに顔を歪めた"
+		CASE "娩出期"
+			IF 自分
+				RETURNF "狭い産道を、児の頭が無理やり押し広げていく。引き裂かれそうな痛みに、息が止まる"
+			ENDIF
+			RETURNF @"狭い産道に、%CALLNAME:母%が歯を食いしばった"
+		CASE "直後"
+			IF 自分
+				RETURNF "狭い産道を抜けた体から、ごっそりと力が抜けている"
+			ENDIF
+			RETURNF @"%CALLNAME:母%は、狭い産道を抜けた疲れでぐったりしている"
+	ENDSELECT
+ELSEIF 体 <= -2
+	SELECTCASE 局面
+		CASE "移行期"
+			IF 自分
+				RETURNF "華奢な体には、この痛みが重すぎる。脚が震えて、踏ん張りがきかない"
+			ENDIF
+			RETURNF @"華奢な%CALLNAME:母%は、痛みに耐えきれず脚を震わせている"
+	ENDSELECT
+ELSEIF 体 >= 2
+	SELECTCASE 局面
+		CASE "移行期"
+			IF 自分
+				RETURNF "肉のついた体が重い。いきむたびに息が上がっていく"
+			ENDIF
+			RETURNF @"%CALLNAME:母%は、肉づきのいい体を揺らして荒く息をついている"
+	ENDSELECT
+ENDIF
+RETURNF ""
+
+
+;出産を一行で言うときの頭の語（「〜は［これ］出産し」）。普通は「陣痛の末に」
+@出産の語(母)
+#FUNCTIONS
+#DIM 母
+
+SELECTCASE TALENT:母:下半身
+	CASE IS >= 1
+		RETURNF "思いのほか軽い陣痛の末に"
+	CASE IS <= -1
+		RETURNF "細い腰で苦しみ抜いた末に"
+ENDSELECT
+RETURNF "陣痛の末に"

@@ -1,0 +1,207 @@
+﻿;場所番号から名前を返す。存在しない場所は空文字
+;100の位が画面、下2桁がAA上の表記（→設計メモ「場所番号」）
+@GET_PLACE_NAME(位置)
+#FUNCTIONS
+#DIM 位置
+#DIM 下2桁
+
+下2桁 = 位置 % 100
+
+SELECTCASE 位置 / 100
+	CASE 0
+		SELECTCASE 下2桁
+			CASE 1
+				RETURNF "自宅へ"
+			CASE 2
+				RETURNF "カウンター"
+			CASE 3
+				RETURNF "ホール"
+			CASE 4
+				RETURNF "舞台"
+			CASE 5
+				RETURNF "バックヤード"
+			CASE 6
+				RETURNF "厨房"
+			CASE 7
+				RETURNF "控室"
+			CASE 8
+				RETURNF "玄関"
+			CASE 9
+				RETURNF "店の外へ"
+			CASE 10
+				RETURNF "トイレ"
+			CASE 11
+				RETURNF "一階階段"
+			CASE 12
+				RETURNF "二階階段"
+			CASE 13
+				RETURNF "三階階段"
+			CASE 14
+				RETURNF "事務室"
+			CASE 15
+				RETURNF "寮への入口"
+			CASE 16
+				RETURNF "裏の廊下"
+		ENDSELECT
+		;地下（会員制）。建ててあれば一組で現れる（→画面イメージ「地下」）
+		IF 地下あり
+			SELECTCASE 下2桁
+				CASE 17
+					RETURNF "地下ホール"
+				CASE 18
+					RETURNF "地下カウンター"
+				CASE 19
+					RETURNF "地下ステージ"
+				CASE 79
+					RETURNF "地下トイレ"
+				CASE 78
+					RETURNF "裏階段"
+				CASE 77
+					RETURNF "地下階段"
+				CASE 76
+					RETURNF "地下裏階段"
+			ENDSELECT
+		ENDIF
+		;可変の3種。建てた数までが存在する
+		IF 下2桁 >= 20 && 下2桁 < 20 + 個室数
+			RETURNF @"個室{下2桁 - 19}"
+		ELSEIF 下2桁 >= 50 && 下2桁 < 50 + 後付け施設数
+			;建てるときに選んだ種類の名前（→施設.ERB）。種類の入っていない枠（古いセーブで建てた分）は「施設n」のまま
+			SIF 場所の施設(下2桁) >= 0
+				RETURNF 施設名:(場所の施設(下2桁))
+			RETURNF @"施設{下2桁 - 49}"
+		ELSEIF 下2桁 >= 80 && 下2桁 < 80 + ボックス席数
+			RETURNF @"ボックス席{下2桁 - 79}"
+		ENDIF
+	CASE 3
+		SIF 下2桁 == 0
+			RETURNF "店の外"
+		SELECTCASE 下2桁
+			CASE 1
+				RETURNF "ショップ"
+			CASE 2
+				RETURNF "カジノ"
+			CASE 4
+				RETURNF "病院"
+			CASE 9
+				RETURNF "店に戻る"
+		ENDSELECT
+	CASE 4
+		SIF 下2桁 == 0
+			RETURNF "寮の玄関"
+		SIF 下2桁 == 8
+			RETURNF "店の外へ"
+		SIF 下2桁 == 9
+			RETURNF "店に戻る"
+		IF 下2桁 >= 10 && 下2桁 < 10 + 寮の部屋数
+			RETURNF @"寮{下2桁 - 9}号室"
+		ENDIF
+	CASE 5
+		SELECTCASE 下2桁
+			CASE 1
+				RETURNF "玄関"
+			CASE 2
+				RETURNF "トイレ"
+			CASE 3
+				RETURNF "風呂"
+			CASE 4
+				RETURNF "キッチン"
+			CASE 5
+				RETURNF "リビング"
+			CASE 6
+				RETURNF "一階階段"
+			CASE 7
+				RETURNF "客間"
+			CASE 8
+				RETURNF "二階階段"
+			CASE 9
+				RETURNF "店へ"
+			CASE 10
+				RETURNF "私室"
+			CASE 14
+				RETURNF "店の外へ"
+			CASE 11, 12, 13
+				;同棲している人が居ればその人の部屋（→行動.ERB「同棲」）
+				SIF 部屋の主(500 + 下2桁) > 0
+					RETURNF @"%CALLNAME:(部屋の主(500 + 下2桁))%の部屋"
+				RETURNF @"空き部屋{下2桁 - 10}"
+		ENDSELECT
+ENDSELECT
+
+RETURNF ""
+
+
+;場所がどの階か。1〜3＝その階、4＝画面をまたぐ出口、0＝地下
+;凡例を階ごとに分けて並べるために使う
+@GET_PLACE_FLOOR(位置)
+#FUNCTION
+#DIM 位置
+#DIM 下2桁
+
+下2桁 = 位置 % 100
+
+SELECTCASE 位置 / 100
+	CASE 0
+		;店。01自宅へ 09店の外へ 15寮へ が出口。17〜19 と 76・77・79（地下の階段・トイレ）は地下、78（裏階段）は1階
+		SELECTCASE 下2桁
+			CASE 1, 9, 15
+				RETURNF 4
+			CASE 12
+				RETURNF 2
+			CASE 13
+				RETURNF 3
+			CASE 78
+				RETURNF 1
+			CASE 17, 18, 19, 76, 77, 79
+				RETURNF 0
+		ENDSELECT
+		IF 下2桁 >= 20 && 下2桁 < 50
+			RETURNF 2
+		ELSEIF 下2桁 >= 50 && 下2桁 < 80
+			RETURNF 3
+		ENDIF
+		RETURNF 1
+	CASE 5
+		;自宅。08階段ホールと10〜13が2F。09 店へ と 14 店の外へ は出口
+		SIF 下2桁 == 9 || 下2桁 == 14
+			RETURNF 4
+		SELECTCASE 下2桁
+			CASE 8, 10, 11, 12, 13
+				RETURNF 2
+		ENDSELECT
+		RETURNF 1
+	CASEELSE
+		;店の外・寮は階を持たない。寮の 08 店の外へ も出口
+		SIF 下2桁 == 9 || (位置 / 100 == 4 && 下2桁 == 8)
+			RETURNF 4
+		RETURNF 1
+ENDSELECT
+
+
+;可変の部屋の区分名。固定の部屋なら空を返す
+;凡例で「ボックス席1 ボックス席2 …」と繰り返さず、区分名＋番号でまとめるために使う
+@GET_PLACE_GROUP(位置)
+#FUNCTIONS
+#DIM 位置
+#DIM 下2桁
+
+下2桁 = 位置 % 100
+
+SELECTCASE 位置 / 100
+	CASE 0
+		;76〜79 は地下の階段・トイレと裏階段（固定の部屋。後付け施設の帯の余りを借りている）
+		SIF 下2桁 >= 地下裏階段の位置 && 下2桁 <= 地下トイレの位置
+			RETURNF ""
+		IF 下2桁 >= 20 && 下2桁 < 50
+			RETURNF "個室"
+		ELSEIF 下2桁 >= 50 && 下2桁 < 80
+			RETURNF "後付け施設"
+		ELSEIF 下2桁 >= 80
+			RETURNF "ボックス席"
+		ENDIF
+	CASE 4
+		SIF 下2桁 >= 10
+			RETURNF "寮の部屋"
+ENDSELECT
+
+RETURNF ""

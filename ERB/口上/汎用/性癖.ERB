@@ -1,0 +1,719 @@
+﻿;================================ 性癖の口上（タイプ別。2026-10-04 ユーザ指定「口上タイプ別にして」） ================================
+;性癖に当たる手の最中に出る一言（→ERB/性癖.ERB @性癖の口上）。種は 性癖_◯◯（変数定義.ERH）。タイプごとに 2 通りから毎回一つ。
+;相手の台詞・主人公の台詞の両方に使う（主人公は口上タイプ＝主人公作成の性格）。性別・方言の版は無い（@性癖の口上 が タイプ_性別 → タイプ の順に探す）。
+;一人称・二人称は使わない（呼び方の設定に左右されないように）。空なら何も出ない
+
+@口上_性癖_元気(番号, 種)
+#DIM 番号
+#DIM 種
+
+RESULTS '= ""
+SELECTCASE 種
+	CASE 性癖_羞恥好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「み、見られてる……！　なのに、ドキドキしちゃう……！」"
+			CASEELSE
+				RESULTS '= "「あはは、恥ずかしい！　でも、やめないでね！」"
+		ENDSELECT
+	CASE 性癖_被虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「いたた……！　で、でも……もっと、してもいいよ？」"
+			CASEELSE
+				RESULTS '= "「痛いのに……なんでだろ、ぞくぞくする！」"
+		ENDSELECT
+	CASE 性癖_加虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ほらほら、もっと声出してよ！」"
+			CASEELSE
+				RESULTS '= "「いい顔するじゃん！　もうちょっといじめちゃおっかな！」"
+		ENDSELECT
+	CASE 性癖_拘束好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「動けないの、なんかワクワクする！」"
+			CASEELSE
+				RESULTS '= "「ぎゅって縛られると、変にドキドキするんだよね！」"
+		ENDSELECT
+	CASE 性癖_口好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「んっ、口でするの、大好き！　もっとしよ？」"
+			CASEELSE
+				RESULTS '= "「ちゅ……ん、やめられないよ、これ！」"
+		ENDSELECT
+	CASE 性癖_胸好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「胸、いいよ！　もっと触って！」"
+			CASEELSE
+				RESULTS '= "「そこ好き！　胸だとすぐ元気出ちゃう！」"
+		ENDSELECT
+	CASE 性癖_尻好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「お、お尻……！　そこ、すっごく響く……！」"
+			CASEELSE
+				RESULTS '= "「ひゃっ、後ろ……！　やみつきになりそう！」"
+		ENDSELECT
+	CASE 性癖_母乳好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ミルク、あったかい……！　好きだな、これ！」"
+			CASEELSE
+				RESULTS '= "「甘いにおい……なんか安心する！」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_性癖_クール(番号, 種)
+#DIM 番号
+#DIM 種
+
+RESULTS '= ""
+SELECTCASE 種
+	CASE 性癖_羞恥好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……見られていると、妙に熱くなる。……悪い趣味ね」"
+			CASEELSE
+				RESULTS '= "「……恥ずかしいはずなのに。……やめなくていい」"
+		ENDSELECT
+	CASE 性癖_被虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……痛い。……なのに、嫌じゃない」"
+			CASEELSE
+				RESULTS '= "「……もう少し、強くても構わない」"
+		ENDSELECT
+	CASE 性癖_加虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……いい反応。……もう少し続ける」"
+			CASEELSE
+				RESULTS '= "「……震えているわね。……悪くない」"
+		ENDSELECT
+	CASE 性癖_拘束好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……自由が利かないのは、嫌いじゃない」"
+			CASEELSE
+				RESULTS '= "「……縛られると、落ち着く。……変かしら」"
+		ENDSELECT
+	CASE 性癖_口好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……口は、嫌いじゃない。……続けて」"
+			CASEELSE
+				RESULTS '= "「……ん。……ずっとこうしていたい」"
+		ENDSELECT
+	CASE 性癖_胸好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……胸は、弱い。……そこ、いい」"
+			CASEELSE
+				RESULTS '= "「……もっと。……そのまま」"
+		ENDSELECT
+	CASE 性癖_尻好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……そこは……っ。……癖になりそう」"
+			CASEELSE
+				RESULTS '= "「……後ろは、……弱いのよ」"
+		ENDSELECT
+	CASE 性癖_母乳好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……甘い。……悪くない味」"
+			CASEELSE
+				RESULTS '= "「……この匂い、……落ち着く」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_性癖_内気(番号, 種)
+#DIM 番号
+#DIM 種
+
+RESULTS '= ""
+SELECTCASE 種
+	CASE 性癖_羞恥好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「み、見ないで……っ。……でも、見られると……あ、あの、変な気持ちに……」"
+			CASEELSE
+				RESULTS '= "「は、恥ずかしい……。……なのに、ドキドキして……」"
+		ENDSELECT
+	CASE 性癖_被虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「い、痛い……です。……でも、やめないで……ください」"
+			CASEELSE
+				RESULTS '= "「痛いのに……あの、……もっと、って思っちゃって……」"
+		ENDSELECT
+	CASE 性癖_加虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「あ、あの……痛くないですか？　……で、でも、……その顔、もっと見たくて……」"
+			CASEELSE
+				RESULTS '= "「ご、ごめんなさい……。……やめられなく、て……」"
+		ENDSELECT
+	CASE 性癖_拘束好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「う、動けない……。……なのに、安心する……ような……」"
+			CASEELSE
+				RESULTS '= "「縛られると……あの、……ほっとして、しまって……」"
+		ENDSELECT
+	CASE 性癖_口好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「く、口で……するの、……す、好きです……」"
+			CASEELSE
+				RESULTS '= "「ん、……あの、……もう少しだけ、……いいですか」"
+		ENDSELECT
+	CASE 性癖_胸好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「む、胸……そんなに……。……あっ、でも、……そこ、好き、です……」"
+			CASEELSE
+				RESULTS '= "「胸を……あの、……もっと、触って……ください……」"
+		ENDSELECT
+	CASE 性癖_尻好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「お、お尻は……そ、そこは……だめ、……なのに……っ」"
+			CASEELSE
+				RESULTS '= "「う、後ろ……へん、です……。……でも……」"
+		ENDSELECT
+	CASE 性癖_母乳好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「あ、あったかい……。……あの、……好きかも、しれません……」"
+			CASEELSE
+				RESULTS '= "「ミ、ミルク……の、におい……落ち着きます……」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_性癖_奔放(番号, 種)
+#DIM 番号
+#DIM 種
+
+RESULTS '= ""
+SELECTCASE 種
+	CASE 性癖_羞恥好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「見て見て〜！　見られると、ぞくぞくしちゃう！」"
+			CASEELSE
+				RESULTS '= "「恥ずかしいのが一番気持ちいいのよね〜。わかるでしょ？」"
+		ENDSELECT
+	CASE 性癖_被虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「いったぁ……！　でもそれがいいのよ、もっとちょうだい？」"
+			CASEELSE
+				RESULTS '= "「痛いの、嫌いじゃないわよ。ほら、もっと強く♪」"
+		ENDSELECT
+	CASE 性癖_加虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ふふ、いい声。もっと鳴かせたくなっちゃう♪」"
+			CASEELSE
+				RESULTS '= "「泣いても許さないわよ？　まだまだこれからなんだから」"
+		ENDSELECT
+	CASE 性癖_拘束好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「縛られるの、大好き♪　ほら、もっときつく！」"
+			CASEELSE
+				RESULTS '= "「動けないってゾクゾクするのよね〜。たまんない」"
+		ENDSELECT
+	CASE 性癖_口好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「んふ、口でするの得意なの♪　もっとしてあげる」"
+			CASEELSE
+				RESULTS '= "「ちゅ……んん、美味しい♪　やめられないわ」"
+		ENDSELECT
+	CASE 性癖_胸好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「胸、もっと触って〜♪　そこ弱いの」"
+			CASEELSE
+				RESULTS '= "「ふふ、胸だけでイっちゃいそう♪」"
+		ENDSELECT
+	CASE 性癖_尻好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「お尻、いいのよ〜。もっと奥まで来て♪」"
+			CASEELSE
+				RESULTS '= "「後ろの方が好きなくらい。ふふ、内緒よ？」"
+		ENDSELECT
+	CASE 性癖_母乳好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ミルク、美味しい〜♪　もっと搾って？」"
+			CASEELSE
+				RESULTS '= "「甘〜い。癖になっちゃう」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_性癖_世話焼き(番号, 種)
+#DIM 番号
+#DIM 種
+
+RESULTS '= ""
+SELECTCASE 種
+	CASE 性癖_羞恥好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「あらあら……見られてるのに、胸がどきどきして……困ったわね」"
+			CASEELSE
+				RESULTS '= "「恥ずかしいのに、なんだか嬉しくて……変ね」"
+		ENDSELECT
+	CASE 性癖_被虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「痛っ……でも、大丈夫よ。もっと……いいのよ？」"
+			CASEELSE
+				RESULTS '= "「あなたになら、痛くされても平気……むしろ、ね」"
+		ENDSELECT
+	CASE 性癖_加虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ふふ、苦しい？　でも、もう少しだけ我慢して」"
+			CASEELSE
+				RESULTS '= "「いい子ね。そんな顔されたら、いじめたくなっちゃう」"
+		ENDSELECT
+	CASE 性癖_拘束好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「縛られていると、全部任せられて……安心するの」"
+			CASEELSE
+				RESULTS '= "「動けないのって、不思議と落ち着くのよね」"
+		ENDSELECT
+	CASE 性癖_口好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「口でしてあげるの、好きなのよ。ほら、力を抜いて」"
+			CASEELSE
+				RESULTS '= "「んっ……ゆっくり、味わわせてね」"
+		ENDSELECT
+	CASE 性癖_胸好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「胸、触ってもらうと……ほっとするの。もっと、いいのよ」"
+			CASEELSE
+				RESULTS '= "「ええ、そこ……優しくしてね」"
+		ENDSELECT
+	CASE 性癖_尻好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「あ、後ろ……そこはだめ……なのに、気持ちいいの……」"
+			CASEELSE
+				RESULTS '= "「お尻まで……恥ずかしいけど、嫌じゃないのよ」"
+		ENDSELECT
+	CASE 性癖_母乳好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ミルク、飲んでくれるの？　嬉しいわ……もっとどうぞ」"
+			CASEELSE
+				RESULTS '= "「あったかいでしょう？　たくさん飲んでいいのよ」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_性癖_上品(番号, 種)
+#DIM 番号
+#DIM 種
+
+RESULTS '= ""
+SELECTCASE 種
+	CASE 性癖_羞恥好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「このような姿を見られるなんて……恥ずかしいのに、胸が高鳴ります」"
+			CASEELSE
+				RESULTS '= "「はしたないと分かっていますのに……視線が心地よくて」"
+		ENDSELECT
+	CASE 性癖_被虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「痛みは……嫌いではございませんの。もう少し、強くても……」"
+			CASEELSE
+				RESULTS '= "「ええ、このくらいなら……むしろ、結構ですわ」"
+		ENDSELECT
+	CASE 性癖_加虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「まあ、可愛らしいお顔。……もう少し、苦しんでごらんなさい」"
+			CASEELSE
+				RESULTS '= "「ふふ、逃がして差し上げませんわ」"
+		ENDSELECT
+	CASE 性癖_拘束好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「縛られると、不思議と気持ちが静まりますの」"
+			CASEELSE
+				RESULTS '= "「自由を預けるのも、悪くありませんわね」"
+		ENDSELECT
+	CASE 性癖_口好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「口づけも、口でのご奉仕も……嫌いではありませんの」"
+			CASEELSE
+				RESULTS '= "「ん……もう少し、味わっても？」"
+		ENDSELECT
+	CASE 性癖_胸好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「胸を愛でていただくと……とても、心が満たされますの」"
+			CASEELSE
+				RESULTS '= "「そこは……ええ、とても好ましいですわ」"
+		ENDSELECT
+	CASE 性癖_尻好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「そ、そのような所まで……ですが、悪い心地ではございません」"
+			CASEELSE
+				RESULTS '= "「後ろは……はしたない声が出てしまいますわ」"
+		ENDSELECT
+	CASE 性癖_母乳好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「甘い香り……これが好きですの」"
+			CASEELSE
+				RESULTS '= "「どうぞ、たんと召し上がって」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_性癖_無邪気(番号, 種)
+#DIM 番号
+#DIM 種
+
+RESULTS '= ""
+SELECTCASE 種
+	CASE 性癖_羞恥好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「見られてるの、はずかしい……けどなんかドキドキ、たのしい！」"
+			CASEELSE
+				RESULTS '= "「えへへ、はずかしいね！　でももっと見て？」"
+		ENDSELECT
+	CASE 性癖_被虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「いたいー！　でもね、へんなの、もっとしてほしい！」"
+			CASEELSE
+				RESULTS '= "「ぎゅってされるといたいのに、うれしいの。なんでだろ？」"
+		ENDSELECT
+	CASE 性癖_加虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「あはは、いいお顔！　もっとやってみたい！」"
+			CASEELSE
+				RESULTS '= "「なきそうな顔、かわいい〜！　もっともっと！」"
+		ENDSELECT
+	CASE 性癖_拘束好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「うごけないの、ひみつきちみたいでわくわくする！」"
+			CASEELSE
+				RESULTS '= "「ぎゅーってされて、じっとしてるの、すき！」"
+		ENDSELECT
+	CASE 性癖_口好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ちゅーするの、だいすき！　もっともっと！」"
+			CASEELSE
+				RESULTS '= "「んむ、おいしい……やめたくなーい！」"
+		ENDSELECT
+	CASE 性癖_胸好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「むね、ぽかぽかする〜！　もっとさわって！」"
+			CASEELSE
+				RESULTS '= "「そこすき！　くすぐったくてきもちいいの！」"
+		ENDSELECT
+	CASE 性癖_尻好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「おしり、びりびりする！　へんなかんじ、でもすき！」"
+			CASEELSE
+				RESULTS '= "「うしろ、どきどきするの。ないしょだよ？」"
+		ENDSELECT
+	CASE 性癖_母乳好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ミルク、あまーい！　もっとのみたい！」"
+			CASEELSE
+				RESULTS '= "「あったかくて、すき〜！」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_性癖_真面目(番号, 種)
+#DIM 番号
+#DIM 種
+
+RESULTS '= ""
+SELECTCASE 種
+	CASE 性癖_羞恥好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「み、見られていると……不謹慎だが、鼓動が速くなる」"
+			CASEELSE
+				RESULTS '= "「恥ずかしい……はずなのに、なぜ……。……いや、悪くない」"
+		ENDSELECT
+	CASE 性癖_被虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「痛みは……耐えるべきものなのに、……もっと、と思ってしまう」"
+			CASEELSE
+				RESULTS '= "「これくらいでは足りないなどと……何を言っているんだ」"
+		ENDSELECT
+	CASE 性癖_加虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「苦しそうだな。……だが、止められそうにない」"
+			CASEELSE
+				RESULTS '= "「その顔……もう少し、見せてもらう」"
+		ENDSELECT
+	CASE 性癖_拘束好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「拘束されると……妙に落ち着いてしまう。……問題だな」"
+			CASEELSE
+				RESULTS '= "「身動きが取れない状況は……嫌いではない」"
+		ENDSELECT
+	CASE 性癖_口好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「口でするのは……その、好ましい。……続けよう」"
+			CASEELSE
+				RESULTS '= "「ん……真剣に、やらせてもらう」"
+		ENDSELECT
+	CASE 性癖_胸好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「胸は……弱いんだ。……もう少し、頼む」"
+			CASEELSE
+				RESULTS '= "「そこは……感度がいい。……自覚している」"
+		ENDSELECT
+	CASE 性癖_尻好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「後ろは……不本意だが、……よく感じてしまう」"
+			CASEELSE
+				RESULTS '= "「そこは……っ。……悪くない、と認めざるを得ない」"
+		ENDSELECT
+	CASE 性癖_母乳好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「この甘い香りは……落ち着く。……不思議だ」"
+			CASEELSE
+				RESULTS '= "「飲んでもらえるのは……光栄だ」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_性癖_高慢(番号, 種)
+#DIM 番号
+#DIM 種
+
+RESULTS '= ""
+SELECTCASE 種
+	CASE 性癖_羞恥好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ふん……見たいなら見なさい。見られるのは嫌いじゃないわ」"
+			CASEELSE
+				RESULTS '= "「こんな姿を見せてあげるのよ。光栄に思いなさい」"
+		ENDSELECT
+	CASE 性癖_被虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「痛いじゃない……。……でも、もう少し続けても許してあげるわ」"
+			CASEELSE
+				RESULTS '= "「くっ……やるじゃない。もっと強くても構わないわよ」"
+		ENDSELECT
+	CASE 性癖_加虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ほら、もっと鳴きなさい。許可は出していないわよ」"
+			CASEELSE
+				RESULTS '= "「その顔、悪くないわ。もう少しいじめてあげる」"
+		ENDSELECT
+	CASE 性癖_拘束好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「縛りたいなら縛りなさい。……逃げる気は、ないわ」"
+			CASEELSE
+				RESULTS '= "「動けなくても、主導権は渡さないわよ」"
+		ENDSELECT
+	CASE 性癖_口好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「口でさせてあげるなんて、特別よ。感謝なさい」"
+			CASEELSE
+				RESULTS '= "「ん……ほら、もっと味わわせなさい」"
+		ENDSELECT
+	CASE 性癖_胸好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「胸を触らせてあげるわ。光栄でしょう？」"
+			CASEELSE
+				RESULTS '= "「そこ……っ、まあまあね。続けなさい」"
+		ENDSELECT
+	CASE 性癖_尻好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「後ろまで……っ。許した覚えはないのに……悪くないわね」"
+			CASEELSE
+				RESULTS '= "「そこは……ふん、認めてあげるわ。いいわよ」"
+		ENDSELECT
+	CASE 性癖_母乳好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ミルクを飲ませてあげるわ。ありがたく頂きなさい」"
+			CASEELSE
+				RESULTS '= "「甘いでしょう？　もっと味わってもいいわよ」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_性癖_甘え(番号, 種)
+#DIM 番号
+#DIM 種
+
+RESULTS '= ""
+SELECTCASE 種
+	CASE 性癖_羞恥好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「見られちゃうの、はずかしい……でも、もっと見てほしいなぁ」"
+			CASEELSE
+				RESULTS '= "「えへへ……はずかしいのに、ぎゅってなるの」"
+		ENDSELECT
+	CASE 性癖_被虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「いたぁい……でもね、もっといじめて？　お願い」"
+			CASEELSE
+				RESULTS '= "「痛いのに、うれしいの……へんかな？」"
+		ENDSELECT
+	CASE 性癖_加虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ふふ、いじめちゃうよ？　かわいい顔してるんだもん」"
+			CASEELSE
+				RESULTS '= "「もっと泣いて？　いっぱいぎゅーしてあげる」"
+		ENDSELECT
+	CASE 性癖_拘束好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「動けないの、ドキドキする……ずっとこのままがいいなぁ」"
+			CASEELSE
+				RESULTS '= "「縛られると、全部まかせられる感じがして好きなの」"
+		ENDSELECT
+	CASE 性癖_口好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ちゅー、してほしいなぁ……ずっとしてたいの」"
+			CASEELSE
+				RESULTS '= "「ん、んむ……もっとぉ」"
+		ENDSELECT
+	CASE 性癖_胸好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「むね、さわってほしいな……もっとぎゅってして？」"
+			CASEELSE
+				RESULTS '= "「そこ、すきなの……もっとぉ」"
+		ENDSELECT
+	CASE 性癖_尻好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「お、おしり……やぁ、でも……もっと奥までして？」"
+			CASEELSE
+				RESULTS '= "「うしろ、へんなかんじ……でも、すきぃ」"
+		ENDSELECT
+	CASE 性癖_母乳好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「ミルク、あまいよ……いっぱいのんでね？」"
+			CASEELSE
+				RESULTS '= "「ふふ、ぎゅってしながら飲ませたいなぁ」"
+		ENDSELECT
+ENDSELECT
+
+
+@口上_性癖_無口(番号, 種)
+#DIM 番号
+#DIM 種
+
+RESULTS '= ""
+SELECTCASE 種
+	CASE 性癖_羞恥好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……見られるの、……嫌いじゃない」"
+			CASEELSE
+				RESULTS '= "「……恥ずかしい。……でも」"
+		ENDSELECT
+	CASE 性癖_被虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……痛い。……もっと」"
+			CASEELSE
+				RESULTS '= "「……ん。……続けて」"
+		ENDSELECT
+	CASE 性癖_加虐
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……いい顔」"
+			CASEELSE
+				RESULTS '= "「……もう少し」"
+		ENDSELECT
+	CASE 性癖_拘束好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……動けない。……落ち着く」"
+			CASEELSE
+				RESULTS '= "「……縛って」"
+		ENDSELECT
+	CASE 性癖_口好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……ん。……好き」"
+			CASEELSE
+				RESULTS '= "「……口で、……いい」"
+		ENDSELECT
+	CASE 性癖_胸好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……胸。……もっと」"
+			CASEELSE
+				RESULTS '= "「……そこ、……好き」"
+		ENDSELECT
+	CASE 性癖_尻好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……後ろ。……いい」"
+			CASEELSE
+				RESULTS '= "「……そこ、……もっと」"
+		ENDSELECT
+	CASE 性癖_母乳好き
+		SELECTCASE RAND:2
+			CASE 0
+				RESULTS '= "「……甘い」"
+			CASEELSE
+				RESULTS '= "「……好き、これ」"
+		ENDSELECT
+ENDSELECT
+

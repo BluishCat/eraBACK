@@ -1,0 +1,419 @@
+﻿;口上タイプ「無口」の共通口上の博多弁（素質 方言_博多 が付いているとき、標準語の手前に呼ばれる。2026-10-01）。書いてある行為だけ博多弁になり、空なら標準語に落ちる。ほとんど喋らないので、変わるのは「いい→よか」「〜ない→〜ん」「〜てる→〜とる」など語尾と形容詞だけ（無口は語尾が決め手）
+;無口：ほとんど喋らない。「……」と息づかい、短いひと声だけで、時々うなずくしぐさ（地の文）で返す。クールよりさらに言葉が少ない
+
+@口上_行為_無口_博多(番号, 行為, 向き)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+
+RESULTS '= ""
+SELECTCASE 行為
+	;---- 愛撫 ----
+	CASE 20
+		IF 昂ぶりか(番号)
+			RESULTS '= "「……」"
+		ELSE
+			RESULTS '= "「……ん」"
+		ENDIF
+	CASE 21
+		RESULTS '= "「……ん」"
+	CASE 22
+		RESULTS '= "「……そう」"
+	CASE 23
+		RESULTS '= "（何も言わず、視線を向けた）"
+	CASE 24
+		RESULTS '= "「……はぁ」"
+	CASE 25
+		IF 経験回数:番号:25 == 1
+			RESULTS '= "「……別に」"
+		ELSE
+			RESULTS '= "「……ん……」"
+		ENDIF
+	CASE 26
+		RESULTS '= "「……うん」"
+	CASE 27
+		RESULTS '= "「……だめ」"
+	CASE 28
+		RESULTS '= "「……っ。……待って」"
+	CASE 29
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	CASE 30
+		RESULTS '= "「……よか」"
+	CASE 31
+		RESULTS '= "「……ふ、……ぅ」"
+	CASE 32
+		RESULTS '= "「……いや」"
+	;---- 奉仕 ----
+	CASE 41
+		RESULTS '= "「……もうちかっと」"
+	;---- Ｖ系 ----
+	CASE 60, 65
+		RESULTS '= "「……ん、……そこ」"
+	;---- 2026-09-15 に足した帯（性別なしに出る手のうち無かったもの。女言葉・男言葉を避けた言い回し）----
+	CASE 0
+		RESULTS '= "「……」"
+	CASE 1
+		RESULTS '= "（小さく頷いた）"
+	CASE 2
+		RESULTS '= "「……はぁ」"
+	CASE 10
+		RESULTS '= "「……ん」"
+	CASE 11
+		RESULTS '= "「……そう」"
+	CASE 12
+		RESULTS '= "「……そう」"
+	CASE 13
+		RESULTS '= "（何も言わず、視線を向けた）"
+	CASE 14
+		RESULTS '= "（目を伏せたまま、頷く）"
+	CASE 33
+		RESULTS '= "「……分かった」"
+	CASE 34
+		RESULTS '= "「……ん」"
+	CASE 35
+		RESULTS '= "「……ん……」"
+	CASE 36
+		RESULTS '= "「……別に」"
+	CASE 37
+		RESULTS '= "「……っ、……あ」"
+	CASE 38
+		RESULTS '= "「……ふ、……ぅ」"
+	CASE 39
+		RESULTS '= "「……うん」"
+	CASE 45
+		RESULTS '= "「……よか」"
+	CASE 46
+		RESULTS '= "（小さく頷いた）"
+	CASE 47
+		RESULTS '= "「……そう」"
+	CASE 49
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	CASE 55
+		RESULTS '= "（目を伏せたまま、頷く）"
+	CASE 56
+		RESULTS '= "「……ん、……っ！」"
+	CASE 57
+		RESULTS '= "「……分かった」"
+	CASE 58
+		RESULTS '= "「……もうちかっと」"
+	CASE 59
+		RESULTS '= "「……ん」"
+	CASE 124
+		RESULTS '= "「……」"
+	CASE 80
+		RESULTS '= "「…………っ」"
+	CASE 81
+		RESULTS '= "「……は、……あ……っ」"
+	CASE 82
+		RESULTS '= "「……ぁ、……っ」"
+	CASE 85
+		RESULTS '= "「……っ！」"
+	CASE 86
+		RESULTS '= "「……っ、く……」"
+	CASE 150
+		RESULTS '= "「……っ、……あ」"
+	CASE 151
+		RESULTS '= "「……ん、……っ！」"
+	CASE 152
+		RESULTS '= "「…………っ」"
+	CASE 153
+		RESULTS '= "「……は、……あ……っ」"
+	CASE 154
+		RESULTS '= "「……ぁ、……っ」"
+	CASE 155
+		RESULTS '= "「……っ、く……」"
+	CASE 156
+		RESULTS '= "「……っ、……あ」"
+	CASE 157
+		RESULTS '= "「……ん、……っ！」"
+	CASE 158
+		RESULTS '= "「……ん」"
+	CASE 169
+		RESULTS '= "「…………っ」"
+	CASE 100
+		RESULTS '= "「……それは、……」"
+	CASE 101
+		RESULTS '= "「……は、……あ……っ」"
+	CASE 102
+		RESULTS '= "「……うん」"
+	CASE 103
+		RESULTS '= "「……そう」"
+	CASE 104
+		RESULTS '= "（わずかに目を見開いた）"
+	CASE 105
+		RESULTS '= "「……別に」"
+	CASE 106
+		RESULTS '= "「……よか」"
+	CASE 107
+		RESULTS '= "（黙ったまま、見つめ返す）"
+	CASE 108
+		RESULTS '= "「……」"
+	CASE 109
+		RESULTS '= "「……ん」"
+	CASE 110
+		RESULTS '= "（小さく頷いた）"
+	CASE 111
+		RESULTS '= "「……そう」"
+	CASE 112
+		RESULTS '= "（目を伏せたまま、頷く）"
+	CASE 113
+		RESULTS '= "「……だめ」"
+	CASE 114
+		RESULTS '= "（わずかに目を見開いた）"
+	CASE 115
+		RESULTS '= "（小さく息を呑んだ）"
+	CASE 116
+		RESULTS '= "（目を逸らさず、見つめている）"
+	CASE 117
+		RESULTS '= "（わずかに目を見開いた）"
+	CASE 118
+		RESULTS '= "「……」"
+	CASE 119
+		RESULTS '= "「……分かった」"
+	;---- 浴室（180〜188。2026-09-16）----
+	CASE 180
+		RESULTS '= "「……ん」"
+	CASE 181
+		RESULTS '= "「……うん」"
+	CASE 182
+		RESULTS '= "「……よか」"
+	CASE 183
+		RESULTS '= "「……ぁ、……っ」"
+	CASE 184
+		RESULTS '= "「……っ、く……」"
+	CASE 185
+		RESULTS '= "「……っ、……あ」"
+	CASE 186
+		RESULTS '= "「……ん、……っ！」"
+	CASE 187
+		RESULTS '= "「……ん」"
+	CASE 188
+		RESULTS '= "「…………っ」"
+ENDSELECT
+
+
+;絶頂（部位の快感が線に達した一手。射精は「出した」の行の後）。地の文の後に一行。番号は達した本人。部位 0=口 1=胸 4=尻（性別なしが落ちてくる）（→個室.ERB「絶頂の演出と口上」）
+@口上_絶頂_無口_博多(番号, 部位)
+#DIM 番号
+#DIM 部位
+
+RESULTS '= ""
+SELECTCASE 部位
+	;口
+	CASE 0
+		RESULTS '= "「……ん、っ」"
+	;胸
+	CASE 1
+		RESULTS '= "「……っ」"
+	;尻
+	CASE 4
+		RESULTS '= "「……っ、……あ」"
+ENDSELECT
+
+
+;着替え（主人公が衣装棚から着せた・断った。→ショップ.ERB @服装を変える、個室.ERB @着替えの口上）。一行。場面 0=着せた 1=露出の高い組を着せた（同意あり） 2=断った
+@口上_着替え_無口_博多(番号, 場面)
+#DIM 番号
+#DIM 場面
+
+RESULTS '= ""
+SELECTCASE 場面
+	CASE 0
+		RESULTS '= "「……ん」"
+	CASE 1
+		RESULTS '= "「……よか」"
+	CASE 2
+		RESULTS '= "「……いや」"
+ENDSELECT
+
+
+;訪ねてきた（主人公が自宅に居るときに訪ねてきた。→行動.ERB @来客を聞く／@訪問の口上）。一行。場面 0=玄関に来た 1=同居人が部屋に来た 2=帰される
+@口上_訪問_無口_博多(番号, 場面)
+#DIM 番号
+#DIM 場面
+
+RESULTS '= ""
+SELECTCASE 場面
+	CASE 0
+		RESULTS '= "「……近くまで」"
+	CASE 1
+		RESULTS '= "「……よか？」"
+	CASE 2
+		RESULTS '= "「……ん」"
+ENDSELECT
+
+
+;盛り上がり版（相手の台詞・共通。段 1=昂ぶり 2=高まり。段が 0 のときは呼ばれず、空なら 口上_行為 に落ちる。書き方は タイプ_元気_女.ERB の @口上_盛り上がり_元気_女 と同じ）
+;分類（2 愛撫・3 奉仕・4 Ｖ系・5 Ａ系・6 特殊）ごとに受ける側／動く側で一つ。向き 0・2 は相手が受ける側、1 は相手が動く側。会話・見せる・脱衣・浴室は返さない
+@口上_盛り上がり_無口_博多(番号, 行為, 向き, 段)
+#DIM 番号
+#DIM 行為
+#DIM 向き
+#DIM 段
+#DIM 受け
+
+RESULTS '= ""
+受け = 向き != 1
+SELECTCASE 行為の分類:行為
+	;愛撫
+	CASE 2
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "（小さく頷いた）"
+			ELSE
+				RESULTS '= "「……っ、……だ、め……っ」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん……」"
+			ELSE
+				RESULTS '= "「……は、……っ」"
+			ENDIF
+		ENDIF
+	;奉仕
+	CASE 3
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん。……もっと」"
+			ELSE
+				RESULTS '= "「……っ、……もう……っ」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん、……」"
+			ELSE
+				RESULTS '= "「……んっ、……っ」"
+			ENDIF
+		ENDIF
+	;Ｖ系
+	CASE 4
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん……っ」"
+			ELSE
+				RESULTS '= "（唇を噛んで、声を殺した）"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ふ、……ぅ」"
+			ELSE
+				RESULTS '= "「……っ、……く……っ」"
+			ENDIF
+		ENDIF
+	;Ａ系
+	CASE 5
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ぅ、……ん」"
+			ELSE
+				RESULTS '= "「……っ、……あ……っ」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "「……ん、……」"
+			ELSE
+				RESULTS '= "「……っ、……はっ」"
+			ENDIF
+		ENDIF
+	;特殊
+	CASE 6
+		IF 受け
+			IF 段 == 1
+				RESULTS '= "「……ん。……もっと」"
+			ELSE
+				RESULTS '= "「……あ、……っ！」"
+			ENDIF
+		ELSE
+			IF 段 == 1
+				RESULTS '= "（わずかに口元を緩めた）"
+			ELSE
+				RESULTS '= "「……はぁ……っ」"
+			ENDIF
+		ENDIF
+ENDSELECT
+
+
+;連続絶頂版（相手の台詞・共通。同じ個室で 2 回目以降に達したとき、口上_絶頂 より先に呼ばれる。空なら 口上_絶頂 に落ちる）。回数＝この個室で続けて達した回数（2 回目は 2）。部位 0=口 1=胸 2=クリトリス 3=膣 4=尻 5=射精
+@口上_連続絶頂_無口_博多(番号, 部位, 回数)
+#DIM 番号
+#DIM 部位
+#DIM 回数
+
+RESULTS '= ""
+IF 部位 == 5
+	RESULTS '= "「……っ、……また……っ」"
+ELSEIF 回数 == 2
+	RESULTS '= "「……っ、……また……っ」"
+ELSE
+	RESULTS '= "（肩で息をしながら、顔を伏せた）"
+ENDIF
+
+
+;================================ 一言・妊娠の話 ================================
+;一言（→主役.ERB @主役の一言）。状況は 一言.ERB の @一言の状況。性別を問わない
+@口上_一言_無口_博多(番号)
+#DIM 番号
+
+RESULTS '= ""
+SELECTCASE 一言の状況(番号)
+	CASE "泥酔"
+		RESULTS '= "「……飲みすぎた」"
+	CASE "妊娠"
+		RESULTS '= "「……見らんで」"
+	CASE "あなたの妊娠"
+		RESULTS '= "「……座っとき」"
+	CASE "不満"
+		RESULTS '= "「……つまらん」"
+	CASE "恋"
+		RESULTS '= "「…………。……なんでも、なか」"
+	CASE "友達"
+		RESULTS '= "「……ん。……おって」"
+	CASE "酔い"
+		RESULTS '= "「……回ってきた」"
+	CASE "満足"
+		RESULTS '= "「……悪うなか」"
+	CASE "勤務中"
+		RESULTS '= "「……仕事中」"
+	CASE "初対面"
+		RESULTS '= "「……なんか」"
+	CASEELSE
+		RESULTS '= "「……ん」"
+ENDSELECT
+
+
+;妊娠の話（→妊娠.ERB @妊娠の話）。番号＝喋る NPC、相手＝妊婦
+@口上_妊娠の話_無口_博多(番号, 局面, 相手)
+#DIM 番号
+#DIMS 局面
+#DIM 相手
+
+RESULTS '= ""
+SELECTCASE 局面
+	CASE "気づいた"
+		RESULTS '= "「……ん。……その腹」"
+	CASE "相手の腹"
+		SELECTCASE 腹段階(相手)
+			CASE 4
+				RESULTS '= "「……座っとき」"
+			CASE 3
+				RESULTS '= "「……重そう」"
+			CASEELSE
+				RESULTS '= "「……目立ってきた」"
+		ENDSELECT
+	CASE "自分の腹"
+		SELECTCASE 腹段階(番号)
+			CASE 4
+				RESULTS '= "「……もうすぐ」"
+			CASE 3
+				RESULTS '= "「……重か」"
+			CASEELSE
+				RESULTS '= "「……見とる」"
+		ENDSELECT
+ENDSELECT
+
+
+;同時絶頂版（相手の台詞・共通・博多弁。博多弁の素質が付いていれば標準語版より先に呼ばれる）
+@口上_同時絶頂_無口_博多(番号)
+#DIM 番号
+
+RESULTS '= "「……っ、……いっしょ……」"
