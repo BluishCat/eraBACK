@@ -335,6 +335,28 @@ FOR 番号, 0, 行数
 	SIF 品 >= 目標数
 		目標数 = 品 + 1
 NEXT
+VARSET 称号名, ""
+VARSET 称号の種類, ""
+VARSET 称号の値
+VARSET 称号の一言, ""
+称号数 = 0
+行数 = 台帳ファイルを読む("CSV/台帳/称号.csv")
+FOR 番号, 0, 行数
+	SPLIT 台帳行:番号, ",", 欄
+	欄数 = RESULT
+	SIF 欄数 < 4 || !ISNUMERIC(欄:0)
+		CONTINUE
+	品 = TOINT(欄:0)
+	SIF 品 < 0 || 品 >= 64
+		CONTINUE
+	称号名:品 = %欄:1%
+	称号の種類:品 = %欄:2%
+	称号の値:品 = TOINT(欄:3)
+	SIF 欄数 > 4
+		称号の一言:品 = %欄:4%
+	SIF 品 >= 称号数
+		称号数 = 品 + 1
+NEXT
 VARSET 行為名, ""
 VARSET 行為の分類
 VARSET 行為の系統
