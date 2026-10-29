@@ -29,6 +29,9 @@ INCLUDE = [
     ('CSV', 'CSV'),
     ('ERB', 'ERB'),
     ('口上テンプレート', '口上テンプレート'),
+    ('キャラ作成.html', 'キャラ作成.html'),
+    ('キャラ作成.bat', 'キャラ作成.bat'),
+    ('_chara_tool', '_chara_tool'),
     ('エンジン', 'エンジン'),
 ]
 SKIP_NAMES = {'.git', '.gitignore', 'Thumbs.db', 'desktop.ini', '.DS_Store'}

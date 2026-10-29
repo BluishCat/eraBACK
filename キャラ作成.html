@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>eraBACK キャラ作成</title>
+<style>
+:root {
+  --bg: #f6f5f1; --panel: #ffffff; --ink: #222; --sub: #666; --line: #d8d5cc;
+  --accent: #2f6f9f; --accent-ink: #fff; --warn: #b3541e; --ok: #2d7a4b; --code: #fbfaf7;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1d1e20; --panel: #26282b; --ink: #e8e6e1; --sub: #a09d96; --line: #3c3f43;
+    --accent: #5fa4d4; --accent-ink: #10202c; --warn: #e49a6a; --ok: #6cc08b; --code: #1f2123;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.6 "Yu Gothic UI", "Meiryo UI", sans-serif; }
+header { padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+header h1 { font-size: 16px; margin: 0 8px 0 0; }
+button { font: inherit; padding: 4px 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 4px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:disabled { opacity: .45; cursor: default; }
+input[type=text], input[type=number], select, textarea { font: inherit; padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); color: var(--ink); }
+input[type=text] { width: 14em; }
+input.short { width: 6em; }
+#status { color: var(--sub); }
+#status.ok { color: var(--ok); }
+main { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); gap: 12px; padding: 12px 16px; align-items: start; }
+@media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+nav.tabs { display: flex; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+nav.tabs button { border: 0; border-radius: 0; border-bottom: 3px solid transparent; padding: 8px 16px; background: none; }
+nav.tabs button.on { border-bottom-color: var(--accent); font-weight: bold; }
+section.tab { display: none; padding: 12px 16px 16px; }
+section.tab.on { display: block; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 6px 0; }
+.row > label.k { min-width: 7em; color: var(--sub); }
+.note { color: var(--sub); font-size: 12px; margin: 2px 0 6px; }
+h3 { font-size: 13px; margin: 14px 0 2px; border-bottom: 1px solid var(--line); padding-bottom: 2px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(9.5em, 1fr)); gap: 2px 10px; }
+.grid label { white-space: nowrap; }
+.abl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip { background: var(--code); border: 1px solid var(--line); border-radius: 12px; padding: 0 4px 0 10px; }
+.chip button { border: 0; background: none; padding: 0 6px; color: var(--sub); }
+aside .panel { padding: 10px 12px; }
+#warn { margin: 0 0 8px; padding: 0; list-style: none; }
+#warn li { color: var(--warn); }
+#warn li.block { font-weight: bold; }
+#warn li.info { color: var(--sub); }
+#warn li.good { color: var(--ok); }
+pre#out { margin: 0; padding: 8px 10px; background: var(--code); border: 1px solid var(--line); border-radius: 4px; overflow: auto; max-height: 62vh; white-space: pre; font: 12px/1.5 "BIZ UDGothic", Consolas, monospace; }
+footer { padding: 4px 16px 20px; display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>eraBACK キャラ作成</h1>
+  <button id="btnRoot">ゲームのフォルダを選ぶ</button>
+  <button id="btnRestore" class="primary" hidden></button>
+  <span id="rootState" style="color:var(--sub)">未選択（保存はダウンロードになります）</span>
+  <select id="existing" title="読み込む既存のキャラ" disabled><option value="">既存のキャラを読み込む…</option></select>
+  <button id="btnLoadFile">CSV ファイルを読み込む</button>
+  <input id="fileIn" type="file" accept=".csv,text/csv,text/plain" hidden>
+  <button id="btnNew">新規</button>
+</header>
+<main>
+  <div class="panel">
+    <nav class="tabs" id="tabs"></nav>
+
+    <section class="tab" data-tab="基本">
+      <div class="row"><label class="k">番号</label><input type="number" class="short" data-k="num" min="1" max="499"> <span class="note" id="numNote"></span></div>
+      <div class="row"><label class="k">名前</label><input type="text" data-k="name">
+        <label class="k" style="min-width:0">呼び名</label><input type="text" data-k="nick" placeholder="空なら名前と同じ"></div>
+      <div class="row"><label class="k">性別</label><span id="sexRadios"></span></div>
+      <div class="row"><label class="k">妊娠</label><span id="pregRadios"></span></div>
+      <div class="row"><label class="k">口上タイプ</label><select data-k="kojoType" id="selKojo"></select>
+        <label class="k" style="min-width:0">方言</label><select data-k="dialect" id="selDialect"></select></div>
+      <div class="row"><label class="k">一人称</label><select data-k="self" id="selSelf"></select>
+        <label class="k" style="min-width:0">二人称</label><select data-k="other" id="selOther"></select></div>
+      <div class="row"><label class="k">タグ</label><input type="text" data-k="tag" style="width:24em" placeholder="魔法少女／シリーズA">
+        <span class="note">／ で区切って何個でも。先頭のタグで最初のスタッフの一覧がまとまり、スタッフの絞り込みと能力表示に出ます（能力や好みには効きません）</span></div>
+      <div class="row"><label class="k">口上</label><label><input type="checkbox" data-k="mute"> 口上を出さない</label></div>
+      <h3>技能の初期レベル</h3>
+      <div class="abl" id="ablBox"></div>
+    </section>
+
+    <section class="tab" data-tab="来店">
+      <p class="note">時刻は <b>19:00</b> のように書きます。日付が変わってから来るなら <b>25:00</b>（= 翌01:00）のように 24 を超えて書けます。</p>
+      <div class="row"><label class="k">来店の時刻</label><input type="text" class="short" data-k="visitC" placeholder="19:00"> ごろ ±
+        <input type="number" class="short" data-k="visitV" min="0" step="5"> 分</div>
+      <div class="row"><label class="k">滞在時間</label><input type="number" class="short" data-k="stayC" min="0" step="5"> 分 ±
+        <input type="number" class="short" data-k="stayV" min="0" step="5"> 分</div>
+      <div class="row"><label class="k">起きる時刻</label><input type="text" class="short" data-k="wake" placeholder="07:00">
+        <span class="note">気絶して眠ったとき目を覚ます時刻。空なら来店時刻の12時間前（それも無ければ 07:00）</span></div>
+      <h3>来やすい曜日</h3>
+      <p class="note">100 がふつう、200 で倍来る、50 で半分。空欄は偏りなし。</p>
+      <div class="row" id="wdBox"></div>
+    </section>
+
+    <section class="tab" data-tab="体">
+      <p class="note">cm と kg で書きます（小数も可）。空欄なら性別の既定値から自動で決まります。</p>
+      <div class="row"><label class="k">身長</label><input type="text" class="short" data-k="h"> cm
+        <label class="k" style="min-width:0">体重</label><input type="text" class="short" data-k="w"> kg</div>
+      <div class="row"><label class="k">3 サイズ</label>胸囲 <input type="text" class="short" data-k="bust"> 胴囲 <input type="text" class="short" data-k="waist"> 腰囲 <input type="text" class="short" data-k="hip"> cm</div>
+      <h3>体格の段</h3>
+      <p class="note">「指定なし」なら上の数値から決まります。数値を空にして段だけ書くと、段から数値を作ります。</p>
+      <div class="row" id="stageBox"></div>
+      <h3>体型の入口</h3>
+      <p class="note">身長・胸囲を空にしたときだけ効きます（登録時に身長・バストの段へ入れ、タグは消えます）。</p>
+      <div class="row"><label class="k">身長</label><span id="entHRadios"></span></div>
+      <div class="row"><label class="k">バスト</label><span id="entBRadios"></span></div>
+      <h3>経験と容姿</h3>
+      <div class="row"><label class="k">性経験</label><select data-k="exp" id="selExp"></select></div>
+      <div class="row"><label class="k">容姿の素の値</label><input type="number" class="short" data-k="looks" min="0" placeholder="300">
+        <span class="note">空なら 300。着ている服と小物の点が足されます</span></div>
+    </section>
+
+    <section class="tab" data-tab="素質">
+      <div id="talentBox"></div>
+    </section>
+
+    <section class="tab" data-tab="服装">
+      <div class="row"><label class="k">衣装の組</label><select data-k="set" id="selSet"></select>
+        <span class="note">空なら「私服」</span></div>
+      <h3>枠ごとに上書き</h3>
+      <p class="note">「組のまま」なら衣装の組の服を着ます。「無し」を選ぶと、その枠は最初から着ていません。</p>
+      <div id="overBox"></div>
+      <div class="row"><label class="k">小物</label><select id="selAcc"></select> <button id="btnAcc">追加</button></div>
+      <div class="row"><label class="k"></label><span class="chips" id="accChips"></span></div>
+    </section>
+  </div>
+
+  <aside>
+    <div class="panel">
+      <ul id="warn"></ul>
+      <pre id="out"></pre>
+    </div>
+  </aside>
+</main>
+<footer>
+  <button class="primary" id="btnSave">保存</button>
+  <button id="btnKojo" disabled>口上テンプレートも出す</button>
+  <span id="status"></span>
+</footer>
+
+<script>
+const DATA = {"talents": [{"id": 0, "name": "男"}, {"id": 1, "name": "女"}, {"id": 2, "name": "ふたなり"}, {"id": 3, "name": "性別なし"}, {"id": 5, "name": "妊娠する"}, {"id": 6, "name": "妊娠しない"}, {"id": 9, "name": "口上_無口"}, {"id": 10, "name": "口上_元気"}, {"id": 11, "name": "口上_クール"}, {"id": 12, "name": "口上_内気"}, {"id": 13, "name": "口上_奔放"}, {"id": 14, "name": "口上_世話焼き"}, {"id": 15, "name": "口上_上品"}, {"id": 16, "name": "口上_無邪気"}, {"id": 17, "name": "口上_真面目"}, {"id": 18, "name": "口上_高慢"}, {"id": 19, "name": "口上_甘え"}, {"id": 20, "name": "つまみ好き"}, {"id": 21, "name": "肉好き"}, {"id": 22, "name": "魚好き"}, {"id": 23, "name": "甘党"}, {"id": 24, "name": "大食い"}, {"id": 30, "name": "ビール党"}, {"id": 31, "name": "ウイスキー党"}, {"id": 32, "name": "ワイン党"}, {"id": 33, "name": "カクテル党"}, {"id": 35, "name": "下戸"}, {"id": 40, "name": "中出し癖"}, {"id": 41, "name": "手が早い"}, {"id": 42, "name": "眠りが浅い"}, {"id": 43, "name": "眠りが深い"}, {"id": 44, "name": "金持ち"}, {"id": 50, "name": "同席好き"}, {"id": 51, "name": "見せる好き"}, {"id": 52, "name": "接触好き"}, {"id": 53, "name": "本番好き"}, {"id": 54, "name": "特殊好き"}, {"id": 60, "name": "器用"}, {"id": 61, "name": "不器用"}, {"id": 70, "name": "会話の才"}, {"id": 71, "name": "料理の才"}, {"id": 72, "name": "歌唱の才"}, {"id": 73, "name": "舞踏の才"}, {"id": 74, "name": "清掃の才"}, {"id": 75, "name": "広報の才"}, {"id": 76, "name": "警備の才"}, {"id": 77, "name": "事務の才"}, {"id": 78, "name": "演奏の才"}, {"id": 80, "name": "会話が苦手"}, {"id": 81, "name": "料理が苦手"}, {"id": 82, "name": "歌唱が苦手"}, {"id": 83, "name": "舞踏が苦手"}, {"id": 84, "name": "清掃が苦手"}, {"id": 85, "name": "広報が苦手"}, {"id": 86, "name": "警備が苦手"}, {"id": 87, "name": "事務が苦手"}, {"id": 88, "name": "演奏が苦手"}, {"id": 100, "name": "M敏感"}, {"id": 101, "name": "B敏感"}, {"id": 102, "name": "C敏感"}, {"id": 103, "name": "V敏感"}, {"id": 104, "name": "A敏感"}, {"id": 105, "name": "P敏感"}, {"id": 110, "name": "M鈍感"}, {"id": 111, "name": "B鈍感"}, {"id": 112, "name": "C鈍感"}, {"id": 113, "name": "V鈍感"}, {"id": 114, "name": "A鈍感"}, {"id": 115, "name": "P鈍感"}, {"id": 120, "name": "痛みに強い"}, {"id": 121, "name": "痛みに弱い"}, {"id": 122, "name": "恥じらい"}, {"id": 123, "name": "恥薄い"}, {"id": 124, "name": "濡れやすい"}, {"id": 125, "name": "濡れにくい"}, {"id": 126, "name": "快感に素直"}, {"id": 127, "name": "快感の否定"}, {"id": 130, "name": "絶倫"}, {"id": 131, "name": "酒豪"}, {"id": 132, "name": "回復早い"}, {"id": 133, "name": "回復遅い"}, {"id": 134, "name": "母乳体質"}, {"id": 135, "name": "潮吹き体質"}, {"id": 140, "name": "小柄"}, {"id": 141, "name": "長身"}, {"id": 142, "name": "貧乳"}, {"id": 143, "name": "巨乳"}, {"id": 144, "name": "爆乳"}, {"id": 150, "name": "体型"}, {"id": 151, "name": "バストサイズ"}, {"id": 152, "name": "下半身"}, {"id": 153, "name": "男性器サイズ"}, {"id": 160, "name": "方言_関西"}, {"id": 161, "name": "方言_博多"}, {"id": 162, "name": "方言_広島"}, {"id": 163, "name": "方言_東北"}, {"id": 170, "name": "セフレ"}, {"id": 180, "name": "羞恥好き"}, {"id": 181, "name": "被虐"}, {"id": 182, "name": "加虐"}, {"id": 183, "name": "拘束好き"}, {"id": 184, "name": "口好き"}, {"id": 185, "name": "胸好き"}, {"id": 186, "name": "尻好き"}, {"id": 187, "name": "母乳好き"}], "sets": ["私服", "ワンピース", "スカート", "スーツ", "ドレス", "浴衣", "レオタード", "水着", "制服", "セーラー服", "メイド服", "ナース服", "巫女装束", "ジャージ", "体操服", "パジャマ", "ビキニ", "ロリータ服", "ゴシック服", "振袖", "コンビニの制服", "婦警の制服", "テニスウェア", "白ゴシックの服", "袈裟", "修道女の服", "キャミソールワンピ", "エプロンドレス"], "wear": {"上の服": ["セーラー服", "ブレザー", "ブラウス", "Ｙシャツ", "Ｔシャツ", "キャミソール", "タンクトップ", "チューブトップ", "パーカー", "セーター", "カーディガン", "体操服", "ジャケット", "スーツの上着", "詰襟", "コットンブラウス", "シルクブラウス", "タートルネック", "カットソー", "チュニック", "トレーナー", "ダメージＴシャツ", "ニットカーディガン", "フリースカーディガン", "ボレロ"], "スカート": ["制服のスカート", "プリーツスカート", "ミニスカート", "マイクロミニ", "タイトスカート", "ロングスカート", "ひざ丈スカート", "フレアスカート", "巻きスカート", "吊りスカート", "ジャンパースカート"], "ズボン": ["スラックス", "スーツのズボン", "制服のズボン", "ジーンズ", "ショートパンツ", "ホットパンツ", "スパッツ", "ブルマ", "ジャージのズボン", "キュロットスカート", "コットンパンツ", "ローライズパンツ", "スリムジーンズ", "トレーニングパンツ", "オーバーオール"], "上下一体": ["ワンピース", "ミニワンピ", "ドレス", "イブニングドレス", "チャイナドレス", "ウェディングドレス", "浴衣", "和服", "巫女装束", "メイド服", "ナース服", "ウェイトレスの制服", "チアの服", "バニースーツ", "ジャージ", "パジャマ", "ネグリジェ", "バスローブ", "つなぎ", "キャミソールワンピ", "エプロンドレス", "ピンクのロリータ服", "黒のゴシック服", "振袖", "コンビニの制服", "婦警の制服", "テニスウェア", "白ゴシックの服", "袈裟", "修道女の服"], "ブラ": ["ブラ", "スポーツブラ", "レースブラ", "シースルーブラ", "さらし", "肌着", "白のブラ", "赤いブラ", "青いブラ", "黒のブラ", "花柄のブラ", "ベージュブラ", "ピンクのブラ", "縞々のブラ", "シルクのブラ", "コットンブラ", "フリルブラ", "ハーフカップブラ", "オープンブラ", "ビキニトップ", "ビスチェ", "絆創膏", "母乳パッド"], "パンツ": ["ショーツ", "Ｔバック", "紐パン", "縞パン", "ドロワーズ", "トランクス", "ブリーフ", "ボクサーパンツ", "ふんどし", "白のパンティ", "赤いパンティ", "青いパンティ", "黒いパンティ", "花柄のパンティ", "ベージュパンティ", "レースパンティ", "フリルパンティ", "ピンクのパンティ", "シルクショーツ", "コットンショーツ", "フレアショーツ", "オープンショーツ", "ハイレグ", "ローレグ", "ペチコート", "前貼り", "オムツ", "ポケット付きショーツ", "ブーメランパンツ"], "上下一体の下着": ["レオタード", "スクール水着", "ワンピース水着", "ビキニ", "マイクロビキニ", "ベビードール", "ボンデージ", "肌襦袢", "全身タイツ", "白い水着", "女王用ボンデージ", "奴隷用ボンデージ", "プレゼントリボン"], "小物": ["眼鏡", "サングラス", "ネクタイ", "腕時計", "腕輪", "手袋", "ネックレス", "ペンダント", "チョーカー", "首輪", "イヤリング", "ヘアバンド", "カチューシャ", "リボン", "ヘッドドレス", "かんざし", "猫耳", "キャップ", "ニット帽", "ナースキャップ", "ヘッドホン", "エプロン", "パレオ", "スポーツタオル", "麦わら帽", "ベレー帽", "つば広帽", "ハンチング", "インディアンハット", "テンガロンハット", "婦警の帽子", "銀の眼鏡", "バンダナ", "純白のヘッドドレス", "ホワイトブリム", "ウサ耳カチューシャ", "ブローチ", "名札", "真珠のネックレス", "蒼いペンダント", "翡翠のブローチ", "赤い首輪", "奴隷管理用タグ", "涎掛け", "手錠", "エンゲージリング", "ハーフコート", "ロングコート", "レインコート", "落書き", "猫尻尾", "ソムリエエプロン"], "靴": ["ハイヒール", "ブーツ", "ローファー", "革靴", "スニーカー", "サンダル", "エナメルパンプス", "ピンヒール", "ショートブーツ", "ロングブーツ", "ダンスシューズ", "草履"], "靴下": ["ニーソックス", "ストッキング", "網タイツ", "ショートソックス", "ハイソックス", "オーバーニーソックス", "ルーズソックス", "黒ストッキング", "ガーターストッキング", "ロングタイツ", "パンティストッキング", "破れたストッキング"]}, "kojo": {"一言.ERB": ";キャラ別口上の雛形（一言）。このフォルダごと ERB/口上/ に写し、フォルダ名と関数名の 100 をキャラ番号に、なまえ をキャラ名に替える。\r\n;主役の段（相手を選んだ画面）の最後に出る一言。空ならタイプ別（ERB/口上/汎用/一言.ERB。状況は @一言の状況 で 泥酔／妊娠／不満／恋／友達／酔い／満足／勤務中／初対面／ふだん）に落ちる。\r\n;番号は喋るキャラ。台詞を RESULTS に返す（空なら出ない）。\r\n;同じ台詞が続かないよう、タイプ別は数本から替わる。この人にも替わってほしいなら、同じ形で 口上_一言2_100／口上_一言3_100 も書く（無い本は、この関数＝1本目に落ちる）。\r\n;分岐に使える値の例：満足度:番号:0（−100〜100）、好感度_友情:番号:0／好感度_恋愛:番号:0／好感度_体:番号:0（相手＝主人公は添字 0。段にするなら 好感度の段(値)、0〜10）、BASE:番号:酔い、妊娠日数:番号:0（0 なら妊娠していない）、妊娠自覚:番号:0（2 で本人が確信）\r\n\r\n@口上_一言_100(番号)\r\n#DIM 番号\r\n\r\nRESULTS '= \"\"\r\nIF 満足度:番号:0 < 0\r\n\tRESULTS '= \"「……今日は、あんまり気分が乗らないな」\"\r\nELSEIF 好感度の段(好感度_友情:番号:0) >= 5\r\n\tRESULTS '= \"「来たよ。……なんか、ここが一番落ち着くんだよね」\"\r\nELSE\r\n\tRESULTS '= \"「どうも。今日もよろしく」\"\r\nENDIF\r\n", "妊娠.ERB": ";キャラ別口上の雛形（妊娠・出産）。このフォルダごと ERB/口上/ に写し、フォルダ名と関数名の 100 をキャラ番号に、なまえ をキャラ名に替える。\n;呼ぶ順：キャラ別（これ） → 口上タイプ → 何も出ない。妊娠するのは母だけなので性別の段は無い。RESULTS が空なら次の段に落ちる。\n;番号は喋る母、局面は文字列：\n;  着床（稀）／妊娠発覚／陣痛開始／破水／活動期／移行期／娩出期／波_本格化／波_活動期／波_移行期／波_娩出期／いきみ（児ごと）／多胎に気づく／出産直後／流産\n;分岐に使える値：胎児数:番号:0、分娩済:番号:0（何人目か−1）、健診済:番号:0、出産回数:番号:0、陣痛:番号:0（破水のとき 1 以下なら陣痛より先の前期破水、それより大きければ陣痛の途中の適時破水）。一行、長くても二行まで\n\n@口上_妊娠_100(番号, 局面)\n#DIM 番号\n#DIMS 局面\n\nRESULTS '= \"\"\nSELECTCASE 局面\n\tCASE \"妊娠発覚\"\n\t\tIF 出産回数:番号:0 == 0\n\t\t\tRESULTS '= \"「……えっ。……本当に？　わたしが……」\"\n\t\tELSE\n\t\t\tRESULTS '= \"「……また、か。……うん、わかった」\"\n\t\tENDIF\n\tCASE \"陣痛開始\"\n\t\tRESULTS '= \"「……っ、来た。……大丈夫、まだ間はあるから」\"\n\tCASE \"出産直後\"\n\t\tIF 胎児数:番号:0 >= 2\n\t\t\tRESULTS '= \"「はぁ……はぁ……。二人とも……無事、なんだよね……？」\"\n\t\tELSE\n\t\t\tRESULTS '= \"「はぁ……はぁ……。……ああ、泣いてる……」\"\n\t\tENDIF\nENDSELECT\n", "着替え.ERB": ";キャラ別口上の雛形（着替え）。このフォルダごと ERB/口上/ に写し、フォルダ名と関数名の 100 をキャラ番号に、なまえ をキャラ名に替える。\n;主人公が衣装棚から服を着せたとき・断ったときに一行。空ならタイプ別（ERB/口上/汎用/タイプ_<タイプ>_<性別>.ERB の @口上_着替え_<タイプ>_<性別>）に落ちる。\n;番号は着る本人。場面 0=着せた 1=露出の高い組を着せた（同意あり。水着・レオタード・ビキニなど） 2=断った（露出の高い組で、あなたへの体の段が足りない）\n;分岐に使える値の例：着ている組の名(番号)（着せた後の組の名前）、好感度_体:番号:0、露出度(番号)\n\n@口上_着替え_100(番号, 場面)\n#DIM 番号\n#DIM 場面\n\nRESULTS '= \"\"\nSELECTCASE 場面\n\tCASE 0\n\t\tRESULTS '= \"「着替えですね。……どうですか、似合っていますか」\"\n\tCASE 1\n\t\tRESULTS '= \"「これを……。……あなたが言うのなら。他の人には見せないでくださいね」\"\n\tCASE 2\n\t\tRESULTS '= \"「それは……ごめんなさい。まだ、そこまでは」\"\nENDSELECT\n", "破瓜.ERB": ";キャラ別口上の雛形（破瓜）。このフォルダごと ERB/口上/ に写し、フォルダ名と関数名の 100 をキャラ番号に、なまえ をキャラ名に替える。\r\n;膣に初めて男性器を入れられた一手で、行為の口上の代わりに出る。空ならタイプ別（ERB/口上/汎用/タイプ_<タイプ>_女.ERB の @口上_破瓜_<タイプ>_女）に落ちる。\r\n;番号は散った本人。台詞を RESULTS に返す。一行\r\n;分岐に使える値の例：PALAM:番号:苦痛（破瓜の苦痛 が足されている）、PALAM:番号:欲情、BASE:番号:酔い、好感度_恋愛:番号:0\r\n\r\n@口上_破瓜_100(番号)\r\n#DIM 番号\r\n\r\nRESULTS '= \"\"\r\nIF 好感度の段(好感度_恋愛:番号:0) >= 5\r\n\tRESULTS '= \"「……っ、痛……。でも、あなたでよかった。……本当に」\"\r\nELSE\r\n\tRESULTS '= \"「いっ……！　……はは、これが初めてか。……忘れないでよね」\"\r\nENDIF\r\n", "絶頂.ERB": ";キャラ別口上の雛形（絶頂）。このフォルダごと ERB/口上/ に写し、フォルダ名と関数名の 100 をキャラ番号に、なまえ をキャラ名に替える。\r\n;部位の快感が線に達した一手（絶頂）と、射精した一手（「出した」の行の後）に、地の文の後で出る。空ならタイプ別（ERB/口上/汎用/タイプ_<タイプ>_<性別>.ERB の @口上_絶頂_<タイプ>_<性別>）に落ちる。\r\n;番号は達した本人。部位 0=口 1=胸 2=クリトリス 3=膣 4=尻 5=射精。台詞を RESULTS に返す。一行\r\n;分岐に使える値の例：PALAM:番号:欲情、BASE:番号:酔い、好感度_恋愛:番号:0、膣に入っているか(番号)（相手の男性器が膣に入っているか）\r\n\r\n@口上_絶頂_100(番号, 部位)\r\n#DIM 番号\r\n#DIM 部位\r\n\r\nRESULTS '= \"\"\r\nSELECTCASE 部位\r\n\tCASE 0\r\n\t\tRESULTS '= \"「ん、ぅ……っ！　……口で、なんて……」\"\r\n\tCASE 1\r\n\t\tRESULTS '= \"「あ……っ、胸で……っ！　……はぁ……」\"\r\n\tCASE 2\r\n\t\tRESULTS '= \"「あ、あ……っ、そこ……っ！　……はぁ……」\"\r\n\tCASE 3\r\n\t\tIF 好感度の段(好感度_恋愛:番号:0) >= 5\r\n\t\t\tRESULTS '= \"「あ……っ、あぁ……っ！　……はぁ、はぁ……。……あなたと、だから……」\"\r\n\t\tELSE\r\n\t\t\tRESULTS '= \"「あ……っ、あぁ……っ！　……はぁ、はぁ……」\"\r\n\t\tENDIF\r\n\tCASE 4\r\n\t\tRESULTS '= \"「そんなところで……っ、あ……っ！　……はぁ……」\"\r\n\tCASE 5\r\n\t\tRESULTS '= \"「っ、出る……っ！　……はぁ……」\"\r\nENDSELECT\r\n\r\n;強絶頂版（任意）。強く達したとき（強さ＝その部位の快感＋欲情÷3 が 強絶頂の線 以上。部位 5 は大量射精）、@口上_連続絶頂 と @口上_絶頂 より先に呼ばれる。空なら 連続絶頂 → 絶頂 に落ちる。\r\n;回数＝この個室で続けて達した回数（1 回目は 1）。個室の外（自慰・夜這い・舞台）の強絶頂では呼ばれない（相手の台詞が出る場面ではないので）。\r\n@口上_強絶頂_100(番号, 部位, 回数)\r\n#DIM 番号\r\n#DIM 部位\r\n#DIM 回数\r\n\r\nRESULTS '= \"\"\r\nSELECTCASE 部位\r\n\tCASE 3\r\n\t\tRESULTS '= \"「あ、あぁっ、奥……っ、だめ、来る……っ！！　……はぁ、はぁ……。……あなたの、せいで……」\"\r\n\tCASE 5\r\n\t\tRESULTS '= \"「っ、出る……っ、止まらな……っ！！　……はぁ……。……こんなに……」\"\r\nENDSELECT\r\n\r\n;同時絶頂版（任意）。同じ一手であなたと相手が一緒に達したとき、★の行の後に呼ばれる（部位・回数は取らない）。空なら何も出ない。\r\n@口上_同時絶頂_100(番号)\r\n#DIM 番号\r\n\r\nRESULTS '= \"\"\r\nRESULTS '= \"「っ……一緒に……っ！　……はぁ……」\"\r\n", "行為.ERB": ";キャラ別口上の雛形（個室の行為）。このフォルダごと ERB/口上/ に写し、フォルダ名と関数名の 100 をキャラ番号に、なまえ をキャラ名に替える。\n;呼ぶ順：キャラ別（これ） → 口上タイプ_性別 → 口上タイプ → 何も出ない。どの段も RESULTS が空なら次の段に落ちるので、書きたい行為だけ書けばよい。\n;番号は喋るキャラ、行為は行為番号（CSV/台帳/行為.csv）、向きは 0＝主人公が相手に 1＝相手が主人公に 2＝双方。\n;分岐に使える値の例：BASE:番号:酔い（泥酔の線 以上で泥酔）、経験回数:番号:行為、満足度:番号:0、好感度_恋愛:番号:0。一行、長くても二行まで\n\n@口上_行為_100(番号, 行為, 向き)\n#DIM 番号\n#DIM 行為\n#DIM 向き\n\nRESULTS '= \"\"\nSELECTCASE 行為\n\t;---- 会話（0〜） ----\n\tCASE 0\n\t\tRESULTS '= \"「二人だと、なんか話しやすいな」\"\n\t;---- 酔っているときだけ差し替える例 ----\n\tCASE 41\n\t\tSIF BASE:番号:酔い >= 泥酔の線\n\t\t\tRESULTS '= \"「うぅ……酔ってんのに、こんなの……」\"\n\t;---- 初めてのときだけ差し替える例 ----\n\tCASE 65\n\t\tSIF 経験回数:番号:65 == 0\n\t\t\tRESULTS '= \"「い、いいんですか……その、動きますよ……」\"\nENDSELECT\n\n\n;盛り上がり版（任意）。段が 1 以上のときだけ、上の @口上_行為_100 より先に呼ばれる。段 1＝昂ぶり（欲情が2段以上） 2＝高まり（快感が射精の線の 2/3 以上）。\n;空なら上の @口上_行為_100 に落ちるので、変えたい行為だけ書けばよい。書いていない行為を 分類（2 愛撫・3 奉仕・4 Ｖ系・5 Ａ系・6 特殊）でまとめて返してもよい（行為の分類:行為）。\n;向き 0・2 は相手が受ける側、1 は相手が動く側\n@口上_盛り上がり_100(番号, 行為, 向き, 段)\n#DIM 番号\n#DIM 行為\n#DIM 向き\n#DIM 段\n\nRESULTS '= \"\"\nSELECTCASE 行為\n\tCASE 65\n\t\tIF 段 == 1\n\t\t\tRESULTS '= \"「あ、あったかい……動いても、いいですか……」\"\n\t\tELSE\n\t\t\tRESULTS '= \"「も、もう……だめです……っ、出ます……っ！」\"\n\t\tENDIF\nENDSELECT\n", "訪問.ERB": ";キャラ別口上の雛形（訪問）。このフォルダごと ERB/口上/ に写し、フォルダ名と関数名の 100 をキャラ番号に、なまえ をキャラ名に替える。\r\n;あなたが自宅に居るときに訪ねてきたとき・帰されたときに一行。空ならタイプ別（ERB/口上/汎用/タイプ_<タイプ>_<性別>.ERB の @口上_訪問_<タイプ>_<性別>）に落ちる。\r\n;番号は訪ねてきた本人。場面 0=玄関に来た（スタッフ・客） 1=同居人が部屋に来た（呼び鈴なし） 2=帰される（「帰ってもらう」を選んだ）\r\n;分岐に使える値の例：好感度_友情:番号:0、好感度_恋愛:番号:0、スタッフ:番号:0、同棲:番号:0\r\n\r\n@口上_訪問_100(番号, 場面)\r\n#DIM 番号\r\n#DIM 場面\r\n\r\nRESULTS '= \"\"\r\nSELECTCASE 場面\r\n\tCASE 0\r\n\t\tRESULTS '= \"「こんにちは。近くまで来たので、寄ってみました」\"\r\n\tCASE 1\r\n\t\tRESULTS '= \"「少し、いいですか」\"\r\n\tCASE 2\r\n\t\tRESULTS '= \"「そうですか。……では、また」\"\r\nENDSELECT\r\n"}};
+
+// ---- 定数 ----
+const ABLS = ['会話', '料理', '歌唱', '舞踏', '清掃', '広報', '警備', '事務', '演奏'];
+const WDAYS = ['日', '月', '火', '水', '木', '金', '土'];
+const SEXES = [[0, '男'], [1, '女'], [2, 'ふたなり'], [3, '性別なし']];
+const SELF_WORDS = ['あたし', 'あたくし', 'わたし', 'わたくし', '私', 'おれ', '俺', 'ぼく', '僕', 'うち', 'おら'];
+const OTHER_WORDS = ['あなた', 'あんた', 'お前'];
+const STAGES = {
+  '体型': [[-3, '痩せすぎ'], [-2, '細身'], [-1, 'スレンダー'], [0, '指定なし（普通）'], [1, '肉感的'], [2, '豊満'], [3, '肥満']],
+  'バストサイズ': [[-2, '絶壁'], [-1, '貧乳'], [0, '指定なし（並乳）'], [1, '巨乳'], [2, '爆乳'], [3, '魔乳']],
+  '下半身': [[-1, '逆三角形'], [0, '指定なし（普通）'], [1, '安産型']],
+  '男性器サイズ': [[-2, '極小'], [-1, '小ぶり'], [0, '指定なし（平均）'], [1, '巨根'], [2, '規格外']],
+};
+const EXP = [[0, '未経験'], [1, '少し'], [2, 'ふつう'], [3, '多い']];
+const ENT_H = ['小柄', '長身'];
+const ENT_B = ['貧乳', '巨乳', '爆乳'];
+const OVER_SLOTS = [
+  ['上の服', ['上の服', '上下一体']],
+  ['下の服', ['スカート', 'ズボン']],
+  ['上の下着', ['ブラ', '上下一体の下着']],
+  ['下の下着', ['パンツ']],
+  ['靴下', ['靴下']],
+  ['靴', ['靴']],
+];
+// 素質のグループ：id の範囲。どれにも入らず、特別扱いもされないものは「その他」
+const GROUPS = [
+  ['好物', '客が頼む品の偏り', id => (id >= 20 && id <= 24) || (id >= 30 && id <= 33) || id === 35],
+  ['客の癖', '', id => id === 40 || id === 41 || id === 44],
+  ['裏の好み', '客が指名しやすい系統', id => id >= 50 && id <= 54],
+  ['技能の伸び', '経験の入りが 2 倍／半分', id => (id >= 60 && id <= 61) || (id >= 70 && id <= 88)],
+  ['体質', '快感・苦痛・羞恥などの入り方', id => id >= 100 && id <= 135],
+  ['性癖', '当たる行為で快感・欲情が 2 倍', id => id >= 180 && id <= 187],
+];
+// フォームの別の場所で選ぶもの・遊んで付くもの（チェックボックスには出さない）
+const SPECIAL = id => id <= 6 || (id >= 9 && id <= 19) || id === 42 || id === 43 || (id >= 140 && id <= 153) || (id >= 160 && id <= 170);
+
+// ---- 素質の表 ----
+const T = {};         // 名前 → id
+const TN = {};        // id → 名前
+for (const t of DATA.talents) { T[t.name] = t.id; TN[t.id] = t.name; }
+const kojoTypes = DATA.talents.filter(t => t.id >= 9 && t.id <= 19).map(t => t.name);
+const dialects = DATA.talents.filter(t => t.id >= 160 && t.id <= 169).map(t => t.name);
+const pregNames = ['妊娠する', '妊娠しない'];
+const boxNames = [];  // チェックボックスで扱う素質の名前
+const PAIRS = {};
+function pair(a, b) { if (T[a] != null && T[b] != null) { PAIRS[a] = b; PAIRS[b] = a; } }
+for (const p of 'MBCVAP') pair(p + '敏感', p + '鈍感');
+pair('痛みに強い', '痛みに弱い'); pair('恥じらい', '恥薄い'); pair('濡れやすい', '濡れにくい');
+pair('快感に素直', '快感の否定'); pair('回復早い', '回復遅い'); pair('器用', '不器用');
+for (const a of ABLS) pair(a + 'の才', a + 'が苦手');
+
+// ---- 状態 ----
+let S;
+let root = null;                // ゲームのフォルダ（FileSystemDirectoryHandle）
+let used = {};                  // 番号 → {path, prefix, file, dir, name}（CSV/chara の下にあるもの。サブフォルダも見る）
+let byPath = {};                // CSV/chara からの相対パス → 上と同じ項目
+let dups = [];                  // 同じ番号を複数のファイルが使っている所の説明
+let loaded = null;              // 読み込んだキャラの項目（保存のとき置き換え・同じ場所に書くのに使う。フォルダ外から読んだときは dir が無い）
+
+function blank() {
+  const o = {
+    num: '', name: '', nick: '', sex: '女', preg: '', kojoType: '', dialect: '', self: '', other: '', tag: '', mute: false,
+    abl: {}, visitC: '', visitV: '', stayC: '', stayV: '', wake: '', wd: ['', '', '', '', '', '', ''],
+    h: '', w: '', bust: '', waist: '', hip: '', stage: {}, entH: '', entB: '', exp: '0', looks: '',
+    talents: new Set(), set: '', over: {}, acc: [], extra: [],
+  };
+  for (const a of ABLS) o.abl[a] = 0;
+  for (const k in STAGES) o.stage[k] = 0;
+  for (const [s] of OVER_SLOTS) o.over[s] = '';
+  o.num = String(nextFree());
+  return o;
+}
+function nextFree() {
+  for (let n = 100; n < 500; n++) if (!used[n]) return n;
+  return 100;
+}
+
+// ---- 値の出し入れ（data-k="a.b"） ----
+function getPath(p) { return p.split('.').reduce((o, k) => o[k], S); }
+function setPath(p, v) {
+  const ks = p.split('.');
+  const last = ks.pop();
+  ks.reduce((o, k) => o[k], S)[last] = v;
+}
+
+// ---- 画面の組み立て ----
+const $ = s => document.querySelector(s);
+const el = (tag, attrs = {}, ...kids) => {
+  const e = document.createElement(tag);
+  for (const k in attrs) { if (k === 'text') e.textContent = attrs[k]; else e.setAttribute(k, attrs[k]); }
+  for (const c of kids) e.append(c);
+  return e;
+};
+function fillSelect(sel, items, firstLabel) {
+  sel.textContent = '';
+  if (firstLabel != null) sel.append(el('option', { value: '', text: firstLabel }));
+  for (const it of items) {
+    const [v, t] = Array.isArray(it) ? it : [it, it];
+    sel.append(el('option', { value: String(v), text: t }));
+  }
+}
+function radios(box, group, items, bindKey, noneLabel) {
+  box.textContent = '';
+  const all = noneLabel != null ? [['', noneLabel], ...items] : items;
+  for (const it of all) {
+    const [v, t] = Array.isArray(it) ? it : [it, it];
+    const r = el('input', { type: 'radio', name: group, value: String(v), 'data-k': bindKey });
+    box.append(el('label', {}, r, ' ' + t), ' ');
+  }
+}
+
+function build() {
+  // タブ
+  const tabs = $('#tabs');
+  for (const sec of document.querySelectorAll('section.tab')) {
+    const b = el('button', { text: sec.dataset.tab });
+    b.addEventListener('click', () => showTab(sec.dataset.tab));
+    tabs.append(b);
+  }
+  showTab('基本');
+
+  // 基本
+  radios($('#sexRadios'), 'sex', SEXES.map(([, n]) => n), 'sex');
+  radios($('#pregRadios'), 'preg', pregNames, 'preg', '性別どおり');
+  fillSelect($('#selKojo'), kojoTypes.map(n => [n, n.replace(/^口上_/, '')]), '指定なし');
+  fillSelect($('#selDialect'), dialects.map(n => [n, n.replace(/^方言_/, '')]), '標準語');
+  fillSelect($('#selSelf'), SELF_WORDS, '指定なし');
+  fillSelect($('#selOther'), OTHER_WORDS, '指定なし');
+  const ab = $('#ablBox');
+  for (const a of ABLS) {
+    ab.append(el('label', {}, a + ' ', el('input', { type: 'number', class: 'short', min: 0, max: 10, 'data-k': 'abl.' + a })));
+  }
+
+  // 来店
+  const wd = $('#wdBox');
+  WDAYS.forEach((d, i) => wd.append(el('label', {}, d + ' ', el('input', { type: 'number', class: 'short', min: 0, step: 10, 'data-k': 'wd.' + i }))));
+
+  // 体
+  const st = $('#stageBox');
+  for (const k in STAGES) {
+    const sel = el('select', { 'data-k': 'stage.' + k });
+    fillSelect(sel, STAGES[k]);
+    st.append(el('label', {}, k + ' ', sel), ' ');
+  }
+  radios($('#entHRadios'), 'entH', ENT_H, 'entH', 'なし');
+  radios($('#entBRadios'), 'entB', ENT_B, 'entB', 'なし');
+  fillSelect($('#selExp'), EXP);
+
+  // 素質
+  const box = $('#talentBox');
+  const placed = new Set();
+  const addGroup = (title, note, list) => {
+    if (!list.length) return;
+    box.append(el('h3', { text: title }));
+    if (note) box.append(el('div', { class: 'note', text: note }));
+    const g = el('div', { class: 'grid' });
+    for (const t of list) {
+      const c = el('input', { type: 'checkbox', 'data-t': t.name });
+      g.append(el('label', {}, c, ' ' + t.name));
+      boxNames.push(t.name);
+      placed.add(t.id);
+    }
+    box.append(g);
+  };
+  for (const [title, note, test] of GROUPS) addGroup(title, note, DATA.talents.filter(t => test(t.id)));
+  addGroup('その他', '', DATA.talents.filter(t => !placed.has(t.id) && !SPECIAL(t.id)));
+
+  // 服装
+  fillSelect($('#selSet'), DATA.sets, '私服');
+  const ob = $('#overBox');
+  for (const [slot, kinds] of OVER_SLOTS) {
+    const names = kinds.flatMap(k => DATA.wear[k] || []);
+    const sel = el('select', { 'data-k': 'over.' + slot });
+    fillSelect(sel, [['-', '無し'], ...names.map(n => [n, n])], '組のまま');
+    ob.append(el('div', { class: 'row' }, el('label', { class: 'k', text: slot }), sel));
+  }
+  fillSelect($('#selAcc'), DATA.wear['小物'] || []);
+
+  document.addEventListener('input', onInput);
+  document.addEventListener('change', onInput);
+}
+
+function showTab(name) {
+  document.querySelectorAll('section.tab').forEach(s => s.classList.toggle('on', s.dataset.tab === name));
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.textContent === name));
+}
+
+function onInput(ev) {
+  const e = ev.target;
+  if (e.dataset.t) {
+    const n = e.dataset.t;
+    if (e.checked) { S.talents.add(n); if (PAIRS[n]) S.talents.delete(PAIRS[n]); }
+    else S.talents.delete(n);
+    syncUI(); refresh(); return;
+  }
+  const k = e.dataset.k;
+  if (!k) return;
+  if (e.type === 'radio') { if (e.checked) setPath(k, e.value); }
+  else if (e.type === 'checkbox') setPath(k, e.checked);
+  else if (/^(abl|stage)\./.test(k)) setPath(k, Number(e.value) || 0);
+  else setPath(k, e.value);
+  refresh();
+}
+
+function syncUI() {
+  for (const e of document.querySelectorAll('[data-k]')) {
+    const v = getPath(e.dataset.k);
+    if (e.type === 'radio') e.checked = (String(v) === e.value);
+    else if (e.type === 'checkbox') e.checked = !!v;
+    else e.value = v == null ? '' : String(v);
+  }
+  for (const e of document.querySelectorAll('[data-t]')) e.checked = S.talents.has(e.dataset.t);
+  renderAcc();
+}
+function renderAcc() {
+  const c = $('#accChips');
+  c.textContent = '';
+  S.acc.forEach((n, i) => {
+    const x = el('button', { text: '×', title: '外す' });
+    x.addEventListener('click', () => { S.acc.splice(i, 1); renderAcc(); refresh(); });
+    c.append(el('span', { class: 'chip' }, n, x));
+  });
+  if (!S.acc.length) c.append(el('span', { class: 'note', text: '（なし）' }));
+}
+
+// ---- 値の変換 ----
+function mins(str) {
+  const m = /^\s*(\d{1,2}):(\d{2})\s*$/.exec(str || '');
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+}
+function fmt(min) { return String(Math.floor(min / 60)).padStart(2, '0') + ':' + String(min % 60).padStart(2, '0'); }
+function dec10(str) {
+  const s = String(str || '').trim();
+  if (!s) return null;
+  const v = Number(s);
+  return isNaN(v) ? NaN : Math.round(v * 10);
+}
+const tagFix = s => s.replace(/\//g, '／').replace(/\s*／\s*/g, '／').trim();
+
+// ---- CSV を作る ----
+function build_csv() {
+  const L = [];
+  const num = parseInt(S.num, 10);
+  L.push(';キャラ作成ツールで作ったキャラ。時刻と時間は分（19:00 = 1140、01:00 は 1500）');
+  L.push('番号,' + (isNaN(num) ? '' : num));
+  L.push('名前,' + S.name.trim());
+  L.push('呼び名,' + (S.nick.trim() || S.name.trim()));
+  L.push('');
+
+  const flag = (n, v) => { if (v != null && v !== '' && !(typeof v === 'number' && isNaN(v))) L.push('フラグ,' + n + ',' + v); };
+  const cstr = (n, v) => { if (v) L.push('CSTR,' + n + ',' + v); };
+
+  // 容姿・服装
+  flag('初期容姿', S.looks === '' ? '' : Number(S.looks));
+  cstr('服装', S.set);
+  for (const [slot] of OVER_SLOTS) cstr(slot, S.over[slot]);
+  cstr('小物', S.acc.join('・'));
+  L.push('');
+
+  // 来店の癖
+  const vc = mins(S.visitC);
+  flag('来店時刻中心', vc);
+  if (S.visitV !== '') flag('来店時刻ばらつき', Number(S.visitV));
+  if (S.stayC !== '') flag('滞在時間中心', Number(S.stayC));
+  if (S.stayV !== '') flag('滞在時間ばらつき', Number(S.stayV));
+  flag('起きる時刻', mins(S.wake));
+  WDAYS.forEach((d, i) => { if (S.wd[i] !== '' && Number(S.wd[i]) > 0) flag('曜日偏り_' + d, Number(S.wd[i])); });
+  L.push('');
+
+  // 体
+  flag('初期身長', dec10(S.h)); flag('初期体重', dec10(S.w));
+  flag('初期胸囲', dec10(S.bust)); flag('初期胴囲', dec10(S.waist)); flag('初期腰囲', dec10(S.hip));
+  if (Number(S.exp) > 0) flag('初期経験', Number(S.exp));
+  if (S.mute) flag('口上なし', 1);
+  L.push('');
+
+  // 能力
+  for (const a of ABLS) L.push('能力,' + a + ',' + (Number(S.abl[a]) || 0));
+  L.push('');
+
+  // 素質
+  L.push('素質,' + S.sex + ',1');
+  if (S.preg) L.push('素質,' + S.preg + ',1');
+  if (S.kojoType) L.push('素質,' + S.kojoType + ',1');
+  if (S.dialect) L.push('素質,' + S.dialect + ',1');
+  if (S.entH) L.push('素質,' + S.entH + ',1');
+  if (S.entB) L.push('素質,' + S.entB + ',1');
+  for (const k in STAGES) if (S.stage[k]) L.push('素質,' + k + ',' + S.stage[k]);
+  for (const n of boxNames) if (S.talents.has(n)) L.push('素質,' + n + ',1');
+
+  // 呼び方・タグ
+  const tag = tagFix(S.tag);
+  if (S.self || S.other || tag) {
+    L.push('');
+    cstr('一人称', S.self); cstr('二人称', S.other); cstr('タグ', tag);
+  }
+  if (S.extra.length) { L.push(''); L.push(';読み込んだときに認識できなかった行'); L.push(...S.extra); }
+  return L.join('\n') + '\n';
+}
+
+// ---- 確認 ----
+// level: block＝保存できない／warn＝保存の前に確認する（保存されない項目・範囲の外・同じ名前）／note＝注意だけ／info／good
+const LIMIT_ABL = 10;   // 技能Lv上限（変数定義.ERH）
+function timeOk(str) {
+  const m = /^\s*(\d{1,2}):(\d{2})\s*$/.exec(str || '');
+  return !!m && Number(m[2]) < 60;
+}
+function charaFile() {
+  return 'Chara' + parseInt(S.num, 10) + '_' + safe(S.name) + '.csv';
+}
+function checks() {
+  const L = [];
+  const add = (level, text) => L.push({ level, text });
+  const num = parseInt(S.num, 10);
+  const sex = S.sex;
+  const nm = S.name.trim();
+
+  // 番号
+  if (!/^\d+$/.test(String(S.num).trim()) || num < 1 || num > 499) add('block', '番号は 1〜499 の整数にしてください（自作キャラは 100〜499）');
+  else {
+    if (num < 100) add('warn', '番号 ' + num + ' は同梱キャラの帯です。自作キャラは 100〜499 を使ってください');
+    const u = used[num];
+    if (u && u.path !== (loaded && loaded.path)) add('note', '番号 ' + num + ' は ' + u.path + ' が使っています（保存すると置き換えるか確認します）');
+  }
+  for (const d of dups) add('note', 'CSV/chara で同じ番号を使っているキャラがあります：' + d);
+
+  // 名前・呼び名・タグ（カンマは CSV の区切りなので使えない）
+  if (!nm) add('block', '名前が空です');
+  for (const [lab, v] of [['名前', S.name], ['呼び名', S.nick], ['タグ', S.tag]]) {
+    if (v.includes(',')) add('block', lab + ' にカンマ（,）は使えません（CSV の区切りのため。「、」を使ってください）');
+  }
+  if (nm && !safe(nm)) add('block', '名前にファイル名として使える文字がありません');
+  else if (nm && safe(nm) !== nm) add('note', '名前にファイル名で使えない文字があります。ファイル名では取り除きます（' + (isNaN(num) ? '' : charaFile()) + '）。名前そのものは CSV にそのまま書きます');
+  if (nm) {
+    for (const n in used) {
+      if (used[n].name === nm && Number(n) !== num) add('warn', '同じ名前のキャラがいます（番号 ' + n + '、' + used[n].path + '）');
+    }
+  }
+
+  // 形式（保存されない項目）と範囲
+  const rng = (lab, v, lo, hi, unit) => {
+    const t = String(v == null ? '' : v).trim();
+    if (!t) return;
+    const n = Number(t);
+    if (isNaN(n)) add('warn', lab + ' 「' + t + '」は数字でないので、保存されません');
+    else if (n < lo || n > hi) add('warn', lab + ' ' + t + unit + ' は ' + lo + '〜' + hi + unit + ' の外です');
+  };
+  for (const [lab, key] of [['来店の時刻', 'visitC'], ['起きる時刻', 'wake']]) {
+    const t = S[key].trim();
+    if (!t) continue;
+    if (!timeOk(t)) add('warn', lab + ' 「' + t + '」は 19:00 の形でないので、保存されません');
+    else if (mins(t) > 36 * 60) add('warn', lab + ' ' + t + ' は 0:00〜36:00 の外です');
+  }
+  rng('来店時刻のばらつき', S.visitV, 0, 360, '分');
+  rng('滞在時間', S.stayC, 10, 720, '分');
+  rng('滞在時間のばらつき', S.stayV, 0, 360, '分');
+  WDAYS.forEach((d, i) => rng(d + '曜の偏り', S.wd[i], 0, 1000, ''));
+  rng('身長', S.h, 100, 250, 'cm'); rng('体重', S.w, 20, 300, 'kg');
+  rng('胸囲', S.bust, 30, 250, 'cm'); rng('胴囲', S.waist, 30, 250, 'cm'); rng('腰囲', S.hip, 30, 250, 'cm');
+  rng('容姿の素の値', S.looks, 0, 1000, '');
+  for (const a of ABLS) rng(a, S.abl[a], 0, LIMIT_ABL, '');
+
+  // 組み合わせ（ゲームは動くが効かない・両立しないもの）
+  const hasV = sex === '女' || sex === 'ふたなり';
+  const hasP = sex === '男' || sex === 'ふたなり';
+  if (!hasV) for (const n of ['濡れやすい', '濡れにくい', '潮吹き体質']) if (S.talents.has(n)) add('note', n + ' は膣のある性別（女・ふたなり）だけに効きます');
+  if (sex === '男' && S.stage['バストサイズ']) add('note', '男にバストサイズは付けません');
+  if (S.stage['男性器サイズ'] && !hasP) add('note', '男性器サイズは男・ふたなりだけです');
+  if (S.talents.has('下戸')) for (const n of ['ビール党', 'ウイスキー党', 'ワイン党', 'カクテル党']) if (S.talents.has(n)) { add('note', '下戸と ' + n + ' は両立しません'); break; }
+  if (S.entH && S.h.trim()) add('note', '身長を書いているので、体型の入口（' + S.entH + '）は効きません');
+  if (S.entB && S.bust.trim()) add('note', '胸囲を書いているので、体型の入口（' + S.entB + '）は効きません');
+  if (S.tag.includes('/')) add('note', 'タグの区切りは ／（全角）です。半角の / は保存のとき ／ に直します');
+
+  if (!L.length) add('good', '問題は見つかりませんでした');
+  if (!/^\d+$/.test(String(S.num).trim()) || !nm || !safe(nm) || num < 1 || num > 499) { /* ファイル名は出せない */ }
+  else add('info', 'ファイル名：' + charaFile());
+  if (!S.kojoType) add('info', '口上タイプが指定なしです（既定の口上になります）');
+  return L;
+}
+
+// 保存の前の関所。止めるものがあれば止め、確認するものがあれば確認する
+function gate(ask) {
+  const items = checks();
+  const blocks = items.filter(i => i.level === 'block');
+  if (blocks.length) { setStatus('保存できません：' + blocks.map(i => i.text).join(' ／ ')); return false; }
+  const warns = items.filter(i => i.level === 'warn');
+  if (ask && warns.length && !confirm('次の点を確認してください。\n\n' + warns.map(i => '・' + i.text).join('\n') + '\n\nこのまま保存しますか？')) {
+    setStatus('保存をやめました');
+    return false;
+  }
+  return true;
+}
+
+function refresh() {
+  $('#out').textContent = build_csv();
+  const ul = $('#warn');
+  ul.textContent = '';
+  const mark = { block: '⛔ ', warn: '⚠ ', note: '⚠ ' };
+  for (const i of checks()) ul.append(el('li', { class: i.level, text: (mark[i.level] || '') + i.text }));
+  const num = parseInt(S.num, 10);
+  $('#numNote').textContent = used[num] && used[num].path !== (loaded && loaded.path) ? '' : (Object.keys(used).length ? '使っていない番号です' : '');
+}
+
+// ---- 読み込み ----
+function parseCsv(text) {
+  const o = blank();
+  o.num = '';
+  o.talents = new Set();
+  const stageNames = Object.keys(STAGES);
+  const wdIdx = {};
+  WDAYS.forEach((d, i) => { wdIdx['曜日偏り_' + d] = i; });
+  for (const raw of text.replace(/^﻿/, '').split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith(';')) continue;
+    const p = line.split(',');
+    const key = p[0], a = p[1], b = p.slice(2).join(',');
+    let ok = true;
+    if (key === '番号') o.num = a;
+    else if (key === '名前') o.name = a;
+    else if (key === '呼び名') o.nick = a;
+    else if (key === '能力' && ABLS.includes(a)) o.abl[a] = Number(b) || 0;
+    else if (key === '素質') {
+      const v = Number(b);
+      if (SEXES.some(s => s[1] === a)) o.sex = a;
+      else if (pregNames.includes(a)) o.preg = a;
+      else if (kojoTypes.includes(a)) o.kojoType = a;
+      else if (dialects.includes(a)) o.dialect = a;
+      else if (ENT_H.includes(a)) o.entH = a;
+      else if (ENT_B.includes(a)) o.entB = a;
+      else if (stageNames.includes(a)) o.stage[a] = v || 0;
+      else if (boxNames.includes(a)) { if (v) o.talents.add(a); }
+      else ok = false;
+    } else if (key === 'フラグ') {
+      const v = Number(b);
+      if (a === '来店時刻中心') o.visitC = fmt(v);
+      else if (a === '来店時刻ばらつき') o.visitV = v;
+      else if (a === '滞在時間中心') o.stayC = v;
+      else if (a === '滞在時間ばらつき') o.stayV = v;
+      else if (a === '起きる時刻') o.wake = fmt(v);
+      else if (a in wdIdx) o.wd[wdIdx[a]] = v;
+      else if (a === '初期身長') o.h = v / 10;
+      else if (a === '初期体重') o.w = v / 10;
+      else if (a === '初期胸囲') o.bust = v / 10;
+      else if (a === '初期胴囲') o.waist = v / 10;
+      else if (a === '初期腰囲') o.hip = v / 10;
+      else if (a === '初期経験') o.exp = String(v);
+      else if (a === '初期容姿') o.looks = v;
+      else if (a === '口上なし') o.mute = v === 1;
+      else ok = false;
+    } else if (key === 'CSTR') {
+      if (a === '服装') o.set = b;
+      else if (OVER_SLOTS.some(s => s[0] === a)) o.over[a] = b;
+      else if (a === '小物') o.acc = b.split('・').filter(Boolean);
+      else if (a === '一人称') o.self = b;
+      else if (a === '二人称') o.other = b;
+      else if (a === 'タグ') o.tag = b;
+      else ok = false;
+    } else ok = false;
+    if (!ok) o.extra.push(line);
+  }
+  for (const k of ['h', 'w', 'bust', 'waist', 'hip', 'looks']) o[k] = String(o[k]);
+  return o;
+}
+function loadText(text, ent) {
+  S = parseCsv(text);
+  loaded = ent || null;
+  syncUI(); refresh();
+  setStatus(ent ? ent.path + ' を読み込みました（コメント行は引き継がれません）' : '読み込みました', true);
+}
+
+// ---- フォルダ ----
+async function subdir(h, path, create) {
+  let d = h;
+  for (const n of path) d = await d.getDirectoryHandle(n, { create: !!create });
+  return d;
+}
+// ---- 保管の窓口 ----
+// フォルダを選んだとき（fsStore）も、起動用の bat のサーバーにつないだとき（apiStore）も、同じ形で読み書きする。
+//   list() → [{path, text}]（CSV/chara の下の .csv。path は CSV/chara からの相対）／put(path, text)／del(path)／putKojo(folder, files) → {exists}
+function fsStore(h) {
+  const chara = () => subdir(h, ['CSV', 'chara']);
+  const split = path => { const parts = path.split('/'); return [parts.slice(0, -1), parts[parts.length - 1]]; };
+  const writeFile = async (d, name, text) => {
+    const fh = await d.getFileHandle(name, { create: true });
+    const w = await fh.createWritable();
+    await w.write(new Blob(['\uFEFF' + text]));
+    await w.close();
+  };
+  async function walkFs(dir, prefix, out) {
+    for await (const [name, e] of dir.entries()) {
+      if (e.kind === 'directory') await walkFs(e, prefix + name + '/', out);
+      else if (/\.csv$/i.test(name)) out.push({ path: prefix + name, text: await (await e.getFile()).text() });
+    }
+  }
+  return {
+    name: h.name,
+    async list() { const out = []; await walkFs(await chara(), '', out); return out; },
+    async put(path, text) { const [dirs, file] = split(path); await writeFile(await subdir(await chara(), dirs, true), file, text); },
+    async del(path) { const [dirs, file] = split(path); await (await subdir(await chara(), dirs)).removeEntry(file); },
+    async putKojo(folder, files) {
+      const base = await subdir(h, ['ERB', '口上'], true);
+      try { await base.getDirectoryHandle(folder); return { exists: true }; } catch (e) { /* 無ければ作る */ }
+      const d = await base.getDirectoryHandle(folder, { create: true });
+      for (const [n, t] of Object.entries(files)) await writeFile(d, n, t);
+      return { exists: false };
+    },
+  };
+}
+function apiStore(token, name) {
+  const call = async (method, url, body) => {
+    let r;
+    try {
+      r = await fetch(url, { method, headers: { 'X-Token': token, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+    } catch (e) {
+      throw new Error('キャラ作成.bat のウィンドウが閉じていないか確認してください（サーバーに届きません）');
+    }
+    if (!r.ok) throw new Error((await r.text()) || ('サーバーのエラー ' + r.status));
+    return r.json();
+  };
+  return {
+    name,
+    list: () => call('GET', '/api/chara'),
+    put: (path, text) => call('POST', '/api/chara', { path, text }),
+    del: path => call('POST', '/api/chara/delete', { path }),
+    putKojo: (folder, files) => call('POST', '/api/kojo', { folder, files }),
+  };
+}
+async function scanRoot() {
+  used = {}; byPath = {}; dups = [];
+  const list = [];
+  for (const f of await root.list()) {
+    const m = /^.?番号,(\d+)/m.exec(f.text);
+    if (!m) continue;
+    const nm = /^名前,(.*)$/m.exec(f.text);
+    const n = Number(m[1]);
+    const i = f.path.lastIndexOf('/');
+    const ent = { path: f.path, prefix: f.path.slice(0, i + 1), file: f.path.slice(i + 1), text: f.text, name: nm ? nm[1].trim() : '' };
+    byPath[ent.path] = ent;
+    if (used[n]) dups.push(n + '（' + used[n].path + ' と ' + ent.path + '）');
+    else used[n] = ent;
+    list.push([n, ent.path, ent.name]);
+  }
+  list.sort((a, b) => a[0] - b[0]);
+  fillSelect($('#existing'), list.map(([n, p, nm]) => [p, n + ' ' + nm + (p.includes('/') ? '  [' + p.slice(0, p.lastIndexOf('/')) + ']' : '')]), '既存のキャラを読み込む…');
+  $('#existing').disabled = false;
+}
+async function pickRoot() {
+  if (!window.showDirectoryPicker) {
+    setStatus('このブラウザはフォルダへの保存に対応していません。Chrome か Edge で開くと使えます（今はダウンロードで保存します）');
+    return;
+  }
+  let h;
+  try {
+    // id を付けると、次からは前に選んだ場所でダイアログが開く
+    h = await window.showDirectoryPicker({ mode: 'readwrite', id: 'eraback-game' });
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+    setStatus('フォルダを開けませんでした：' + (e && e.name) + ' ' + (e && e.message) + '（今はダウンロードで保存します）');
+    return;
+  }
+  await useRoot(h, true);
+}
+// 選んだフォルダを使う。remember なら次回のために覚えておく
+async function useRoot(h, remember) {
+  try {
+    await subdir(h, ['CSV', 'chara']);
+  } catch (e) {
+    setStatus('選んだフォルダに CSV/chara がありません。eraBACK のフォルダ（EmueraEX.exe がある所）を選んでください' + hereHint());
+    return false;
+  }
+  if (remember) await idbPut('root', h);
+  $('#btnRestore').hidden = true;
+  await useStore(fsStore(h), 'フォルダを選びました');
+  return true;
+}
+// 保管先につないだあとの共通の仕上げ
+async function useStore(store, msg) {
+  root = store;
+  await scanRoot();
+  $('#rootState').textContent = root.name + '  ✔ CSV/chara に直接保存します';
+  $('#btnKojo').disabled = false;
+  if (!loaded && !S.name.trim()) S.num = String(nextFree());
+  syncUI(); refresh();
+  setStatus(msg + '（既存 ' + Object.keys(used).length + ' 人）' + (dups.length ? '　番号の重複があります' : ''), true);
+}
+
+// ---- 前に選んだフォルダを覚える（IndexedDB。使えなければ毎回選ぶだけ） ----
+function idb() {
+  return new Promise((ok, ng) => {
+    const r = indexedDB.open('eraback-chara-tool', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => ok(r.result);
+    r.onerror = () => ng(r.error);
+  });
+}
+async function idbPut(k, v) {
+  try {
+    const db = await idb();
+    await new Promise((ok, ng) => { const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = ok; t.onerror = () => ng(t.error); });
+  } catch (e) { /* 覚えられなくても毎回選べばよい */ }
+}
+async function idbGet(k) {
+  try {
+    const db = await idb();
+    return await new Promise((ok, ng) => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => ok(q.result); q.onerror = () => ng(q.error); });
+  } catch (e) { return null; }
+}
+// このファイルがあるフォルダ（file:// で開いているときだけ分かる）。ブラウザはそのフォルダを勝手に開けないので、選ぶときの目印に出す
+function herePath() {
+  if (location.protocol !== 'file:') return '';
+  let p = decodeURIComponent(location.pathname).replace(/^\/(?=[A-Za-z]:)/, '');
+  p = p.slice(0, p.lastIndexOf('/'));
+  return p.replace(/\//g, '\\');
+}
+function hereHint() { const p = herePath(); return p ? '（このファイルがあるフォルダ：' + p + '）' : ''; }
+async function restoreRoot() {
+  if (!window.showDirectoryPicker) return;
+  const h = await idbGet('root');
+  if (!h || typeof h.queryPermission !== 'function') return;
+  let perm = 'prompt';
+  try { perm = await h.queryPermission({ mode: 'readwrite' }); } catch (e) { return; }
+  if (perm === 'granted') { await useRoot(h, false); return; }
+  // 許可の確認はクリックがないと出せないので、ボタンにする
+  const b = $('#btnRestore');
+  b.textContent = '前回のフォルダ（' + h.name + '）を使う';
+  b.hidden = false;
+  b.onclick = async () => {
+    try {
+      if ((await h.requestPermission({ mode: 'readwrite' })) === 'granted') await useRoot(h, false);
+      else setStatus('許可されませんでした。「ゲームのフォルダを選ぶ」から選び直してください');
+    } catch (e) { setStatus('前回のフォルダを開けませんでした：' + (e && e.message) + '。選び直してください'); }
+  };
+}
+
+// ---- 保存 ----
+const safe = s => s.replace(/[\\/:*?"<>|\r\n]/g, '').trim();
+function setStatus(t, good) { const s = $('#status'); s.textContent = t; s.className = good ? 'ok' : ''; }
+function download(name, text) {
+  const a = el('a', { href: URL.createObjectURL(new Blob(['﻿' + text], { type: 'text/csv;charset=utf-8' })), download: name });
+  document.body.append(a); a.click(); a.remove();
+}
+async function save() {
+  if (!gate(true)) return;
+  const num = parseInt(S.num, 10);
+  const fname = 'Chara' + num + '_' + safe(S.name) + '.csv';
+  const text = build_csv();
+  if (!root) { download(fname, text); setStatus(fname + ' をダウンロードしました。CSV/chara に入れてください', true); return; }
+  // 読み込んだキャラは、そのキャラのあるフォルダ（サブフォルダでも）に書く。新規は CSV/chara の直下
+  const inFolder = !!(loaded && byPath[loaded.path]);
+  const newPath = (inFolder ? loaded.prefix : '') + fname;
+  const u = used[num];
+  const lp = loaded ? loaded.path : '';
+  let removed = '';
+  if (u && u.path !== newPath) {
+    // 読み込んだキャラ自身の名前を変えただけなら、確認なしでファイル名を替える
+    if (u.path !== lp && !confirm('番号 ' + num + ' は ' + u.path + ' が使っています。\n' + newPath + ' に置き換えますか？')) { setStatus('保存をやめました'); return; }
+    await root.del(u.path);
+    removed = u.path;
+  } else if (u && u.path === newPath && lp !== newPath) {
+    if (!confirm(newPath + ' はあります。上書きしますか？')) { setStatus('保存をやめました'); return; }
+  }
+  if (inFolder && lp !== newPath && lp !== removed) {
+    if (confirm(lp + ' は消しますか？（別のキャラとして残すなら「キャンセル」）')) await root.del(lp);
+  }
+  await root.put(newPath, text);
+  await scanRoot();
+  loaded = used[num] || null;
+  refresh();
+  setStatus('CSV/chara/' + newPath + ' に保存しました', true);
+}
+async function saveKojo() {
+  if (!gate(false)) return;
+  const num = parseInt(S.num, 10);
+  const folder = num + '_' + safe(S.name);
+  const files = {};
+  for (const [n, t] of Object.entries(DATA.kojo)) files[n] = t.replace(/_100(?!\d)/g, '_' + num);
+  const r = await root.putKojo(folder, files);
+  if (r && r.exists) { setStatus('ERB/口上/' + folder + ' はもうあります（上書きしません）'); return; }
+  setStatus('ERB/口上/' + folder + ' に口上テンプレートを書きました（台詞は空です）', true);
+}
+
+// ---- 起動用の bat（キャラ作成.bat）から開いたとき：サーバーにつないで、ゲームのフォルダを相対パスで読み書きする ----
+const apiToken = /^https?:$/.test(location.protocol) ? new URLSearchParams(location.search).get('t') : null;
+async function initApi() {
+  $('#btnRoot').hidden = true;
+  $('#btnLoadFile').hidden = false;
+  try {
+    const r = await fetch('/api/info', { headers: { 'X-Token': apiToken } });
+    if (!r.ok) throw new Error('合言葉が合いません。キャラ作成.bat からもう一度開いてください');
+    const info = await r.json();
+    await useStore(apiStore(apiToken, info.name), 'つながりました');
+  } catch (e) {
+    setStatus('サーバーにつなげませんでした：' + e.message);
+  }
+}
+
+// ---- つなぎ ----
+function init() {
+  build();
+  S = blank();
+  syncUI(); refresh();
+  $('#btnRoot').addEventListener('click', pickRoot);
+  if (apiToken) initApi();
+  else {
+    // この HTML を直接開いたとき。フォルダ選びの手間を省くなら、キャラ作成.bat から開く
+    const hp = herePath();
+    $('#rootState').textContent = '未選択（保存はダウンロードになります）。キャラ作成.bat から開けば、フォルダを選ばずに使えます' + (hp ? '　選ぶフォルダ → ' + hp : '');
+    restoreRoot();
+  }
+  $('#btnNew').addEventListener('click', () => { loaded = null; S = blank(); syncUI(); refresh(); setStatus(''); });
+  $('#btnSave').addEventListener('click', () => save().catch(e => setStatus('保存できませんでした：' + e.message)));
+  $('#btnKojo').addEventListener('click', () => saveKojo().catch(e => setStatus('書けませんでした：' + e.message)));
+  $('#btnAcc').addEventListener('click', () => {
+    const v = $('#selAcc').value;
+    if (v && !S.acc.includes(v)) { S.acc.push(v); renderAcc(); refresh(); }
+  });
+  $('#btnLoadFile').addEventListener('click', () => $('#fileIn').click());
+  $('#fileIn').addEventListener('change', async e => {
+    const f = e.target.files[0];
+    if (f) loadText(await f.text(), { path: '（外から）' + f.name });
+    e.target.value = '';
+  });
+  $('#existing').addEventListener('change', async e => {
+    const ent = byPath[e.target.value];
+    e.target.value = '';
+    if (!ent || !root) return;
+    loadText(ent.text, ent);
+  });
+}
+init();
+</script>
+</body>
+</html>
