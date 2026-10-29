@@ -237,24 +237,78 @@ NEXT
 ;自分とスタッフの能力を、行動中の［能力表示］と同じ画面で見る（能力表示.ERB @能力表示を描く）
 @スタッフを見る
 #DIM 番号
-#DIM 数
+#DIM 行
 #DIM 入力
+#DIM 全員
+#DIMS 絞り
+#DIM 一覧, 500
+#DIM 総数
+#DIM ページ
+#DIM 総ページ
+#DIM 始め
+#DIM 終わり
 
+全員 = 0
+絞り '= ""
+ページ = 0
 DO
-	PRINTL 
+	;見せる人を並べる。あなたは対象・絞り込みによらず先頭（一覧:0）
+	総数 = 1
+	一覧:0 = MASTER
+	FOR 番号, 1, キャラ枠
+		SIF !実キャラ:番号:0
+			CONTINUE
+		SIF !全員 && !スタッフ:番号:0
+			CONTINUE
+		SIF 絞り != "" && !タグを持つか(番号, 絞り)
+			CONTINUE
+		一覧:総数 = 番号
+		総数 += 1
+	NEXT
+	総ページ = (総数 - 1) / 見る一覧の一段 + 1
+	SIF ページ >= 総ページ
+		ページ = 総ページ - 1
+	始め = ページ * 見る一覧の一段
+	終わり = MIN(始め + 見る一覧の一段, 総数)
+
+	PRINTL
 	CALL 起床前のサイド
 	CALL 起床前の見出し
-	;名前だけでは誰を見るか決められないので、技能・体力・今日の仕事・日給を並べる
+	;対象（スタッフ／全員）と絞り込みのタグ。人数にあなたは数えない
+	PRINT 対象：
+	IF 全員
+		PRINT 全員
+	ELSE
+		PRINT スタッフ
+	ENDIF
+	PRINT 　　絞り込み：
+	IF 絞り == ""
+		PRINT 指定なし
+	ELSE
+		PRINTS 絞り
+	ENDIF
+	PRINTFORM 　（{総数 - 1}人）
+	SIF 総ページ > 1
+		PRINTFORM 　　{ページ + 1}／{総ページ}ページ
+	PRINTL
+	;名前だけでは誰を見るか決められないので、技能・体力・今日の仕事・日給を並べる（客はそれが無いので「客」）
 	;（2026-09-22 ユーザ指定「判断材料となる情報を画面に表示」→画面イメージ「スタッフを見る」）
-	PRINTFORML [1] %埋める(NAME:MASTER, 10)%%技能の並び(MASTER, 30)%体力 {BASE:MASTER:体力, 4}/{MAXBASE:MASTER:体力}
-	数 = 1
-	FOR 番号, 1, キャラ枠
-		SIF !実キャラ:番号:0 || !スタッフ:番号:0
-			CONTINUE
-		数 += 1
-		PRINTFORM [{数}] %埋める(NAME:番号, 10)%%技能の並び(番号, 30)%体力 {BASE:番号:体力, 4}/{MAXBASE:番号:体力}
-		PRINTFORML 　今日 %埋める(仕事名:(シフト:番号:営業曜日), 14)%%金額(給料(番号), 6)%円
+	FOR 行, 始め, 終わり
+		CALL スタッフを見るの行(行 - 始め + 1, 一覧:行)
 	NEXT
+	SIF 総数 == 1
+		PRINTL 　該当する人はいません
+	PRINTL
+	SIF ページ > 0
+		PRINTFORML [{見るの前のページ}] 前のページ
+	SIF ページ < 総ページ - 1
+		PRINTFORML [{見るの次のページ}] 次のページ
+	IF 全員
+		PRINTFORM [{見るの対象の切替}] スタッフだけにする　　
+	ELSE
+		PRINTFORM [{見るの対象の切替}] 全員を見る　　
+	ENDIF
+	PRINTFORML [{見るのタグ}] タグで絞る
 	PRINTL [0] 戻る
 	CALL 起床前のサイドの下
 	INPUT
@@ -264,22 +318,43 @@ DO
 
 	SIF RESULT == 0
 		RETURN 0
-	SIF RESULT < 1 || RESULT > 数
+	IF RESULT == 見るの前のページ
+		SIF ページ > 0
+			ページ -= 1
 		CONTINUE
-	IF RESULT == 1
-		番号 = MASTER
-	ELSE
-		番号 = スタッフの番号(RESULT - 2)
+	ELSEIF RESULT == 見るの次のページ
+		SIF ページ < 総ページ - 1
+			ページ += 1
+		CONTINUE
+	ELSEIF RESULT == 見るの対象の切替
+		全員 = !全員
+		ページ = 0
+		CONTINUE
+	ELSEIF RESULT == 見るのタグ
+		CALL スタッフを見るのタグを選ぶ(全員)
+		IF RESULT
+			絞り '= RESULTS
+			ページ = 0
+		ENDIF
+		CONTINUE
 	ENDIF
+	行 = 始め + RESULT - 1
+	SIF RESULT < 1 || 行 >= 終わり
+		CONTINUE
+	番号 = 一覧:行
 	;能力表示は幅を全部使う画面なので、ここだけサイドを出さない（→画面イメージの規約）
 	;口上の あり／なし は押すたびに反転して、同じ能力表示に戻る（→変数定義.ERH 口上なし）。
 	;出産したことのある人は [3] でページ送り（能力表示 ⇄ 出産の記録。2ページ目は服装・口上を出さない）
+	;服装を変えるのはあなたとスタッフだけ（→ショップ.ERB @服装を変える の対象）
 	能力表示のページ = 0
 	DO
 		PRINTL
 		CALL 能力表示を描く(番号)
 		IF 能力表示のページ == 0
-			PRINTFORM [1] 服装を変える　　[2] 口上：%口上の状態(番号)%　　
+			IF 番号 == MASTER || スタッフ:番号:0
+				PRINTFORM [1] 服装を変える　　
+			ENDIF
+			PRINTFORM [2] 口上：%口上の状態(番号)%　　
 		ENDIF
 		IF 能力表示のページ数(番号) >= 2
 			PRINTFORM [3] ページ送り {能力表示のページ + 1}/{能力表示のページ数(番号)}（次：%能力表示のページ名(番号, 能力表示の次のページ(番号))%）　　
@@ -290,6 +365,9 @@ DO
 		;2ページ目に無いボタンの番号は、画面を描き直すだけ
 		SIF 能力表示のページ != 0 && (入力 == 1 || 入力 == 2)
 			入力 = -1
+		;服装のボタンが出ていない人（客）の [1] も同じ
+		SIF 入力 == 1 && 番号 != MASTER && !スタッフ:番号:0
+			入力 = -1
 		SIF 入力 == 1
 			CALL 服装を変える(番号)
 		SIF 入力 == 2
@@ -297,6 +375,97 @@ DO
 		SIF 入力 == 3 && 能力表示のページ数(番号) >= 2
 			CALL 能力表示のページを送る(番号)
 	LOOP 入力 == 2 || 入力 == 3 || 入力 < 0
+LOOP 1
+
+
+;スタッフを見るの一行：[連番] 名前　技能　体力。スタッフは続けて 今日の仕事・日給、客は「客」
+@スタッフを見るの行(連番, 番号)
+#DIM 連番
+#DIM 番号
+
+PRINTFORM [{連番, 2}] %埋める(NAME:番号, 10)%%技能の並び(番号, 30)%体力 {BASE:番号:体力, 4}/{MAXBASE:番号:体力}
+IF 番号 == MASTER
+	PRINTL
+ELSEIF スタッフ:番号:0
+	PRINTFORML 　今日 %埋める(仕事名:(シフト:番号:営業曜日), 14)%%金額(給料(番号), 6)%円
+ELSE
+	PRINTL 　客
+ENDIF
+
+
+;絞り込みのタグを選ぶ。全員なら実キャラ全部、そうでなければスタッフが持つタグを、人数つきで並べる。
+;選んだら RETURN 1 で選んだタグを RESULTS に（[1] 指定なし は ""）、[0] 戻る は RETURN 0
+@スタッフを見るのタグを選ぶ(全員)
+#DIM 全員
+#DIM 番号
+#DIM 候補数
+#DIM 件, 64
+#DIMS 候補, 64
+#DIMS 欄, 32
+#DIM 数
+#DIM 位置
+#DIM 候
+#DIM 見つけた
+
+候補数 = 0
+FOR 番号, 1, キャラ枠
+	SIF !実キャラ:番号:0
+		CONTINUE
+	SIF !全員 && !スタッフ:番号:0
+		CONTINUE
+	SIF CSTR:番号:タグ == ""
+		CONTINUE
+	SPLIT CSTR:番号:タグ, "／", 欄
+	数 = RESULT
+	FOR 位置, 0, 数
+		SIF 欄:位置 == ""
+			CONTINUE
+		;見つかった位置は 見つけた に控える（BREAK の後のループ変数はあてにならない）
+		見つけた = -1
+		FOR 候, 0, 候補数
+			SIF 候補:候 == 欄:位置
+				見つけた = 候
+		NEXT
+		IF 見つけた < 0
+			SIF 候補数 >= 64
+				CONTINUE
+			候補:候補数 '= 欄:位置
+			件:候補数 = 0
+			見つけた = 候補数
+			候補数 += 1
+		ENDIF
+		件:見つけた += 1
+	NEXT
+NEXT
+
+DO
+	PRINTL
+	CALL 起床前のサイド
+	CALL 起床前の見出し
+	PRINTL タグで絞る
+	PRINTL [1] 指定なし
+	FOR 候, 0, 候補数
+		PRINTFORML [{候 + 2}] %埋める(候補:候, 24)%{件:候}人
+	NEXT
+	SIF 候補数 == 0
+		PRINTL 　タグの付いた人はいません
+	PRINTL [0] 戻る
+	CALL 起床前のサイドの下
+	INPUT
+	CALL 起床前のサイド入力
+	SIF サイドで受けた
+		CONTINUE
+
+	SIF RESULT == 0
+		RETURN 0
+	IF RESULT == 1
+		RESULTS '= ""
+		RETURN 1
+	ENDIF
+	IF RESULT >= 2 && RESULT < 候補数 + 2
+		RESULTS '= 候補:(RESULT - 2)
+		RETURN 1
+	ENDIF
 LOOP 1
 
 
